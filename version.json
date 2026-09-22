@@ -1,7 +1,7 @@
 {
-  "versionCode": 3,
-  "versionName": "1.0.2",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.2/seh-grouphub.apk",
-  "changelog": "- 新增应用内更新系统（自动检测新版本并下载安装）",
+  "versionCode": 4,
+  "versionName": "1.0.3",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.3/seh-grouphub.apk",
+  "changelog": "- 底部按钮长按 3 秒改为 1 秒\n- 弹出菜单改为左右上扇形分布",
   "buildDate": "2026-09-23"
 }

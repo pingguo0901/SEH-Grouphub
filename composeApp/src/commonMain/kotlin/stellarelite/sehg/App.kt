@@ -25,6 +25,9 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlinx.coroutines.launch
 import stellarelite.sehg.ui.screens.*
 import stellarelite.sehg.ui.theme.HoldingsColors
@@ -237,7 +240,7 @@ private fun HomeDock(
                                 dockBounds.value.left + change.position.x,
                                 dockBounds.value.top + change.position.y
                             )
-                            if (!longPressed && (change.uptimeMillis - down.uptimeMillis) >= 3000L) {
+                            if (!longPressed && (change.uptimeMillis - down.uptimeMillis) >= 1000L) {
                                 longPressed = true
                                 menuExpanded.value = true
                             }
@@ -263,20 +266,26 @@ private fun HomeDock(
                 }
             }
     ) {
-        // 弹出菜单
+        // 弹出菜单（扇形分布：左右上）
         if (menuExpanded.value) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 96.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            BoxWithConstraints(Modifier.matchParentSize()) {
+                val dockW = maxWidth.value
+                val centerX = dockW / 2f
+                val centerY = 354f
+                val radius = 130f
+                val btnW = 100f
+                val btnH = 40f
                 menuItems.forEachIndexed { i, page ->
+                    val angleDeg = 150f - i * 24f
+                    val angleRad = angleDeg * PI.toFloat() / 180f
+                    val x = (centerX + radius * cos(angleRad) - btnW / 2f).dp
+                    val y = (centerY - radius * sin(angleRad) - btnH / 2f).dp
                     MenuItemButton(
                         page = page,
                         highlighted = highlighted.value == page,
-                        modifier = Modifier.onGloballyPositioned { itemBounds[i] = it.boundsInWindow() }
+                        modifier = Modifier
+                            .offset(x = x, y = y)
+                            .onGloballyPositioned { itemBounds[i] = it.boundsInWindow() }
                     )
                 }
             }
@@ -315,9 +324,9 @@ private fun MenuItemButton(
 ) {
     Row(
         modifier = modifier
-            .width(140.dp)
-            .height(44.dp)
-            .clip(RoundedCornerShape(22.dp))
+            .width(100.dp)
+            .height(40.dp)
+            .clip(RoundedCornerShape(20.dp))
             .background(if (highlighted) HoldingsColors.Accent else HoldingsColors.Primary),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
@@ -326,9 +335,9 @@ private fun MenuItemButton(
             pageIcon(page),
             contentDescription = null,
             tint = Color.White,
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(16.dp)
         )
-        Spacer(Modifier.width(8.dp))
-        Text(page.title, fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.width(6.dp))
+        Text(page.title, fontSize = 12.sp, color = Color.White, fontWeight = FontWeight.Medium)
     }
 }
