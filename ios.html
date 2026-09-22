@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0A2540" />
+  <title>星域控股集团 · iOS 下载</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #0A2540;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      color: #fff;
+      overflow-x: hidden;
+    }
+    .container {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 100vh;
+      padding: 40px 24px;
+      text-align: center;
+      background: radial-gradient(ellipse at top, #1E4A7A 0%, #0A2540 60%);
+    }
+    .logo {
+      width: 100px; height: 100px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #C9A227 0%, #8C6D1F 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px;
+      box-shadow: 0 0 40px rgba(201,162,39,0.3);
+      margin-bottom: 20px;
+    }
+    .title {
+      font-size: 24px; font-weight: 700;
+      letter-spacing: 0.3em;
+      color: #C9A227;
+      margin-bottom: 6px;
+    }
+    .en-title {
+      font-size: 12px; color: #7A94B5;
+      letter-spacing: 0.15em;
+      margin-bottom: 12px;
+    }
+    .badge {
+      display: inline-block;
+      background: #0E3050;
+      border: 1px solid #1E4A7A;
+      color: #C9A227;
+      font-size: 12px;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+    }
+    .info-card {
+      background: #0E3050;
+      border: 1px solid #1E4A7A;
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 360px;
+      margin-bottom: 24px;
+    }
+    .info-row {
+      display: flex; justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+      border-bottom: 1px solid #1E4A7A;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #7A94B5; }
+    .info-value { color: #fff; font-weight: 500; }
+    .download-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, #C9A227, #8C6D1F);
+      color: #fff;
+      font-size: 18px; font-weight: 600;
+      padding: 16px 40px;
+      border-radius: 14px;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 24px rgba(201,162,39,0.4);
+      margin-bottom: 12px;
+      width: 100%; max-width: 360px;
+      justify-content: center;
+    }
+    .download-btn:active { transform: scale(0.96); }
+    .back-btn {
+      background: transparent;
+      border: 1px solid #1E4A7A;
+      color: #C9A227;
+      box-shadow: none;
+    }
+    .steps {
+      background: #0E3050;
+      border: 1px solid #1E4A7A;
+      border-radius: 16px;
+      padding: 20px;
+      width: 100%;
+      max-width: 360px;
+      text-align: left;
+      margin-top: 8px;
+    }
+    .steps h3 {
+      font-size: 14px; color: #C9A227;
+      margin-bottom: 12px;
+    }
+    .steps ol {
+      padding-left: 20px;
+      font-size: 13px;
+      color: #B8C9DD;
+      line-height: 1.9;
+    }
+    .hint {
+      font-size: 12px; color: #5A7695;
+      margin-top: 8px;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 11px; color: #2A4A6A;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">🍎</div>
+    <div class="title">星域控股集团</div>
+    <div class="en-title">Stellar Elite Holdings Group</div>
+    <span class="badge">iOS 版</span>
+
+    <div class="info-card">
+      <div class="info-row">
+        <span class="info-label">版本</span>
+        <span class="info-value" id="version">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">构建</span>
+        <span class="info-value" id="versionCode">-</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">系统要求</span>
+        <span class="info-value">iOS 14.0+</span>
+      </div>
+    </div>
+
+    <a class="download-btn" id="downloadBtn" href="#" onclick="downloadIPA()">
+      📥 下载 iOS 版
+    </a>
+    <a class="download-btn back-btn" href="/">
+      ← 返回下载首页
+    </a>
+
+    <div class="steps">
+      <h3>安装说明</h3>
+      <ol>
+        <li>点击上方按钮下载 iOS 版</li>
+        <li>下载完成后，前往「设置 → 通用 → VPN 与设备管理」</li>
+        <li>信任企业级开发者证书</li>
+        <li>返回桌面即可打开应用</li>
+      </ol>
+    </div>
+    <span class="hint">如遇安装问题，请联系董事长确认企业证书状态</span>
+
+    <div class="footer">© 2026 Stellar Elite Holdings Group</div>
+  </div>
+
+  <script>
+    async function init() {
+      try {
+        const resp = await fetch('/ios-version.json');
+        const data = await resp.json();
+        document.getElementById('version').textContent = data.versionName || '-';
+        document.getElementById('versionCode').textContent = 'Build ' + (data.versionCode || '-');
+        document.getElementById('downloadBtn').href = data.ipaUrl || '#';
+      } catch(e) {
+        document.getElementById('downloadBtn').href = '#';
+      }
+    }
+
+    function downloadIPA() {
+      const url = document.getElementById('downloadBtn').href;
+      if (url && url !== '#') {
+        window.open(url, '_blank');
+      } else {
+        alert('iOS 版打包中，即将上线，请稍后重试');
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

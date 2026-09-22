@@ -1,0 +1,7 @@
+{
+  "versionCode": 1,
+  "versionName": "1.0.0",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.0/seh-grouphub.apk",
+  "changelog": "- 星域控股集团（董事长端）初始版本\n- 7 个页面：首页/人事/财务/法务/行政/内审/我\n- 底部单按钮：长按 3 秒弹出菜单，滑动选择页面",
+  "buildDate": "2026-09-23"
+}
