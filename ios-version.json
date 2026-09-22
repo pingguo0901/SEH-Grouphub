@@ -1,7 +1,7 @@
 {
-  "versionCode": 7,
-  "versionName": "1.0.6",
+  "versionCode": 8,
+  "versionName": "1.0.7",
   "ipaUrl": "",
-  "changelog": "- 底部导航改为普通快捷栏（首页/人事/财务/法务/行政/内审/我）\n- 更新检测切换到 jsDelivr（支持 purge 缓存）",
+  "changelog": "- 底部导航改为普通快捷栏（首页/人事/财务/法务/行政/内审/我）\n- 更新检测改走 GitHub API（约 60 秒缓存，无需 purge）",
   "buildDate": "2026-09-23"
 }

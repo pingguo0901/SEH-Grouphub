@@ -17,8 +17,8 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 object UpdateManager {
-    // 更新检测走 jsDelivr（发版后需 purge 缓存：curl https://purge.jsdelivr.net/gh/pingguo0901/SEH-Grouphub@master/version.json）
-    private const val VERSION_URL = "https://cdn.jsdelivr.net/gh/pingguo0901/SEH-Grouphub@master/version.json"
+    // 更新检测走 GitHub API（Accept 头取原始内容，约 60 秒缓存，无需 purge）
+    private const val VERSION_URL = "https://api.github.com/repos/pingguo0901/SEH-Grouphub/contents/version.json?ref=master"
     private const val APK_FILENAME = "seh-grouphub.apk"
     private var currentVersionCode = 0
     private var apkDownloadId = 0L
@@ -34,6 +34,8 @@ object UpdateManager {
             conn.connectTimeout = 5000
             conn.readTimeout = 5000
             conn.requestMethod = "GET"
+            conn.setRequestProperty("Accept", "application/vnd.github.raw+json")
+            conn.setRequestProperty("User-Agent", "SEH-Grouphub")
 
             if (conn.responseCode == 200) {
                 val text = conn.inputStream.bufferedReader().use { it.readText() }
