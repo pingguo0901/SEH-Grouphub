@@ -1,7 +1,7 @@
 {
-  "versionCode": 4,
-  "versionName": "1.0.3",
+  "versionCode": 5,
+  "versionName": "1.0.4",
   "ipaUrl": "",
-  "changelog": "- 星域控股集团（董事长端）iOS 版\n- 7 个页面：首页/人事/财务/法务/行政/内审/我",
+  "changelog": "- 人事页面：新增 4 张集团/子公司员工统计卡片\n- 新增 8 个人事功能入口（员工名册/档案/考勤/排班/薪资/申报/公告/审计）",
   "buildDate": "2026-09-23"
 }

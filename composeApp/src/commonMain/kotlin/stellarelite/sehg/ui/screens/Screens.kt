@@ -30,15 +30,6 @@ fun HomeScreen() {
 }
 
 @Composable
-fun HrScreen() {
-    PageScaffold("人事", "组织与人才", Icons.Filled.People) {
-        Text("人事板块", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = HoldingsColors.TextPrimary)
-        Spacer(Modifier.height(8.dp))
-        Text("组织架构、人员编制、薪酬考核等内容将在此呈现。", fontSize = 14.sp, color = HoldingsColors.TextSecondary)
-    }
-}
-
-@Composable
 fun FinanceScreen() {
     PageScaffold("财务", "资金与账务", Icons.Filled.AccountBalanceWallet) {
         Text("财务板块", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = HoldingsColors.TextPrimary)
@@ -84,7 +75,7 @@ fun ProfileScreen() {
 }
 
 @Composable
-private fun PageScaffold(
+internal fun PageScaffold(
     title: String,
     subtitle: String,
     icon: ImageVector,
