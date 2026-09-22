@@ -1,7 +1,7 @@
 {
-  "versionCode": 2,
-  "versionName": "1.0.1",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.1/seh-grouphub.apk",
-  "changelog": "- 顶部新增安全区（避开状态栏/刘海）",
+  "versionCode": 3,
+  "versionName": "1.0.2",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.2/seh-grouphub.apk",
+  "changelog": "- 新增应用内更新系统（自动检测新版本并下载安装）",
   "buildDate": "2026-09-23"
 }

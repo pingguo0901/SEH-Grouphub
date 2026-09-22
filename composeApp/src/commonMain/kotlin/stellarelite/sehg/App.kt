@@ -25,6 +25,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import stellarelite.sehg.ui.screens.*
 import stellarelite.sehg.ui.theme.HoldingsColors
 
@@ -51,8 +52,29 @@ private val pageIcon: (Page) -> ImageVector = { page ->
 }
 
 @Composable
-fun App() {
+fun App(
+    onCheckUpdate: (suspend () -> VersionInfo?)? = null,
+    onApplyUpdate: (suspend (VersionInfo, (Long, Long) -> Unit) -> String?)? = null
+) {
     var currentPage by remember { mutableStateOf(Page.Home) }
+    var showUpdateDialog by remember { mutableStateOf(false) }
+    var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
+    var updating by remember { mutableStateOf(false) }
+    var updateProgress by remember { mutableStateOf(0f) }
+    var updateError by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        onCheckUpdate?.let { checkFn ->
+            try {
+                val info = checkFn()
+                if (info != null) {
+                    updateInfo = info
+                    showUpdateDialog = true
+                }
+            } catch (_: Exception) { }
+        }
+    }
 
     Box(Modifier.fillMaxSize().background(HoldingsColors.Background)) {
         when (currentPage) {
@@ -70,6 +92,99 @@ fun App() {
             onNavigate = { currentPage = it },
             modifier = Modifier.align(Alignment.BottomCenter)
         )
+    }
+
+    // 更新弹窗
+    if (showUpdateDialog && updateInfo != null) {
+        if (updating) {
+            AlertDialog(
+                onDismissRequest = {},
+                containerColor = HoldingsColors.Surface,
+                title = {
+                    Text(
+                        "正在更新 v${updateInfo!!.versionName}",
+                        color = HoldingsColors.TextPrimary,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
+                text = {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text("正在下载新版本，请稍候…", color = HoldingsColors.TextSecondary, fontSize = 14.sp)
+                        LinearProgressIndicator(
+                            progress = { updateProgress },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text("${(updateProgress * 100).toInt()}%", color = HoldingsColors.Accent, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                },
+                confirmButton = {}
+            )
+        } else {
+            AlertDialog(
+                onDismissRequest = { showUpdateDialog = false },
+                containerColor = HoldingsColors.Surface,
+                title = {
+                    Text(
+                        "发现新版本 v${updateInfo!!.versionName}",
+                        color = HoldingsColors.TextPrimary,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
+                text = {
+                    Column {
+                        Text(
+                            updateInfo!!.changelog.replace("- ", "• "),
+                            color = HoldingsColors.TextSecondary,
+                            fontSize = 14.sp,
+                            lineHeight = 22.sp
+                        )
+                        if (updateError != null) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("⚠️ $updateError", color = HoldingsColors.Error, fontSize = 13.sp)
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            updateError = null
+                            scope.launch {
+                                val fn = onApplyUpdate
+                                if (fn == null) {
+                                    updateError = "更新功能不可用"
+                                } else {
+                                    updating = true
+                                    updateProgress = 0f
+                                    val err = fn.invoke(updateInfo!!) { done, total ->
+                                        if (total > 0) updateProgress = done.toFloat() / total.toFloat()
+                                    }
+                                    if (err != null) {
+                                        updating = false
+                                        updateError = err
+                                    } else {
+                                        showUpdateDialog = false
+                                        updating = false
+                                    }
+                                }
+                            }
+                        }
+                    ) {
+                        Text("立即更新", color = HoldingsColors.Accent, fontWeight = FontWeight.SemiBold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showUpdateDialog = false }) {
+                        Text("稍后", color = HoldingsColors.TextMuted)
+                    }
+                }
+            )
+        }
     }
 }
 

@@ -9,6 +9,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent { App() }
+        UpdateManager.setCurrentVersion(packageManager.getPackageInfo(packageName, 0).longVersionCode.toInt())
+        setContent {
+            App(
+                onCheckUpdate = { UpdateManager.checkForUpdate() },
+                onApplyUpdate = { info, _ ->
+                    UpdateManager.downloadAndInstall(this, info.apkUrl)
+                    null
+                }
+            )
+        }
     }
 }
