@@ -1,7 +1,7 @@
 {
-  "versionCode": 5,
-  "versionName": "1.0.4",
+  "versionCode": 6,
+  "versionName": "1.0.5",
   "ipaUrl": "",
-  "changelog": "- 人事页面：新增 4 张集团/子公司员工统计卡片\n- 新增 8 个人事功能入口（员工名册/档案/考勤/排班/薪资/申报/公告/审计）",
+  "changelog": "- 更新检测切换到 jsDelivr（支持 purge 缓存，告别 5 分钟延迟）\n- 人事页面：4 张员工统计卡片 + 8 个人事功能入口",
   "buildDate": "2026-09-23"
 }
