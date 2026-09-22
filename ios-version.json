@@ -1,7 +1,7 @@
 {
-  "versionCode": 6,
-  "versionName": "1.0.5",
+  "versionCode": 7,
+  "versionName": "1.0.6",
   "ipaUrl": "",
-  "changelog": "- 更新检测切换到 jsDelivr（支持 purge 缓存，告别 5 分钟延迟）\n- 人事页面：4 张员工统计卡片 + 8 个人事功能入口",
+  "changelog": "- 底部导航改为普通快捷栏（首页/人事/财务/法务/行政/内审/我）\n- 更新检测切换到 jsDelivr（支持 purge 缓存）",
   "buildDate": "2026-09-23"
 }

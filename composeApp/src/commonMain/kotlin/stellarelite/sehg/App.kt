@@ -1,33 +1,19 @@
 package stellarelite.sehg
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlinx.coroutines.launch
 import stellarelite.sehg.ui.screens.*
 import stellarelite.sehg.ui.theme.HoldingsColors
@@ -79,21 +65,22 @@ fun App(
         }
     }
 
-    Box(Modifier.fillMaxSize().background(HoldingsColors.Background)) {
-        when (currentPage) {
-            Page.Home -> HomeScreen()
-            Page.HR -> HrScreen()
-            Page.Finance -> FinanceScreen()
-            Page.Legal -> LegalScreen()
-            Page.Admin -> AdminScreen()
-            Page.Audit -> AuditScreen()
-            Page.Profile -> ProfileScreen()
+    Column(Modifier.fillMaxSize().background(HoldingsColors.Background)) {
+        Box(Modifier.weight(1f)) {
+            when (currentPage) {
+                Page.Home -> HomeScreen()
+                Page.HR -> HrScreen()
+                Page.Finance -> FinanceScreen()
+                Page.Legal -> LegalScreen()
+                Page.Admin -> AdminScreen()
+                Page.Audit -> AuditScreen()
+                Page.Profile -> ProfileScreen()
+            }
         }
 
-        HomeDock(
+        BottomNavBar(
             currentPage = currentPage,
-            onNavigate = { currentPage = it },
-            modifier = Modifier.align(Alignment.BottomCenter)
+            onNavigate = { currentPage = it }
         )
     }
 
@@ -192,152 +179,41 @@ fun App(
 }
 
 @Composable
-private fun HomeDock(
+private fun BottomNavBar(
     currentPage: Page,
     onNavigate: (Page) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val menuExpanded = remember { mutableStateOf(false) }
-    val pressing = remember { mutableStateOf(false) }
-    val highlighted = remember { mutableStateOf<Page?>(null) }
-    val dockBounds = remember { mutableStateOf(Rect.Zero) }
-    val itemBounds = remember { mutableStateListOf<Rect>().apply { repeat(6) { add(Rect.Zero) } } }
-
-    val menuItems = listOf(Page.HR, Page.Finance, Page.Legal, Page.Admin, Page.Audit, Page.Profile)
-
-    fun hitTest(windowPos: Offset): Page? {
-        if (!menuExpanded.value) return null
-        menuItems.forEachIndexed { i, page ->
-            if (itemBounds[i].contains(windowPos)) return page
-        }
-        return null
-    }
-
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(410.dp)
-            .onGloballyPositioned { dockBounds.value = it.boundsInWindow() }
-            .pointerInput(Unit) {
-                awaitEachGesture {
-                    try {
-                        val down = awaitFirstDown(requireUnconsumed = false)
-                        var longPressed = false
-                        pressing.value = true
-                        var windowPos = Offset(
-                            dockBounds.value.left + down.position.x,
-                            dockBounds.value.top + down.position.y
-                        )
-                        var ended = false
-                        while (!ended) {
-                            val event = awaitPointerEvent()
-                            val change = event.changes.firstOrNull()
-                            if (change == null) {
-                                ended = true
-                                break
-                            }
-                            windowPos = Offset(
-                                dockBounds.value.left + change.position.x,
-                                dockBounds.value.top + change.position.y
-                            )
-                            if (!longPressed && (change.uptimeMillis - down.uptimeMillis) >= 1000L) {
-                                longPressed = true
-                                menuExpanded.value = true
-                            }
-                            if (menuExpanded.value) {
-                                highlighted.value = hitTest(windowPos)
-                            }
-                            if (!change.pressed) {
-                                ended = true
-                            }
-                        }
-
-                        val selected = hitTest(windowPos)
-                        if (menuExpanded.value && selected != null) {
-                            onNavigate(selected)
-                        } else if (!longPressed) {
-                            onNavigate(Page.Home)
-                        }
-                    } finally {
-                        menuExpanded.value = false
-                        highlighted.value = null
-                        pressing.value = false
-                    }
-                }
-            }
-    ) {
-        // 弹出菜单（扇形分布：左右上）
-        if (menuExpanded.value) {
-            BoxWithConstraints(Modifier.matchParentSize()) {
-                val dockW = maxWidth.value
-                val centerX = dockW / 2f
-                val centerY = 354f
-                val radius = 130f
-                val btnW = 100f
-                val btnH = 40f
-                menuItems.forEachIndexed { i, page ->
-                    val angleDeg = 150f - i * 24f
-                    val angleRad = angleDeg * PI.toFloat() / 180f
-                    val x = (centerX + radius * cos(angleRad) - btnW / 2f).dp
-                    val y = (centerY - radius * sin(angleRad) - btnH / 2f).dp
-                    MenuItemButton(
-                        page = page,
-                        highlighted = highlighted.value == page,
-                        modifier = Modifier
-                            .offset(x = x, y = y)
-                            .onGloballyPositioned { itemBounds[i] = it.boundsInWindow() }
-                    )
-                }
-            }
-        }
-
-        // 首页按钮
-        val scale by animateFloatAsState(if (pressing.value || menuExpanded.value) 1.08f else 1f)
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 24.dp)
-                .scale(scale)
-                .size(64.dp)
-                .clip(CircleShape)
-                .background(if (menuExpanded.value) HoldingsColors.Accent else HoldingsColors.Primary),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    Icons.Filled.Home,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
-                Text("首页", fontSize = 10.sp, color = Color.White, fontWeight = FontWeight.Medium)
-            }
-        }
-    }
-}
-
-@Composable
-private fun MenuItemButton(
-    page: Page,
-    highlighted: Boolean,
-    modifier: Modifier = Modifier
-) {
     Row(
         modifier = modifier
-            .width(100.dp)
-            .height(40.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(if (highlighted) HoldingsColors.Accent else HoldingsColors.Primary),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+            .fillMaxWidth()
+            .background(HoldingsColors.NavBar)
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+            .padding(horizontal = 4.dp, vertical = 6.dp)
     ) {
-        Icon(
-            pageIcon(page),
-            contentDescription = null,
-            tint = Color.White,
-            modifier = Modifier.size(16.dp)
-        )
-        Spacer(Modifier.width(6.dp))
-        Text(page.title, fontSize = 12.sp, color = Color.White, fontWeight = FontWeight.Medium)
+        Page.entries.forEach { page ->
+            val selected = currentPage == page
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable { onNavigate(page) }
+                    .padding(vertical = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    pageIcon(page),
+                    contentDescription = page.title,
+                    tint = if (selected) HoldingsColors.Accent else HoldingsColors.TextMuted,
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    page.title,
+                    fontSize = 10.sp,
+                    color = if (selected) HoldingsColors.Accent else HoldingsColors.TextMuted,
+                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+                )
+            }
+        }
     }
 }
