@@ -100,6 +100,7 @@ private fun PageScaffold(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(HoldingsColors.Primary)
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
                 .padding(horizontal = 20.dp, vertical = 24.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
