@@ -1,6 +1,7 @@
 package stellarelite.sehg.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -8,7 +9,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,6 +66,13 @@ private val hrModules = listOf(
 
 @Composable
 fun HrScreen() {
+    var showEmployeeProfile by remember { mutableStateOf(false) }
+
+    if (showEmployeeProfile) {
+        EmployeeProfileScreen(onBack = { showEmployeeProfile = false })
+        return
+    }
+
     PageScaffold("人事", "组织与人才", Icons.Filled.People) {
         // 4 张员工统计卡片
         sampleCompanies.forEach { company ->
@@ -81,7 +89,16 @@ fun HrScreen() {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 rowModules.forEach { module ->
-                    ModuleButton(module.label, module.icon, Modifier.weight(1f))
+                    ModuleButton(
+                        label = module.label,
+                        icon = module.icon,
+                        onClick = {
+                            if (module.label == "员工档案") {
+                                showEmployeeProfile = true
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
             Spacer(Modifier.height(12.dp))
@@ -164,11 +181,17 @@ private fun StatCell(label: String, value: Int, color: Color, modifier: Modifier
 }
 
 @Composable
-private fun ModuleButton(label: String, icon: ImageVector, modifier: Modifier = Modifier) {
+private fun ModuleButton(
+    label: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .background(HoldingsColors.Surface)
+            .clickable(onClick = onClick)
             .padding(vertical = 14.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

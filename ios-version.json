@@ -1,7 +1,7 @@
 {
-  "versionCode": 8,
-  "versionName": "1.0.7",
+  "versionCode": 9,
+  "versionName": "1.0.8",
   "ipaUrl": "",
-  "changelog": "- 底部导航改为普通快捷栏（首页/人事/财务/法务/行政/内审/我）\n- 更新检测改走 GitHub API（约 60 秒缓存，无需 purge）",
+  "changelog": "- 新增员工档案页面（搜索ID + A-#排序员工卡片）\n- 人事页「员工档案」按钮已接入",
   "buildDate": "2026-09-23"
 }
