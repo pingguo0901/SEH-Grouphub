@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -172,11 +171,11 @@ private fun EmployeeProfileCard(emp: EmployeeProfile) {
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 头像
+        // 头像（竖长方形、直角）
         Box(
             modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
+                .size(width = 48.dp, height = 56.dp)
+                .clip(RoundedCornerShape(0.dp))
                 .background(avatarColor(emp.id)),
             contentAlignment = Alignment.Center
         ) {
