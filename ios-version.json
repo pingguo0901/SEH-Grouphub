@@ -1,7 +1,7 @@
 {
-  "versionCode": 12,
-  "versionName": "1.0.11",
+  "versionCode": 13,
+  "versionName": "1.0.12",
   "ipaUrl": "",
-  "changelog": "- 个人档案：完整档案表单页（6大模块+可编辑字段+签名区）",
+  "changelog": "- 更换应用图标为星域集团 Logo",
   "buildDate": "2026-09-24"
 }
