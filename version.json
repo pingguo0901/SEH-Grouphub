@@ -1,7 +1,7 @@
 {
-  "versionCode": 11,
-  "versionName": "1.0.10",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.10/seh-grouphub.apk",
-  "changelog": "- 员工档案：点击卡片进入员工详情页",
+  "versionCode": 12,
+  "versionName": "1.0.11",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.11/seh-grouphub.apk",
+  "changelog": "- 个人档案：完整档案表单页（6大模块+可编辑字段+签名区）",
   "buildDate": "2026-09-24"
 }
