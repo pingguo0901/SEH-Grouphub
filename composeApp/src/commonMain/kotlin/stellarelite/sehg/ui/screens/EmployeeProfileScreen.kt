@@ -47,6 +47,13 @@ private val sampleEmployees = listOf(
 @Composable
 fun EmployeeProfileScreen(onBack: () -> Unit) {
     var query by remember { mutableStateOf("") }
+    var selectedEmployee by remember { mutableStateOf<EmployeeProfile?>(null) }
+
+    val current = selectedEmployee
+    if (current != null) {
+        EmployeeDetailScreen(emp = current, onBack = { selectedEmployee = null })
+        return
+    }
 
     val filtered = remember(query) {
         if (query.isBlank()) sampleEmployees
@@ -138,11 +145,132 @@ fun EmployeeProfileScreen(onBack: () -> Unit) {
                         SectionHeader(letter)
                     }
                     items(emps, key = { it.id }) { emp ->
-                        EmployeeProfileCard(emp)
+                        EmployeeProfileCard(emp, onClick = { selectedEmployee = emp })
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun EmployeeDetailScreen(emp: EmployeeProfile, onBack: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(HoldingsColors.Background)
+    ) {
+        // 顶部栏
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(HoldingsColors.Primary)
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
+                .padding(horizontal = 8.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回", tint = HoldingsColors.Surface)
+            }
+            Spacer(Modifier.width(4.dp))
+            Text("员工详情", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = HoldingsColors.Surface)
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            // 头像 + 姓名 + ID
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(HoldingsColors.Surface)
+                    .padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 72.dp, height = 84.dp)
+                        .clip(RoundedCornerShape(0.dp))
+                        .background(avatarColor(emp.id)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        emp.nameZh.firstOrNull()?.toString() ?: "?",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+
+                Spacer(Modifier.width(16.dp))
+
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        emp.nameZh,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = HoldingsColors.TextPrimary
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        emp.nameEn,
+                        fontSize = 13.sp,
+                        letterSpacing = 0.5.sp,
+                        color = HoldingsColors.TextSecondary
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "ID ${emp.id}",
+                        fontSize = 12.sp,
+                        color = HoldingsColors.Accent,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            // 详细信息卡片
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(HoldingsColors.Surface)
+                    .padding(20.dp)
+            ) {
+                DetailRow("子公司", emp.subsidiary)
+                DetailRow("职位", emp.position)
+                DetailRow("微信号", emp.wechat)
+                DetailRow("手机号码", emp.phone)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DetailRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            label,
+            fontSize = 14.sp,
+            color = HoldingsColors.TextSecondary,
+            modifier = Modifier.width(76.dp)
+        )
+        Text(
+            value,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = HoldingsColors.TextPrimary,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
@@ -161,13 +289,14 @@ private fun SectionHeader(letter: String) {
 }
 
 @Composable
-private fun EmployeeProfileCard(emp: EmployeeProfile) {
+private fun EmployeeProfileCard(emp: EmployeeProfile, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 6.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(HoldingsColors.Surface)
+            .clickable(onClick = onClick)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

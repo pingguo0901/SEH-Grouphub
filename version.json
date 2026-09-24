@@ -1,7 +1,7 @@
 {
-  "versionCode": 10,
-  "versionName": "1.0.9",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.9/seh-grouphub.apk",
-  "changelog": "- 员工档案：头像改为竖长方形直角",
-  "buildDate": "2026-09-23"
+  "versionCode": 11,
+  "versionName": "1.0.10",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.10/seh-grouphub.apk",
+  "changelog": "- 员工档案：点击卡片进入员工详情页",
+  "buildDate": "2026-09-24"
 }
