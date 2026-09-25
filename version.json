@@ -1,7 +1,7 @@
 {
-  "versionCode": 15,
-  "versionName": "1.0.14",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.14/seh-grouphub.apk",
-  "changelog": "- 炙巷食铺 WhatsApp 聊天页面（深色主题，复刻真实 WhatsApp 布局）",
+  "versionCode": 16,
+  "versionName": "1.0.15",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.15/seh-grouphub.apk",
+  "changelog": "- WhatsApp 页面重构：底部 5 个快捷栏 + 联系人聊天列表 + 三点菜单",
   "buildDate": "2026-09-26"
 }

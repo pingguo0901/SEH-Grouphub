@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 // WhatsApp 深色主题配色
-private object WaColors {
+internal object WaColors {
     val Header = Color(0xFF202C33)        // 标题栏深色
     val Wallpaper = Color(0xFF0B141A)     // 聊天背景深色
     val SentBubble = Color(0xFF005C4B)    // 发送气泡深绿

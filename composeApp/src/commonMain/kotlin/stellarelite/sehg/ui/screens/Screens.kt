@@ -31,10 +31,10 @@ import stellarelite.sehg.ui.theme.HoldingsColors
 @Composable
 fun HomeScreen() {
     val uriHandler = LocalUriHandler.current
-    var showWhatsAppChat by remember { mutableStateOf(false) }
+    var showWhatsApp by remember { mutableStateOf(false) }
 
-    if (showWhatsAppChat) {
-        WhatsAppChatScreen(onBack = { showWhatsAppChat = false })
+    if (showWhatsApp) {
+        WhatsAppScreen(onBack = { showWhatsApp = false })
         return
     }
 
@@ -56,7 +56,7 @@ fun HomeScreen() {
                 sub = sub,
                 onClick = {
                     if (sub.nameZh == "炙巷食铺") {
-                        showWhatsAppChat = true
+                        showWhatsApp = true
                     } else if (sub.phone.isNotBlank()) {
                         uriHandler.openUri("https://wa.me/${sub.phone}")
                     }
