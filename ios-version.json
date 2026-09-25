@@ -1,7 +1,7 @@
 {
-  "versionCode": 13,
-  "versionName": "1.0.12",
+  "versionCode": 14,
+  "versionName": "1.0.13",
   "ipaUrl": "",
-  "changelog": "- 更换应用图标为星域集团 Logo",
-  "buildDate": "2026-09-24"
+  "changelog": "- 首页新增三个子公司 WhatsApp 快捷入口（炙巷食铺 / 星域臻旅 / 星域科技）",
+  "buildDate": "2026-09-26"
 }

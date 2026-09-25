@@ -1,23 +1,32 @@
 package stellarelite.sehg.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import stellarelite.sehg.model.SubsidiaryWhatsApp
+import stellarelite.sehg.model.subsidiaryWhatsAppList
 import stellarelite.sehg.ui.theme.HoldingsColors
 
 @Composable
 fun HomeScreen() {
+    val uriHandler = LocalUriHandler.current
     PageScaffold(
         title = "首页",
         subtitle = "星域控股集团 · 董事长驾驶舱",
@@ -26,6 +35,73 @@ fun HomeScreen() {
         Text("欢迎回来，董事长", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = HoldingsColors.TextPrimary)
         Spacer(Modifier.height(8.dp))
         Text("这里是集团全域概览，后续接入各板块核心数据。", fontSize = 14.sp, color = HoldingsColors.TextSecondary)
+
+        Spacer(Modifier.height(24.dp))
+        Text("子公司 WhatsApp", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = HoldingsColors.TextPrimary)
+        Spacer(Modifier.height(12.dp))
+
+        subsidiaryWhatsAppList.forEach { sub ->
+            SubsidiaryWhatsAppCard(
+                sub = sub,
+                onClick = {
+                    if (sub.phone.isNotBlank()) {
+                        uriHandler.openUri("https://wa.me/${sub.phone}")
+                    }
+                }
+            )
+            Spacer(Modifier.height(12.dp))
+        }
+    }
+}
+
+@Composable
+private fun SubsidiaryWhatsAppCard(
+    sub: SubsidiaryWhatsApp,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(HoldingsColors.Surface)
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xFF25D366)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                Icons.AutoMirrored.Filled.Chat,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+        Spacer(Modifier.width(14.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                sub.nameZh,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = HoldingsColors.TextPrimary
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                if (sub.phone.isNotBlank()) "WhatsApp 联系" else "号码待配置",
+                fontSize = 12.sp,
+                color = HoldingsColors.TextSecondary
+            )
+        }
+        Icon(
+            Icons.Filled.ChevronRight,
+            contentDescription = null,
+            tint = HoldingsColors.TextMuted
+        )
     }
 }
 
