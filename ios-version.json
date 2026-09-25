@@ -1,7 +1,7 @@
 {
-  "versionCode": 14,
-  "versionName": "1.0.13",
+  "versionCode": 15,
+  "versionName": "1.0.14",
   "ipaUrl": "",
-  "changelog": "- 首页新增三个子公司 WhatsApp 快捷入口（炙巷食铺 / 星域臻旅 / 星域科技）",
+  "changelog": "- 炙巷食铺 WhatsApp 聊天页面（深色主题，复刻真实 WhatsApp 布局）",
   "buildDate": "2026-09-26"
 }

@@ -11,6 +11,10 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +31,13 @@ import stellarelite.sehg.ui.theme.HoldingsColors
 @Composable
 fun HomeScreen() {
     val uriHandler = LocalUriHandler.current
+    var showWhatsAppChat by remember { mutableStateOf(false) }
+
+    if (showWhatsAppChat) {
+        WhatsAppChatScreen(onBack = { showWhatsAppChat = false })
+        return
+    }
+
     PageScaffold(
         title = "首页",
         subtitle = "星域控股集团 · 董事长驾驶舱",
@@ -44,7 +55,9 @@ fun HomeScreen() {
             SubsidiaryWhatsAppCard(
                 sub = sub,
                 onClick = {
-                    if (sub.phone.isNotBlank()) {
+                    if (sub.nameZh == "炙巷食铺") {
+                        showWhatsAppChat = true
+                    } else if (sub.phone.isNotBlank()) {
                         uriHandler.openUri("https://wa.me/${sub.phone}")
                     }
                 }
