@@ -46,6 +46,7 @@ fun App(
     onApplyUpdate: (suspend (VersionInfo, (Long, Long) -> Unit) -> String?)? = null
 ) {
     var currentPage by remember { mutableStateOf(Page.Home) }
+    var showWhatsApp by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
     var updateInfo by remember { mutableStateOf<VersionInfo?>(null) }
     var updating by remember { mutableStateOf(false) }
@@ -65,23 +66,27 @@ fun App(
         }
     }
 
-    Column(Modifier.fillMaxSize().background(HoldingsColors.Background)) {
-        Box(Modifier.weight(1f)) {
-            when (currentPage) {
-                Page.Home -> HomeScreen()
-                Page.HR -> HrScreen()
-                Page.Finance -> FinanceScreen()
-                Page.Legal -> LegalScreen()
-                Page.Admin -> AdminScreen()
-                Page.Audit -> AuditScreen()
-                Page.Profile -> ProfileScreen()
+    if (showWhatsApp) {
+        WhatsAppScreen(onBack = { showWhatsApp = false })
+    } else {
+        Column(Modifier.fillMaxSize().background(HoldingsColors.Background)) {
+            Box(Modifier.weight(1f)) {
+                when (currentPage) {
+                    Page.Home -> HomeScreen(onOpenWhatsApp = { showWhatsApp = true })
+                    Page.HR -> HrScreen()
+                    Page.Finance -> FinanceScreen()
+                    Page.Legal -> LegalScreen()
+                    Page.Admin -> AdminScreen()
+                    Page.Audit -> AuditScreen()
+                    Page.Profile -> ProfileScreen()
+                }
             }
-        }
 
-        BottomNavBar(
-            currentPage = currentPage,
-            onNavigate = { currentPage = it }
-        )
+            BottomNavBar(
+                currentPage = currentPage,
+                onNavigate = { currentPage = it }
+            )
+        }
     }
 
     // 更新弹窗

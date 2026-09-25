@@ -1,7 +1,7 @@
 {
-  "versionCode": 16,
-  "versionName": "1.0.15",
+  "versionCode": 17,
+  "versionName": "1.0.16",
   "ipaUrl": "",
-  "changelog": "- WhatsApp 页面重构：底部 5 个快捷栏 + 联系人聊天列表 + 三点菜单",
+  "changelog": "- 进入 WhatsApp 页面时替换 APP 底部导航栏为 WhatsApp 快捷栏",
   "buildDate": "2026-09-26"
 }
