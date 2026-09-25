@@ -57,10 +57,11 @@ private val sampleMessages = listOf(
 @Composable
 fun WhatsAppChatScreen(
     contactName: String = "炙巷食铺",
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onOpenContactInfo: () -> Unit
 ) {
     Column(Modifier.fillMaxSize()) {
-        ChatHeader(contactName = contactName, onBack = onBack)
+        ChatHeader(contactName = contactName, onBack = onBack, onOpenContactInfo = onOpenContactInfo)
 
         LazyColumn(
             modifier = Modifier
@@ -80,7 +81,7 @@ fun WhatsAppChatScreen(
 }
 
 @Composable
-private fun ChatHeader(contactName: String, onBack: () -> Unit) {
+private fun ChatHeader(contactName: String, onBack: () -> Unit, onOpenContactInfo: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,7 +103,8 @@ private fun ChatHeader(contactName: String, onBack: () -> Unit) {
             modifier = Modifier
                 .size(38.dp)
                 .clip(CircleShape)
-                .background(WaColors.MicGreen),
+                .background(WaColors.MicGreen)
+                .clickable(onClick = onOpenContactInfo),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -120,8 +122,6 @@ private fun ChatHeader(contactName: String, onBack: () -> Unit) {
         Icon(Icons.Filled.Videocam, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
         Spacer(Modifier.width(18.dp))
         Icon(Icons.Filled.Call, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
-        Spacer(Modifier.width(18.dp))
-        Icon(Icons.Filled.MoreVert, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
     }
 }
 
@@ -198,7 +198,7 @@ private fun ChatInputBar() {
             .padding(horizontal = 8.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(Icons.Filled.EmojiEmotions, contentDescription = null, tint = WaColors.IconGrey, modifier = Modifier.size(26.dp))
+        Icon(Icons.Filled.Add, contentDescription = "添加", tint = WaColors.IconGrey, modifier = Modifier.size(26.dp))
         Spacer(Modifier.width(6.dp))
         Box(
             modifier = Modifier
@@ -210,9 +210,9 @@ private fun ChatInputBar() {
             Text("消息", fontSize = 15.sp, color = WaColors.TextSecondary)
         }
         Spacer(Modifier.width(6.dp))
-        Icon(Icons.Filled.AttachFile, contentDescription = null, tint = WaColors.IconGrey, modifier = Modifier.size(24.dp))
+        Icon(Icons.Filled.EmojiEmotions, contentDescription = "表情", tint = WaColors.IconGrey, modifier = Modifier.size(26.dp))
         Spacer(Modifier.width(6.dp))
-        Icon(Icons.Filled.PhotoCamera, contentDescription = null, tint = WaColors.IconGrey, modifier = Modifier.size(24.dp))
+        Icon(Icons.Filled.PhotoCamera, contentDescription = "相机", tint = WaColors.IconGrey, modifier = Modifier.size(24.dp))
         Spacer(Modifier.width(6.dp))
         Box(
             modifier = Modifier
@@ -221,7 +221,7 @@ private fun ChatInputBar() {
                 .background(WaColors.MicGreen),
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Filled.Mic, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+            Icon(Icons.Filled.Mic, contentDescription = "语音", tint = Color.White, modifier = Modifier.size(22.dp))
         }
     }
 }

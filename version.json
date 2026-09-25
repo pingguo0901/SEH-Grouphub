@@ -1,7 +1,7 @@
 {
-  "versionCode": 17,
-  "versionName": "1.0.16",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.16/seh-grouphub.apk",
-  "changelog": "- 进入 WhatsApp 页面时替换 APP 底部导航栏为 WhatsApp 快捷栏",
+  "versionCode": 18,
+  "versionName": "1.0.17",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.17/seh-grouphub.apk",
+  "changelog": "- 聊天窗底部按钮调整 + 新增联系人信息页面",
   "buildDate": "2026-09-26"
 }

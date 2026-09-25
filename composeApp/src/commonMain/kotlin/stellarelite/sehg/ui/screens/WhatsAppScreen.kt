@@ -37,6 +37,7 @@ enum class WaTab(val label: String, val icon: ImageVector) {
 // 联系人会话
 data class WaContact(
     val name: String,
+    val phone: String,
     val lastMessage: String,
     val time: String,
     val unread: Int = 0
@@ -44,24 +45,33 @@ data class WaContact(
 
 // 示例联系人列表（后续接 Supabase / WhatsApp webhook 数据源替换）
 private val sampleContacts = listOf(
-    WaContact("阿康（店长）", "好的陈先生，今晚 7 点见！🍢", "14:35"),
-    WaContact("张小姐", "你好，想问下今天有什么优惠？", "14:31", unread = 2),
-    WaContact("李先生", "帮我订一份烤串套餐，谢谢", "13:05", unread = 1),
-    WaContact("王先生", "收到，明天中午见", "昨天"),
-    WaContact("陈小姐", "请问营业时间到几点？", "昨天", unread = 3),
-    WaContact("刘先生", "好的，谢谢！", "星期二"),
-    WaContact("林女士", "有包间吗？8 人", "星期一"),
-    WaContact("赵先生", "已付款，请查收", "星期日")
+    WaContact("阿康（店长）", "+601162329701", "好的陈先生，今晚 7 点见！🍢", "14:35"),
+    WaContact("张小姐", "+60123456789", "你好，想问下今天有什么优惠？", "14:31", unread = 2),
+    WaContact("李先生", "+60198765432", "帮我订一份烤串套餐，谢谢", "13:05", unread = 1),
+    WaContact("王先生", "+60155512345", "收到，明天中午见", "昨天"),
+    WaContact("陈小姐", "+60155567890", "请问营业时间到几点？", "昨天", unread = 3),
+    WaContact("刘先生", "+60133344455", "好的，谢谢！", "星期二"),
+    WaContact("林女士", "+60122233344", "有包间吗？8 人", "星期一"),
+    WaContact("赵先生", "+60111122233", "已付款，请查收", "星期日")
 )
 
 @Composable
 fun WhatsAppScreen(onBack: () -> Unit) {
     var currentTab by remember { mutableStateOf(WaTab.Chats) }
     var openContact by remember { mutableStateOf<WaContact?>(null) }
+    var showContactInfo by remember { mutableStateOf(false) }
 
     val contact = openContact
     if (contact != null) {
-        WhatsAppChatScreen(contactName = contact.name, onBack = { openContact = null })
+        if (showContactInfo) {
+            ContactInfoScreen(contact = contact, onBack = { showContactInfo = false })
+        } else {
+            WhatsAppChatScreen(
+                contactName = contact.name,
+                onBack = { openContact = null },
+                onOpenContactInfo = { showContactInfo = true }
+            )
+        }
         return
     }
 
