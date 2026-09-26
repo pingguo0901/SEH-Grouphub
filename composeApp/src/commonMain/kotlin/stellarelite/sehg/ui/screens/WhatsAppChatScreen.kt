@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.hazeSource
 
 data class ChatMessage(
     val text: String,
@@ -28,7 +31,6 @@ data class ChatMessage(
     val time: String
 )
 
-// 示例对话（炙巷食铺客服），董事长可随时替换为真实话术
 private val sampleMessages = listOf(
     ChatMessage("您好，欢迎光临炙巷食铺 🍢", isSent = false, time = "14:30"),
     ChatMessage("你好，想问问今天有什么优惠？", isSent = true, time = "14:31"),
@@ -45,71 +47,80 @@ fun WhatsAppChatScreen(
     onBack: () -> Unit,
     onOpenContactInfo: () -> Unit
 ) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(listOf(GlassColors.WallpaperTop, GlassColors.WallpaperBottom))
-            )
-    ) {
-        ChatHeader(contactName = contactName, onBack = onBack, onOpenContactInfo = onOpenContactInfo)
+    val hazeState = remember { HazeState() }
 
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(vertical = 10.dp, horizontal = 8.dp)
-        ) {
-            item { DatePill("今天") }
-            items(sampleMessages) { msg ->
-                MessageBubble(msg)
+    Box(Modifier.fillMaxSize()) {
+        GlassWallpaper(
+            Modifier
+                .fillMaxSize()
+                .hazeSource(hazeState)
+        )
+
+        Column(Modifier.fillMaxSize()) {
+            ChatHeader(hazeState = hazeState, contactName = contactName, onBack = onBack, onOpenContactInfo = onOpenContactInfo)
+
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(vertical = 10.dp, horizontal = 8.dp)
+            ) {
+                item { DatePill("今天") }
+                items(sampleMessages) { msg ->
+                    MessageBubble(msg)
+                }
             }
-        }
 
-        ChatInputBar()
+            ChatInputBar(hazeState = hazeState)
+        }
     }
 }
 
 @Composable
-private fun ChatHeader(contactName: String, onBack: () -> Unit, onOpenContactInfo: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .glassPanel(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
-            .padding(horizontal = 10.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+private fun ChatHeader(hazeState: HazeState, contactName: String, onBack: () -> Unit, onOpenContactInfo: () -> Unit) {
+    GlassSurface(
+        hazeState = hazeState,
+        spec = GlassSpecs.bar,
+        shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        GlassCircleButton(
-            Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = "返回",
-            onClick = onBack
-        )
-        Spacer(Modifier.width(8.dp))
-        // 圆形头像
-        Box(
+        Row(
             modifier = Modifier
-                .size(38.dp)
-                .clip(CircleShape)
-                .background(Brush.linearGradient(listOf(GlassColors.Accent, Color(0xFF5AA7FF))))
-                .clickable(onClick = onOpenContactInfo),
-            contentAlignment = Alignment.Center
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                contactName.take(1),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+            GlassCircleButton(
+                hazeState = hazeState,
+                Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "返回",
+                onClick = onBack
             )
+            Spacer(Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .size(38.dp)
+                    .clip(CircleShape)
+                    .background(Brush.linearGradient(listOf(GlassColors.Accent, Color(0xFF5AA7FF))))
+                    .clickable(onClick = onOpenContactInfo),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    contactName.take(1),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text(contactName, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                Text("在线", fontSize = 12.sp, color = Color.White.copy(alpha = 0.8f))
+            }
+            GlassCircleButton(hazeState = hazeState, Icons.Filled.Videocam, contentDescription = "视频", onClick = { })
+            Spacer(Modifier.width(8.dp))
+            GlassCircleButton(hazeState = hazeState, Icons.Filled.Call, contentDescription = "通话", onClick = { })
         }
-        Spacer(Modifier.width(10.dp))
-        Column(Modifier.weight(1f)) {
-            Text(contactName, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
-            Text("在线", fontSize = 12.sp, color = Color.White.copy(alpha = 0.8f))
-        }
-        GlassCircleButton(Icons.Filled.Videocam, contentDescription = "视频", onClick = { })
-        Spacer(Modifier.width(8.dp))
-        GlassCircleButton(Icons.Filled.Call, contentDescription = "通话", onClick = { })
     }
 }
 
@@ -192,39 +203,44 @@ private fun MessageBubble(msg: ChatMessage) {
 }
 
 @Composable
-private fun ChatInputBar() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .glassPanel(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
-            .padding(horizontal = 10.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+private fun ChatInputBar(hazeState: HazeState) {
+    GlassSurface(
+        hazeState = hazeState,
+        spec = GlassSpecs.bar,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        GlassCircleButton(Icons.Filled.Add, contentDescription = "添加", onClick = { }, size = 38.dp)
-        Spacer(Modifier.width(8.dp))
-        Box(
+        Row(
             modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(22.dp))
-                .background(GlassColors.GlassFill)
-                .padding(horizontal = 14.dp, vertical = 10.dp)
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("消息", fontSize = 15.sp, color = GlassColors.TextSecondary)
-        }
-        Spacer(Modifier.width(8.dp))
-        GlassCircleButton(Icons.Filled.EmojiEmotions, contentDescription = "表情", onClick = { }, size = 38.dp)
-        Spacer(Modifier.width(8.dp))
-        GlassCircleButton(Icons.Filled.PhotoCamera, contentDescription = "相机", onClick = { }, size = 38.dp)
-        Spacer(Modifier.width(8.dp))
-        Box(
-            modifier = Modifier
-                .size(44.dp)
-                .clip(CircleShape)
-                .background(Brush.linearGradient(listOf(GlassColors.Accent, Color(0xFF5AA7FF)))),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(Icons.Filled.Mic, contentDescription = "语音", tint = Color.White, modifier = Modifier.size(22.dp))
+            GlassCircleButton(hazeState = hazeState, Icons.Filled.Add, contentDescription = "添加", onClick = { }, size = 38.dp)
+            Spacer(Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(GlassColors.GlassFill)
+                    .padding(horizontal = 14.dp, vertical = 10.dp)
+            ) {
+                Text("消息", fontSize = 15.sp, color = GlassColors.TextSecondary)
+            }
+            Spacer(Modifier.width(8.dp))
+            GlassCircleButton(hazeState = hazeState, Icons.Filled.EmojiEmotions, contentDescription = "表情", onClick = { }, size = 38.dp)
+            Spacer(Modifier.width(8.dp))
+            GlassCircleButton(hazeState = hazeState, Icons.Filled.PhotoCamera, contentDescription = "相机", onClick = { }, size = 38.dp)
+            Spacer(Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(Brush.linearGradient(listOf(GlassColors.Accent, Color(0xFF5AA7FF)))),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Filled.Mic, contentDescription = "语音", tint = Color.White, modifier = Modifier.size(22.dp))
+            }
         }
     }
 }

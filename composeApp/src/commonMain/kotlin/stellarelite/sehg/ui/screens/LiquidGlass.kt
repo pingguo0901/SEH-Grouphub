@@ -1,13 +1,21 @@
 package stellarelite.sehg.ui.screens
 
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,73 +25,174 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
 
-/**
- * 液态玻璃（Liquid Glass）· 深色清透配色
- * 参考 tomagranate/liquid-glass 参数映射到 Compose：
- *   blur(清透→低雾度) / rimLight(边缘高光) / specular(镜面) / tint(着色) / shadow(投影)
- */
+// 液态玻璃配色（深色清透）
 internal object GlassColors {
     val WallpaperTop = Color(0xFF111A22)
+    val WallpaperMid = Color(0xFF14202B)
     val WallpaperBottom = Color(0xFF06090D)
-
-    val GlassFillBright = Color(0xFF2A3540)   // 玻璃受光面
-    val GlassFill = Color(0xFF171F27)         // 玻璃主体
-    val GlassEdge = Color(0x1AFFFFFF)         // 弱描边
-    val RimTop = Color(0x73FFFFFF)            // 顶部高光
-    val RimTopStrong = Color(0x99FFFFFF)      // 顶部高光（强）
-    val Specular = Color(0x1FFFFFFF)          // 镜面
 
     val TextPrimary = Color(0xFFF2F6FA)
     val TextSecondary = Color(0xFF98A6B2)
-    val Accent = Color(0xFF0A84FF)            // iOS 蓝
-    val AccentGlass = Color(0x260A84FF)       // 蓝色玻璃着色
+    val Accent = Color(0xFF0A84FF)
     val Danger = Color(0xFFFF453A)
+
+    // 非玻璃面的实体填充色（输入框、接收气泡等）
+    val GlassFill = Color(0xFF2C2C2E)
 }
 
-/** 玻璃面板：受光渐变底 + 顶部高光描边（Liquid Glass 标志性边缘高光） */
-internal fun Modifier.glassPanel(shape: Shape): Modifier = this
-    .clip(shape)
-    .background(
-        Brush.verticalGradient(
-            0f to GlassColors.GlassFillBright,
-            1f to GlassColors.GlassFill
+/**
+ * 液态玻璃样式规格（对照 iOS 26.7 Liquid Glass 参数）
+ * blurRadius: 背景模糊半径（backdrop blur，非 box blur）
+ * maskColor / maskAlpha: 玻璃蒙版色与透明度
+ * edgeHighlight: 曲面边缘高光 opacity（极微弱）
+ * grain: 细微胶片颗粒强度（很低）
+ */
+internal data class GlassSpec(
+    val blurRadius: Dp,
+    val maskColor: Color,
+    val maskAlpha: Float,
+    val maskAlphaPressed: Float,
+    val edgeHighlight: Float,
+    val edgeHighlightPressed: Float,
+    val grain: Float
+)
+
+internal object GlassSpecs {
+    // 左上角三点圆形按钮 48dp 正圆
+    val circleButton = GlassSpec(
+        blurRadius = 22.dp,
+        maskColor = Color(0xFF2A2A2C),
+        maskAlpha = 0.36f,
+        maskAlphaPressed = 0.58f,
+        edgeHighlight = 0.07f,
+        edgeHighlightPressed = 0.03f,
+        grain = 0.025f
+    )
+    // 聊天会话列表卡片 圆角20dp 高度104dp
+    val card = GlassSpec(
+        blurRadius = 18.dp,
+        maskColor = Color(0xFF2C2C2E),
+        maskAlpha = 0.32f,
+        maskAlphaPressed = 0.52f,
+        edgeHighlight = 0.06f,
+        edgeHighlightPressed = 0.02f,
+        grain = 0.02f
+    )
+    // 顶部栏 / 底部栏
+    val bar = GlassSpec(
+        blurRadius = 22.dp,
+        maskColor = Color(0xFF2A2A2C),
+        maskAlpha = 0.30f,
+        maskAlphaPressed = 0.50f,
+        edgeHighlight = 0.06f,
+        edgeHighlightPressed = 0.02f,
+        grain = 0.02f
+    )
+}
+
+// 统一动效曲线 cubic-bezier(0.20, 0.90, 0.30, 1.00)
+private val LiquidEasing = CubicBezierEasing(0.20f, 0.90f, 0.30f, 1.00f)
+private const val PRESS_MS = 80
+private const val RELEASE_MS = 120
+
+/** 玻璃壁纸：玻璃面板背后的底层画面（带细微色调变化，供 backdrop blur 透出） */
+@Composable
+internal fun GlassWallpaper(modifier: Modifier = Modifier) {
+    Box(
+        modifier.background(
+            Brush.verticalGradient(
+                listOf(GlassColors.WallpaperTop, GlassColors.WallpaperMid, GlassColors.WallpaperBottom)
+            )
         )
     )
-    .border(
-        width = 1.dp,
-        brush = Brush.verticalGradient(
-            0f to GlassColors.RimTopStrong,
-            0.4f to GlassColors.GlassEdge,
-            1f to GlassColors.GlassEdge
-        ),
-        shape = shape
+}
+
+/**
+ * 玻璃面板：真正的 backdrop blur（模糊背后内容），
+ * 叠加蒙版色 + 细微颗粒 + 曲面边缘高光。无硬描边。
+ */
+@Composable
+internal fun GlassSurface(
+    hazeState: HazeState,
+    spec: GlassSpec,
+    shape: Shape,
+    modifier: Modifier = Modifier,
+    pressed: Boolean = false,
+    content: @Composable BoxScope.() -> Unit
+) {
+    val maskAlpha by animateFloatAsState(
+        targetValue = if (pressed) spec.maskAlphaPressed else spec.maskAlpha,
+        animationSpec = tween(if (pressed) PRESS_MS else RELEASE_MS, easing = LiquidEasing),
+        label = "maskAlpha"
     )
+    val edge by animateFloatAsState(
+        targetValue = if (pressed) spec.edgeHighlightPressed else spec.edgeHighlight,
+        animationSpec = tween(if (pressed) PRESS_MS else RELEASE_MS, easing = LiquidEasing),
+        label = "edgeHighlight"
+    )
+
+    val style = HazeStyle(
+        backgroundColor = Color.Transparent,
+        tint = HazeTint(spec.maskColor.copy(alpha = maskAlpha)),
+        blurRadius = spec.blurRadius,
+        noiseFactor = spec.grain,
+        fallbackTint = HazeTint(spec.maskColor.copy(alpha = 0.5f))
+    )
+
+    Box(
+        modifier = modifier
+            .clip(shape)
+            .hazeEffect(state = hazeState, style = style)
+            .then(
+                Modifier.border(
+                    width = 1.dp,
+                    brush = Brush.verticalGradient(
+                        0.0f to Color.White.copy(alpha = edge),
+                        0.45f to Color.White.copy(alpha = edge * 0.25f),
+                        1.0f to Color.Transparent
+                    ),
+                    shape = shape
+                )
+            ),
+        content = content
+    )
+}
 
 /** 圆形玻璃按钮（所有按钮都是圆的） */
 @Composable
 internal fun GlassCircleButton(
+    hazeState: HazeState,
     icon: ImageVector,
     contentDescription: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    size: Dp = 40.dp,
-    iconSize: Dp = 20.dp,
+    size: Dp = 48.dp,
+    iconSize: Dp = 22.dp,
     tint: Color = GlassColors.TextPrimary,
     selected: Boolean = false
 ) {
-    Box(
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+
+    GlassSurface(
+        hazeState = hazeState,
+        spec = GlassSpecs.circleButton,
+        shape = CircleShape,
         modifier = modifier
             .size(size)
-            .glassPanel(CircleShape)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
+            .clickable(interactionSource = interaction, indication = null, onClick = onClick),
+        pressed = pressed
     ) {
         Icon(
             icon,
             contentDescription = contentDescription,
             tint = if (selected) GlassColors.Accent else tint,
-            modifier = Modifier.size(iconSize)
+            modifier = Modifier.align(Alignment.Center).size(iconSize)
         )
     }
 }
