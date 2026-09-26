@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import stellarelite.sehg.rememberCameraLauncher
 
 // 底部快捷栏
 enum class WaTab(val label: String, val icon: ImageVector) {
@@ -89,6 +90,7 @@ fun WhatsAppScreen(onBack: () -> Unit) {
 
 @Composable
 private fun ChatsTab(onBack: () -> Unit, onOpenContact: (WaContact) -> Unit) {
+    val openCamera = rememberCameraLauncher()
     Column(Modifier.fillMaxSize().background(WaColors.Wallpaper)) {
         // 顶部栏：左上返回 + 三点；右上相机 + 加号
         Row(
@@ -146,7 +148,9 @@ private fun ChatsTab(onBack: () -> Unit, onOpenContact: (WaContact) -> Unit) {
                 Icons.Filled.CameraAlt,
                 contentDescription = "相机",
                 tint = Color.White,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable(onClick = openCamera)
             )
             Spacer(Modifier.width(20.dp))
             Icon(
@@ -156,6 +160,15 @@ private fun ChatsTab(onBack: () -> Unit, onOpenContact: (WaContact) -> Unit) {
                 modifier = Modifier.size(26.dp)
             )
         }
+
+        // 页面标题
+        Text(
+            "聊天",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = WaColors.TextPrimary,
+            modifier = Modifier.padding(start = 14.dp, top = 10.dp, bottom = 2.dp)
+        )
 
         // 搜索框
         Box(

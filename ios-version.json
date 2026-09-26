@@ -1,7 +1,7 @@
 {
-  "versionCode": 18,
-  "versionName": "1.0.17",
+  "versionCode": 19,
+  "versionName": "1.0.18",
   "ipaUrl": "",
-  "changelog": "- 聊天窗底部按钮调整 + 新增联系人信息页面",
+  "changelog": "- 聊天页搜索框上方新增页面标题「聊天」\n- 右上角相机按钮点击打开手机相机（拍照/录视频）",
   "buildDate": "2026-09-26"
 }
