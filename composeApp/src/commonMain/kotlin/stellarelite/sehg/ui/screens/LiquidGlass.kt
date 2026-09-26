@@ -261,7 +261,7 @@ internal fun GlassSurface(
     )
 }
 
-/** 圆形玻璃按钮（所有按钮都是圆的） */
+/** 圆形玻璃按钮：透明背景 + 半透明边框（所有按钮都是圆的） */
 @Composable
 internal fun GlassCircleButton(
     hazeState: HazeState,
@@ -277,20 +277,36 @@ internal fun GlassCircleButton(
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
 
-    GlassSurface(
-        hazeState = hazeState,
-        spec = GlassSpecs.circleButton,
-        shape = CircleShape,
+    // 半透明边框：默认轻微，按压时略微加深
+    val borderColor by animateColorAsState(
+        targetValue = if (pressed) Color.White.copy(alpha = 0.45f) else Color.White.copy(alpha = 0.25f),
+        animationSpec = tween(if (pressed) PRESS_MS else RELEASE_MS, easing = LiquidEasing),
+        label = "circleBorder"
+    )
+
+    // 透明背景：只保留 backdrop blur 透出底层，不叠加蒙版色
+    val style = HazeStyle(
+        backgroundColor = Color.Transparent,
+        tint = HazeTint(Color.Transparent),
+        blurRadius = 22.dp,
+        noiseFactor = 0f,
+        fallbackTint = HazeTint(Color.Transparent)
+    )
+
+    Box(
         modifier = modifier
             .size(size)
+            .clip(CircleShape)
+            .hazeEffect(state = hazeState, style = style)
+            .border(1.dp, borderColor, CircleShape)
             .clickable(interactionSource = interaction, indication = null, onClick = onClick),
-        pressed = pressed
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             icon,
             contentDescription = contentDescription,
             tint = if (selected) GlassColors.Accent else tint,
-            modifier = Modifier.align(Alignment.Center).size(iconSize)
+            modifier = Modifier.size(iconSize)
         )
     }
 }

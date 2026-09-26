@@ -1,7 +1,7 @@
 {
-  "versionCode": 24,
-  "versionName": "1.0.23",
+  "versionCode": 25,
+  "versionName": "1.0.24",
   "ipaUrl": "",
-  "changelog": "- 按压态蒙版色区分（默认/按压不同色值，如按钮 #2A2A2C→#1E1E20）\n- 新增色彩校正（饱和度/亮度/对比度，iOS vibrancy）\n- 动效曲线 cubic-bezier(0.20,0.90,0.30,1.00)、80ms/120ms 过渡",
+  "changelog": "- 圆形按钮改为透明背景 + 半透明边框，保留 backdrop blur 透出底层",
   "buildDate": "2026-09-26"
 }
