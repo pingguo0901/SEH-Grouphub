@@ -1,7 +1,7 @@
 {
-  "versionCode": 26,
-  "versionName": "1.0.25",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.25/seh-grouphub.apk",
-  "changelog": "- 圆形按钮新增液态水珠元素：顶部高光点 + 底部次级反光 + 内部边缘折射",
+  "versionCode": 27,
+  "versionName": "1.0.26",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.26/seh-grouphub.apk",
+  "changelog": "- 去掉按钮上的液态水珠高光元素，保留透明背景 + 半透明边框 + 22dp 磨砂",
   "buildDate": "2026-09-26"
 }
