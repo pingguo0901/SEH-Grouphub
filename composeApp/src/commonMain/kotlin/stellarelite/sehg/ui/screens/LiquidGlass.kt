@@ -1,5 +1,6 @@
 package stellarelite.sehg.ui.screens
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -19,9 +20,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -48,15 +56,25 @@ internal object GlassColors {
 /**
  * 液态玻璃样式规格（对照 iOS 26.7 Liquid Glass 参数）
  * blurRadius: 背景模糊半径（backdrop blur，非 box blur）
- * maskColor / maskAlpha: 玻璃蒙版色与透明度
+ * maskColor/maskColorPressed: 玻璃蒙版色（默认/按压不同色值）
+ * maskAlpha/maskAlphaPressed: 蒙版透明度
+ * saturation/brightness/contrast: 色彩校正（iOS vibrancy）
  * edgeHighlight: 曲面边缘高光 opacity（极微弱）
  * grain: 细微胶片颗粒强度（很低）
+ * 注：透镜折射 Haze 1.5.3 无对应 API，未实现（保持轻微、不强行模拟）。
  */
 internal data class GlassSpec(
     val blurRadius: Dp,
     val maskColor: Color,
+    val maskColorPressed: Color,
     val maskAlpha: Float,
     val maskAlphaPressed: Float,
+    val saturation: Float,
+    val saturationPressed: Float,
+    val brightness: Float,
+    val brightnessPressed: Float,
+    val contrast: Float,
+    val contrastPressed: Float,
     val edgeHighlight: Float,
     val edgeHighlightPressed: Float,
     val grain: Float
@@ -67,8 +85,15 @@ internal object GlassSpecs {
     val circleButton = GlassSpec(
         blurRadius = 22.dp,
         maskColor = Color(0xFF2A2A2C),
+        maskColorPressed = Color(0xFF1E1E20),
         maskAlpha = 0.36f,
         maskAlphaPressed = 0.58f,
+        saturation = 1.32f,
+        saturationPressed = 1.20f,
+        brightness = 0.94f,
+        brightnessPressed = 0.87f,
+        contrast = 1.03f,
+        contrastPressed = 1.07f,
         edgeHighlight = 0.07f,
         edgeHighlightPressed = 0.03f,
         grain = 0.025f
@@ -77,8 +102,15 @@ internal object GlassSpecs {
     val card = GlassSpec(
         blurRadius = 18.dp,
         maskColor = Color(0xFF2C2C2E),
+        maskColorPressed = Color(0xFF222224),
         maskAlpha = 0.32f,
         maskAlphaPressed = 0.52f,
+        saturation = 1.28f,
+        saturationPressed = 1.15f,
+        brightness = 0.95f,
+        brightnessPressed = 0.88f,
+        contrast = 1.02f,
+        contrastPressed = 1.06f,
         edgeHighlight = 0.06f,
         edgeHighlightPressed = 0.02f,
         grain = 0.02f
@@ -87,8 +119,15 @@ internal object GlassSpecs {
     val bar = GlassSpec(
         blurRadius = 22.dp,
         maskColor = Color(0xFF2A2A2C),
+        maskColorPressed = Color(0xFF1E1E20),
         maskAlpha = 0.30f,
         maskAlphaPressed = 0.50f,
+        saturation = 1.30f,
+        saturationPressed = 1.18f,
+        brightness = 0.95f,
+        brightnessPressed = 0.88f,
+        contrast = 1.02f,
+        contrastPressed = 1.06f,
         edgeHighlight = 0.06f,
         edgeHighlightPressed = 0.02f,
         grain = 0.02f
@@ -113,8 +152,42 @@ internal fun GlassWallpaper(modifier: Modifier = Modifier) {
 }
 
 /**
+ * 构造饱和/亮度/对比度组合 ColorMatrix（iOS vibrancy 色彩校正）。
+ * 顺序：先亮度+对比度，再饱和度。
+ */
+private fun buildGlassColorMatrix(saturation: Float, brightness: Float, contrast: Float): ColorMatrix {
+    val sat = ColorMatrix()
+    sat.setToSaturation(saturation)
+
+    val scale = contrast * brightness
+    val offset = 127.5f * (1f - contrast)
+    val bc = ColorMatrix(
+        floatArrayOf(
+            scale, 0f, 0f, 0f, offset,
+            0f, scale, 0f, 0f, offset,
+            0f, 0f, scale, 0f, offset,
+            0f, 0f, 0f, 1f, 0f
+        )
+    )
+
+    val result = ColorMatrix(sat.values)
+    result.timesAssign(bc)
+    return result
+}
+
+/** 对内容应用色彩校正（ColorMatrix）。 */
+private fun Modifier.colorMatrix(matrix: ColorMatrix): Modifier = drawWithContent {
+    val paint = Paint().apply { colorFilter = ColorFilter.colorMatrix(matrix) }
+    drawIntoCanvas { canvas ->
+        canvas.saveLayer(Rect(Offset.Zero, size), paint)
+        drawContent()
+        canvas.restore()
+    }
+}
+
+/**
  * 玻璃面板：真正的 backdrop blur（模糊背后内容），
- * 叠加蒙版色 + 细微颗粒 + 曲面边缘高光。无硬描边。
+ * 叠加蒙版色 + 色彩校正 + 细微颗粒 + 曲面边缘高光。无硬描边。
  */
 @Composable
 internal fun GlassSurface(
@@ -125,29 +198,54 @@ internal fun GlassSurface(
     pressed: Boolean = false,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val animSpec = tween<Float>(if (pressed) PRESS_MS else RELEASE_MS, easing = LiquidEasing)
+
     val maskAlpha by animateFloatAsState(
         targetValue = if (pressed) spec.maskAlphaPressed else spec.maskAlpha,
-        animationSpec = tween(if (pressed) PRESS_MS else RELEASE_MS, easing = LiquidEasing),
+        animationSpec = animSpec,
         label = "maskAlpha"
+    )
+    val maskColor by animateColorAsState(
+        targetValue = if (pressed) spec.maskColorPressed else spec.maskColor,
+        animationSpec = tween(if (pressed) PRESS_MS else RELEASE_MS, easing = LiquidEasing),
+        label = "maskColor"
     )
     val edge by animateFloatAsState(
         targetValue = if (pressed) spec.edgeHighlightPressed else spec.edgeHighlight,
-        animationSpec = tween(if (pressed) PRESS_MS else RELEASE_MS, easing = LiquidEasing),
+        animationSpec = animSpec,
         label = "edgeHighlight"
+    )
+    val saturation by animateFloatAsState(
+        targetValue = if (pressed) spec.saturationPressed else spec.saturation,
+        animationSpec = animSpec,
+        label = "saturation"
+    )
+    val brightness by animateFloatAsState(
+        targetValue = if (pressed) spec.brightnessPressed else spec.brightness,
+        animationSpec = animSpec,
+        label = "brightness"
+    )
+    val contrast by animateFloatAsState(
+        targetValue = if (pressed) spec.contrastPressed else spec.contrast,
+        animationSpec = animSpec,
+        label = "contrast"
     )
 
     val style = HazeStyle(
         backgroundColor = Color.Transparent,
-        tint = HazeTint(spec.maskColor.copy(alpha = maskAlpha)),
+        tint = HazeTint(maskColor.copy(alpha = maskAlpha)),
         blurRadius = spec.blurRadius,
         noiseFactor = spec.grain,
         fallbackTint = HazeTint(spec.maskColor.copy(alpha = 0.5f))
     )
 
+    val matrix = buildGlassColorMatrix(saturation, brightness, contrast)
+
     Box(
         modifier = modifier
             .clip(shape)
             .hazeEffect(state = hazeState, style = style)
+            .colorMatrix(matrix)
             .then(
                 Modifier.border(
                     width = 1.dp,

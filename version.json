@@ -1,7 +1,7 @@
 {
-  "versionCode": 23,
-  "versionName": "1.0.22",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.22/seh-grouphub.apk",
-  "changelog": "- 引入 Haze 库实现真正的 backdrop 背景实时模糊（非 box 前景模糊）\n- 玻璃面板叠加蒙版色、细微颗粒(grain)、曲面边缘高光\n- 圆形按钮 48dp 正圆、卡片圆角20dp 高度104dp，按压过渡80ms/释放120ms\n- 低性能设备自动降级为半透明磨砂",
+  "versionCode": 24,
+  "versionName": "1.0.23",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.23/seh-grouphub.apk",
+  "changelog": "- 按压态蒙版色区分（默认/按压不同色值，如按钮 #2A2A2C→#1E1E20）\n- 新增色彩校正（饱和度/亮度/对比度，iOS vibrancy）\n- 动效曲线 cubic-bezier(0.20,0.90,0.30,1.00)、80ms/120ms 过渡",
   "buildDate": "2026-09-26"
 }
