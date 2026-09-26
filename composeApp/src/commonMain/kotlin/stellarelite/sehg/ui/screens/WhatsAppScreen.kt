@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -257,10 +258,9 @@ private fun ChatsTab(
             modifier = Modifier.padding(start = 16.dp, top = 14.dp, bottom = 4.dp)
         )
 
-        // 搜索框（玻璃胶囊）
-        GlassSurface(
+        // 搜索框（按钮风格：透明背景 + 半透明边框）
+        GlassButtonSurface(
             hazeState = hazeState,
-            spec = GlassSpecs.card,
             shape = RoundedCornerShape(22.dp),
             modifier = Modifier
                 .fillMaxWidth()
@@ -361,11 +361,10 @@ private fun ChatsTab(
 
 @Composable
 private fun FilterChip(hazeState: HazeState, label: String, selected: Boolean, onClick: () -> Unit) {
-    GlassSurface(
+    GlassButtonSurface(
         hazeState = hazeState,
-        spec = GlassSpecs.card,
         shape = RoundedCornerShape(18.dp),
-        modifier = Modifier.clip(RoundedCornerShape(18.dp))
+        modifier = Modifier
     ) {
         Box(
             modifier = Modifier
@@ -548,10 +547,14 @@ private fun PlaceholderTab(label: String) {
     }
 }
 
+/** 按钮风格表面：透明背景 + 10dp 磨砂 + 半透明边框（搜索框、筛选按钮、底部快捷栏统一风格） */
 @Composable
-private fun WaBottomBar(hazeState: HazeState, currentTab: WaTab, onSelect: (WaTab) -> Unit) {
-    // 整体胶囊板块：透明背景 + 均匀半透明边框（左右弧形 + 上下横线，四边都可见）
-    val shape = RoundedCornerShape(26.dp)
+private fun GlassButtonSurface(
+    hazeState: HazeState,
+    shape: Shape,
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit
+) {
     val style = HazeStyle(
         backgroundColor = Color.Transparent,
         tint = HazeTint(Color.Transparent),
@@ -560,25 +563,36 @@ private fun WaBottomBar(hazeState: HazeState, currentTab: WaTab, onSelect: (WaTa
         fallbackTint = HazeTint(Color.Transparent)
     )
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp)
+        modifier = modifier
             .clip(shape)
             .hazeEffect(state = hazeState, style = style)
-            .border(1.dp, Color.White.copy(alpha = 0.25f), shape)
+            .border(1.dp, Color.White.copy(alpha = 0.25f), shape),
+        content = content
+    )
+}
+
+@Composable
+private fun WaBottomBar(hazeState: HazeState, currentTab: WaTab, onSelect: (WaTab) -> Unit) {
+    // 5 个按钮各自按钮风格（透明背景 + 半透明边框），直接浮在页面上，能透出背后聊天
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
-                .padding(vertical = 8.dp)
-        ) {
-            WaTab.entries.forEach { tab ->
-                val selected = currentTab == tab
+        WaTab.entries.forEach { tab ->
+            val selected = currentTab == tab
+            GlassButtonSurface(
+                hazeState = hazeState,
+                shape = RoundedCornerShape(18.dp),
+                modifier = Modifier.weight(1f)
+            ) {
                 Column(
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth()
                         .clickable { onSelect(tab) }
-                        .padding(vertical = 4.dp),
+                        .padding(vertical = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(

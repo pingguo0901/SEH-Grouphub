@@ -1,7 +1,7 @@
 {
-  "versionCode": 29,
-  "versionName": "1.0.28",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.28/seh-grouphub.apk",
-  "changelog": "- 底部快捷栏改为整体胶囊板块：透明背景 + 均匀半透明边框（左右弧形 + 上下横线，四边都可见）",
+  "versionCode": 30,
+  "versionName": "1.0.29",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.29/seh-grouphub.apk",
+  "changelog": "- 底部快捷栏去掉背景板块，5 个按钮各自按钮风格（透明背景 + 半透明边框）直接浮在页面上，能透出背后聊天\n- 搜索框、筛选按钮统一改为按钮风格（透明背景 + 半透明边框）\n- 整个聊天页面只保留一个壁纸背景板",
   "buildDate": "2026-09-26"
 }
