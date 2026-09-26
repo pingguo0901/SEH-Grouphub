@@ -1,7 +1,7 @@
 {
-  "versionCode": 20,
-  "versionName": "1.0.19",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.19/seh-grouphub.apk",
-  "changelog": "- 三点菜单「选择对话」支持真实多选（头像左侧空圈/打勾）\n- 选择时标题显示已选数量、三点切换为完成按钮\n- 底部快捷栏随选择状态切换（未选中=全部已读；已选中=列表/已读/清除）\n- 搜索框下方新增筛选快捷栏（全部/未读/特别关注/群组/+）",
+  "versionCode": 21,
+  "versionName": "1.0.20",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.20/seh-grouphub.apk",
+  "changelog": "- 修复：选择模式底部快捷栏（全部已读/列表/已读/清除）未显示问题\n- 修复：筛选栏 + 按钮跟随末位按钮移动，现固定在右侧",
   "buildDate": "2026-09-26"
 }

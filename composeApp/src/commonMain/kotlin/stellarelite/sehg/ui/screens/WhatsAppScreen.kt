@@ -2,7 +2,9 @@ package stellarelite.sehg.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -261,18 +263,25 @@ private fun ChatsTab(
             }
         }
 
-        // 列表快捷栏（筛选）
+        // 列表快捷栏（筛选）：chips 横向滚动，+ 固定在右侧
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            ChatFilter.entries.forEach { f ->
-                FilterChip(label = f.label, selected = filter == f, onClick = { filter = f })
-                Spacer(Modifier.width(8.dp))
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .horizontalScroll(rememberScrollState()),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ChatFilter.entries.forEach { f ->
+                    FilterChip(label = f.label, selected = filter == f, onClick = { filter = f })
+                    Spacer(Modifier.width(8.dp))
+                }
             }
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.width(8.dp))
             Icon(
                 Icons.Filled.Add,
                 contentDescription = "新建",
@@ -282,7 +291,7 @@ private fun ChatsTab(
         }
 
         // 联系人聊天列表
-        LazyColumn(Modifier.fillMaxSize()) {
+        LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
             items(filteredContacts, key = { it.key }) { contact ->
                 ContactRow(
                     contact = contact,
