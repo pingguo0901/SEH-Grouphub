@@ -22,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -94,7 +95,15 @@ fun WhatsAppScreen(onBack: () -> Unit) {
         return
     }
 
-    Column(Modifier.fillMaxSize().background(WaColors.Wallpaper)) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(GlassColors.WallpaperTop, GlassColors.WallpaperBottom)
+                )
+            )
+    ) {
         Box(Modifier.weight(1f)) {
             when (currentTab) {
                 WaTab.Chats -> ChatsTab(
@@ -143,69 +152,61 @@ private fun ChatsTab(
         ChatFilter.Group -> contacts.filter { it.isGroup }
     }
 
-    Column(Modifier.fillMaxSize().background(WaColors.Wallpaper)) {
-        // 顶部栏：左上返回 + 三点（选择模式变完成）；右上相机 + 加号
+    Column(Modifier.fillMaxSize()) {
+        // 顶部玻璃栏：左上返回 + 三点（选择模式变完成）；右上相机 + 加号
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(WaColors.Header)
+                .glassPanel(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
-                .padding(horizontal = 8.dp, vertical = 6.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
+            GlassCircleButton(
                 Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "返回",
-                tint = Color.White,
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable(onClick = { if (selecting) endSelecting() else onBack() })
+                onClick = { if (selecting) endSelecting() else onBack() }
             )
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(10.dp))
 
             if (selecting) {
-                // 选择模式：三点切换为完成（打勾）按钮
-                Icon(
+                // 选择模式：三点切换为完成（打勾）圆形按钮
+                GlassCircleButton(
                     Icons.Filled.Check,
                     contentDescription = "完成",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(26.dp)
-                        .clickable(onClick = { endSelecting() })
+                    onClick = { endSelecting() },
+                    selected = true
                 )
             } else {
                 // 三点菜单
                 var menuExpanded by remember { mutableStateOf(false) }
                 Box {
-                    Icon(
+                    GlassCircleButton(
                         Icons.Filled.MoreVert,
                         contentDescription = "更多",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable { menuExpanded = true }
+                        onClick = { menuExpanded = true }
                     )
                     DropdownMenu(
                         expanded = menuExpanded,
                         onDismissRequest = { menuExpanded = false },
-                        containerColor = WaColors.ReceivedBubble
+                        containerColor = GlassColors.GlassFill
                     ) {
                         DropdownMenuItem(
-                            text = { Text("选择对话", color = WaColors.TextPrimary) },
+                            text = { Text("选择对话", color = GlassColors.TextPrimary) },
                             onClick = {
                                 menuExpanded = false
                                 startSelecting()
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("全部已读", color = WaColors.TextPrimary) },
+                            text = { Text("全部已读", color = GlassColors.TextPrimary) },
                             onClick = {
                                 menuExpanded = false
                                 contacts = contacts.map { it.copy(unread = 0) }
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("列表", color = WaColors.TextPrimary) },
+                            text = { Text("列表", color = GlassColors.TextPrimary) },
                             onClick = { menuExpanded = false }
                         )
                     }
@@ -215,20 +216,16 @@ private fun ChatsTab(
             Spacer(Modifier.weight(1f))
 
             if (!selecting) {
-                Icon(
+                GlassCircleButton(
                     Icons.Filled.CameraAlt,
                     contentDescription = "相机",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable(onClick = openCamera)
+                    onClick = openCamera
                 )
-                Spacer(Modifier.width(20.dp))
-                Icon(
+                Spacer(Modifier.width(10.dp))
+                GlassCircleButton(
                     Icons.Filled.Add,
                     contentDescription = "添加",
-                    tint = Color.White,
-                    modifier = Modifier.size(26.dp)
+                    onClick = { }
                 )
             }
         }
@@ -236,38 +233,36 @@ private fun ChatsTab(
         // 页面标题（选择模式切换为已选数量）
         Text(
             if (selecting) "已选择 " + selectedKeys.size + " 个" else "聊天",
-            fontSize = 22.sp,
+            fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
-            color = WaColors.TextPrimary,
-            modifier = Modifier.padding(start = 14.dp, top = 10.dp, bottom = 2.dp)
+            color = GlassColors.TextPrimary,
+            modifier = Modifier.padding(start = 16.dp, top = 14.dp, bottom = 4.dp)
         )
 
-        // 搜索框
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(WaColors.InputField)
-                .padding(horizontal = 14.dp, vertical = 8.dp)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Filled.Search,
-                    contentDescription = null,
-                    tint = WaColors.IconGrey,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text("搜索", fontSize = 14.sp, color = WaColors.IconGrey)
-            }
-        }
-
-        // 列表快捷栏（筛选）：chips 横向滚动，+ 固定在右侧
+        // 搜索框（玻璃胶囊）
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 2.dp),
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+                .glassPanel(RoundedCornerShape(22.dp))
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Filled.Search,
+                contentDescription = null,
+                tint = GlassColors.TextSecondary,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(Modifier.width(8.dp))
+            Text("搜索", fontSize = 14.sp, color = GlassColors.TextSecondary)
+        }
+
+        // 列表快捷栏（筛选）：chips 横向滚动，+ 圆形按钮固定在右侧
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
@@ -282,16 +277,22 @@ private fun ChatsTab(
                 }
             }
             Spacer(Modifier.width(8.dp))
-            Icon(
+            GlassCircleButton(
                 Icons.Filled.Add,
                 contentDescription = "新建",
-                tint = WaColors.IconGrey,
-                modifier = Modifier.size(22.dp)
+                onClick = { },
+                size = 34.dp,
+                iconSize = 18.dp
             )
         }
 
         // 联系人聊天列表
-        LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
+        LazyColumn(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
+        ) {
             items(filteredContacts, key = { it.key }) { contact ->
                 ContactRow(
                     contact = contact,
@@ -307,6 +308,7 @@ private fun ChatsTab(
                         }
                     }
                 )
+                Spacer(Modifier.height(8.dp))
             }
         }
 
@@ -335,16 +337,22 @@ private fun ChatsTab(
 private fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(if (selected) WaColors.MicGreen else WaColors.InputField)
+            .clip(RoundedCornerShape(18.dp))
+            .background(
+                if (selected) {
+                    Brush.linearGradient(listOf(GlassColors.Accent, Color(0xFF5AA7FF)))
+                } else {
+                    Brush.verticalGradient(listOf(GlassColors.GlassFillBright, GlassColors.GlassFill))
+                }
+            )
             .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 6.dp)
+            .padding(horizontal = 15.dp, vertical = 7.dp)
     ) {
         Text(
             label,
             fontSize = 13.sp,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (selected) Color.White else WaColors.IconGrey
+            color = if (selected) Color.White else GlassColors.TextSecondary
         )
     }
 }
@@ -359,25 +367,29 @@ private fun ContactRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .glassPanel(RoundedCornerShape(20.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 10.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (selecting) {
             Icon(
                 if (selected) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
                 contentDescription = if (selected) "已选择" else "未选择",
-                tint = if (selected) WaColors.MicGreen else WaColors.IconGrey,
+                tint = if (selected) GlassColors.Accent else GlassColors.TextSecondary,
                 modifier = Modifier.size(22.dp)
             )
             Spacer(Modifier.width(12.dp))
         }
 
+        // 圆形头像
         Box(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(WaColors.MicGreen),
+                .background(
+                    Brush.linearGradient(listOf(GlassColors.Accent, Color(0xFF5AA7FF)))
+                ),
             contentAlignment = Alignment.Center
         ) {
             if (contact.isGroup) {
@@ -394,7 +406,7 @@ private fun ContactRow(
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(contact.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = WaColors.TextPrimary)
+                Text(contact.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = GlassColors.TextPrimary)
                 if (contact.favorite) {
                     Spacer(Modifier.width(4.dp))
                     Icon(
@@ -406,18 +418,18 @@ private fun ContactRow(
                 }
             }
             Spacer(Modifier.height(2.dp))
-            Text(contact.lastMessage, fontSize = 13.sp, color = WaColors.IconGrey, maxLines = 1)
+            Text(contact.lastMessage, fontSize = 13.sp, color = GlassColors.TextSecondary, maxLines = 1)
         }
         Spacer(Modifier.width(8.dp))
         Column(horizontalAlignment = Alignment.End) {
-            Text(contact.time, fontSize = 11.sp, color = WaColors.IconGrey)
+            Text(contact.time, fontSize = 11.sp, color = GlassColors.TextSecondary)
             if (contact.unread > 0) {
                 Spacer(Modifier.height(4.dp))
                 Box(
                     modifier = Modifier
                         .size(20.dp)
                         .clip(CircleShape)
-                        .background(WaColors.MicGreen),
+                        .background(GlassColors.Accent),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(contact.unread.toString(), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
@@ -438,9 +450,9 @@ private fun SelectionActionBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(WaColors.Header)
+            .glassPanel(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
-            .padding(vertical = 8.dp),
+            .padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (selectedCount == 0) {
@@ -466,22 +478,22 @@ private fun SelectionBarButton(
             .padding(vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(icon, contentDescription = label, tint = WaColors.MicGreen, modifier = Modifier.size(22.dp))
+        Icon(icon, contentDescription = label, tint = GlassColors.Accent, modifier = Modifier.size(22.dp))
         Spacer(Modifier.height(2.dp))
-        Text(label, fontSize = 11.sp, color = WaColors.MicGreen)
+        Text(label, fontSize = 11.sp, color = GlassColors.Accent)
     }
 }
 
 @Composable
 private fun PlaceholderTab(label: String) {
     Box(
-        modifier = Modifier.fillMaxSize().background(WaColors.Wallpaper),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(label, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = WaColors.TextPrimary)
+            Text(label, fontSize = 18.sp, fontWeight = FontWeight.SemiBold, color = GlassColors.TextPrimary)
             Spacer(Modifier.height(6.dp))
-            Text("功能待接入", fontSize = 13.sp, color = WaColors.IconGrey)
+            Text("功能待接入", fontSize = 13.sp, color = GlassColors.TextSecondary)
         }
     }
 }
@@ -491,9 +503,9 @@ private fun WaBottomBar(currentTab: WaTab, onSelect: (WaTab) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(WaColors.Header)
+            .glassPanel(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
-            .padding(vertical = 6.dp)
+            .padding(vertical = 8.dp)
     ) {
         WaTab.entries.forEach { tab ->
             val selected = currentTab == tab
@@ -507,14 +519,14 @@ private fun WaBottomBar(currentTab: WaTab, onSelect: (WaTab) -> Unit) {
                 Icon(
                     tab.icon,
                     contentDescription = tab.label,
-                    tint = if (selected) WaColors.MicGreen else WaColors.IconGrey,
+                    tint = if (selected) GlassColors.Accent else GlassColors.TextSecondary,
                     modifier = Modifier.size(22.dp)
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     tab.label,
                     fontSize = 10.sp,
-                    color = if (selected) WaColors.MicGreen else WaColors.IconGrey
+                    color = if (selected) GlassColors.Accent else GlassColors.TextSecondary
                 )
             }
         }

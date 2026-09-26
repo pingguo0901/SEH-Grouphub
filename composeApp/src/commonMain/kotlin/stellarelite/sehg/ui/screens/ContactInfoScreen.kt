@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -30,30 +32,32 @@ fun ContactInfoScreen(
     contact: WaContact,
     onBack: () -> Unit
 ) {
-    Column(Modifier.fillMaxSize().background(WaColors.Wallpaper)) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(listOf(GlassColors.WallpaperTop, GlassColors.WallpaperBottom))
+            )
+    ) {
         // 顶部栏：左返回 + 右编辑
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(WaColors.Header)
+                .glassPanel(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
-                .padding(horizontal = 8.dp, vertical = 6.dp),
+                .padding(horizontal = 10.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
+            GlassCircleButton(
                 Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "返回",
-                tint = Color.White,
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable(onClick = onBack)
+                onClick = onBack
             )
             Spacer(Modifier.weight(1f))
-            Icon(
+            GlassCircleButton(
                 Icons.Filled.Edit,
                 contentDescription = "编辑",
-                tint = Color.White,
-                modifier = Modifier.size(22.dp)
+                onClick = { }
             )
         }
 
@@ -68,7 +72,7 @@ fun ContactInfoScreen(
                         modifier = Modifier
                             .size(120.dp)
                             .clip(CircleShape)
-                            .background(WaColors.MicGreen),
+                            .background(Brush.linearGradient(listOf(GlassColors.Accent, Color(0xFF5AA7FF)))),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -79,9 +83,9 @@ fun ContactInfoScreen(
                         )
                     }
                     Spacer(Modifier.height(14.dp))
-                    Text(contact.name, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = WaColors.TextPrimary)
+                    Text(contact.name, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = GlassColors.TextPrimary)
                     Spacer(Modifier.height(4.dp))
-                    Text(contact.phone, fontSize = 14.sp, color = WaColors.TextSecondary)
+                    Text(contact.phone, fontSize = 14.sp, color = GlassColors.TextSecondary)
                 }
             }
 
@@ -101,7 +105,7 @@ fun ContactInfoScreen(
 
             item {
                 Spacer(Modifier.height(8.dp))
-                HorizontalDivider(color = WaColors.ReceivedBubble)
+                HorizontalDivider(color = GlassColors.GlassEdge)
             }
 
             // 添加备注
@@ -122,7 +126,7 @@ fun ContactInfoScreen(
 
             item {
                 Spacer(Modifier.height(8.dp))
-                HorizontalDivider(color = WaColors.ReceivedBubble)
+                HorizontalDivider(color = GlassColors.GlassEdge)
             }
 
             // 共同群组
@@ -132,7 +136,7 @@ fun ContactInfoScreen(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = WaColors.TextPrimary
+                    color = GlassColors.TextPrimary
                 )
             }
             item {
@@ -140,7 +144,7 @@ fun ContactInfoScreen(
                     "没有共同群组",
                     modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 4.dp, bottom = 12.dp),
                     fontSize = 13.sp,
-                    color = WaColors.TextSecondary
+                    color = GlassColors.TextSecondary
                 )
             }
 
@@ -150,7 +154,7 @@ fun ContactInfoScreen(
 
             item {
                 Spacer(Modifier.height(8.dp))
-                HorizontalDivider(color = WaColors.ReceivedBubble)
+                HorizontalDivider(color = GlassColors.GlassEdge)
             }
 
             // 操作项
@@ -174,13 +178,13 @@ private fun CircleAction(icon: ImageVector, label: String) {
             modifier = Modifier
                 .size(50.dp)
                 .clip(CircleShape)
-                .background(WaColors.ReceivedBubble),
+                .glassPanel(CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, contentDescription = label, tint = WaColors.MicGreen, modifier = Modifier.size(24.dp))
+            Icon(icon, contentDescription = label, tint = GlassColors.Accent, modifier = Modifier.size(24.dp))
         }
         Spacer(Modifier.height(6.dp))
-        Text(label, fontSize = 11.sp, color = WaColors.TextPrimary)
+        Text(label, fontSize = 11.sp, color = GlassColors.TextPrimary)
     }
 }
 
@@ -190,7 +194,7 @@ private fun InfoRow(
     label: String,
     danger: Boolean = false
 ) {
-    val color = if (danger) DangerRed else WaColors.TextPrimary
+    val color = if (danger) DangerRed else GlassColors.TextPrimary
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -201,7 +205,7 @@ private fun InfoRow(
         Icon(
             icon,
             contentDescription = null,
-            tint = if (danger) DangerRed else WaColors.IconGrey,
+            tint = if (danger) DangerRed else GlassColors.TextSecondary,
             modifier = Modifier.size(22.dp)
         )
         Spacer(Modifier.width(28.dp))

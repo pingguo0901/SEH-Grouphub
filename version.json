@@ -1,7 +1,7 @@
 {
-  "versionCode": 21,
-  "versionName": "1.0.20",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.20/seh-grouphub.apk",
-  "changelog": "- 修复：选择模式底部快捷栏（全部已读/列表/已读/清除）未显示问题\n- 修复：筛选栏 + 按钮跟随末位按钮移动，现固定在右侧",
+  "versionCode": 22,
+  "versionName": "1.0.21",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.21/seh-grouphub.apk",
+  "changelog": "- 聊天页面全面升级为 Liquid Glass 液态玻璃风格（深色清透）\n- 所有按钮改为圆形玻璃按钮，带边缘高光\n- 顶部栏/底部栏/搜索框/筛选栏/联系人卡片/聊天气泡全部玻璃化",
   "buildDate": "2026-09-26"
 }
