@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -35,25 +36,39 @@ enum class WaTab(val label: String, val icon: ImageVector) {
     Settings("设置", Icons.Filled.Settings)
 }
 
+// 列表筛选
+enum class ChatFilter(val label: String) {
+    All("全部"),
+    Unread("未读"),
+    Favorite("特别关注"),
+    Group("群组")
+}
+
 // 联系人会话
 data class WaContact(
     val name: String,
     val phone: String,
     val lastMessage: String,
     val time: String,
-    val unread: Int = 0
-)
+    val unread: Int = 0,
+    val favorite: Boolean = false,
+    val isGroup: Boolean = false
+) {
+    // 选择/去重用唯一键（群组无号码时退化为名称）
+    val key: String get() = phone.ifBlank { name }
+}
 
 // 示例联系人列表（后续接 Supabase / WhatsApp webhook 数据源替换）
 private val sampleContacts = listOf(
     WaContact("阿康（店长）", "+601162329701", "好的陈先生，今晚 7 点见！🍢", "14:35"),
-    WaContact("张小姐", "+60123456789", "你好，想问下今天有什么优惠？", "14:31", unread = 2),
+    WaContact("张小姐", "+60123456789", "你好，想问下今天有什么优惠？", "14:31", unread = 2, favorite = true),
     WaContact("李先生", "+60198765432", "帮我订一份烤串套餐，谢谢", "13:05", unread = 1),
     WaContact("王先生", "+60155512345", "收到，明天中午见", "昨天"),
-    WaContact("陈小姐", "+60155567890", "请问营业时间到几点？", "昨天", unread = 3),
+    WaContact("陈小姐", "+60155567890", "请问营业时间到几点？", "昨天", unread = 3, favorite = true),
     WaContact("刘先生", "+60133344455", "好的，谢谢！", "星期二"),
     WaContact("林女士", "+60122233344", "有包间吗？8 人", "星期一"),
-    WaContact("赵先生", "+60111122233", "已付款，请查收", "星期日")
+    WaContact("赵先生", "+60111122233", "已付款，请查收", "星期日"),
+    WaContact("炙巷食铺工作群", "", "阿康：今日营业至 22:00", "14:20", isGroup = true)
 )
 
 @Composable
@@ -61,6 +76,7 @@ fun WhatsAppScreen(onBack: () -> Unit) {
     var currentTab by remember { mutableStateOf(WaTab.Chats) }
     var openContact by remember { mutableStateOf<WaContact?>(null) }
     var showContactInfo by remember { mutableStateOf(false) }
+    var chatSelecting by remember { mutableStateOf(false) }
 
     val contact = openContact
     if (contact != null) {
@@ -79,20 +95,54 @@ fun WhatsAppScreen(onBack: () -> Unit) {
     Column(Modifier.fillMaxSize().background(WaColors.Wallpaper)) {
         Box(Modifier.weight(1f)) {
             when (currentTab) {
-                WaTab.Chats -> ChatsTab(onBack = onBack, onOpenContact = { openContact = it })
+                WaTab.Chats -> ChatsTab(
+                    onBack = onBack,
+                    onOpenContact = { openContact = it },
+                    onSelectingChange = { chatSelecting = it }
+                )
                 else -> PlaceholderTab(currentTab.label)
             }
         }
 
-        WaBottomBar(currentTab = currentTab, onSelect = { currentTab = it })
+        if (!chatSelecting) {
+            WaBottomBar(currentTab = currentTab, onSelect = { currentTab = it })
+        }
     }
 }
 
 @Composable
-private fun ChatsTab(onBack: () -> Unit, onOpenContact: (WaContact) -> Unit) {
+private fun ChatsTab(
+    onBack: () -> Unit,
+    onOpenContact: (WaContact) -> Unit,
+    onSelectingChange: (Boolean) -> Unit
+) {
     val openCamera = rememberCameraLauncher()
+    var selecting by remember { mutableStateOf(false) }
+    var selectedKeys by remember { mutableStateOf(setOf<String>()) }
+    var contacts by remember { mutableStateOf(sampleContacts) }
+    var filter by remember { mutableStateOf(ChatFilter.All) }
+
+    fun startSelecting() {
+        selecting = true
+        selectedKeys = emptySet()
+        onSelectingChange(true)
+    }
+
+    fun endSelecting() {
+        selecting = false
+        selectedKeys = emptySet()
+        onSelectingChange(false)
+    }
+
+    val filteredContacts = when (filter) {
+        ChatFilter.All -> contacts
+        ChatFilter.Unread -> contacts.filter { it.unread > 0 }
+        ChatFilter.Favorite -> contacts.filter { it.favorite }
+        ChatFilter.Group -> contacts.filter { it.isGroup }
+    }
+
     Column(Modifier.fillMaxSize().background(WaColors.Wallpaper)) {
-        // 顶部栏：左上返回 + 三点；右上相机 + 加号
+        // 顶部栏：左上返回 + 三点（选择模式变完成）；右上相机 + 加号
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -107,63 +157,83 @@ private fun ChatsTab(onBack: () -> Unit, onOpenContact: (WaContact) -> Unit) {
                 tint = Color.White,
                 modifier = Modifier
                     .size(24.dp)
-                    .clickable(onClick = onBack)
+                    .clickable(onClick = { if (selecting) endSelecting() else onBack() })
             )
             Spacer(Modifier.width(8.dp))
 
-            // 三点菜单
-            var menuExpanded by remember { mutableStateOf(false) }
-            Box {
+            if (selecting) {
+                // 选择模式：三点切换为完成（打勾）按钮
                 Icon(
-                    Icons.Filled.MoreVert,
-                    contentDescription = "更多",
+                    Icons.Filled.Check,
+                    contentDescription = "完成",
                     tint = Color.White,
                     modifier = Modifier
-                        .size(24.dp)
-                        .clickable { menuExpanded = true }
+                        .size(26.dp)
+                        .clickable(onClick = { endSelecting() })
                 )
-                DropdownMenu(
-                    expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false },
-                    containerColor = WaColors.ReceivedBubble
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("选择对话", color = WaColors.TextPrimary) },
-                        onClick = { menuExpanded = false }
+            } else {
+                // 三点菜单
+                var menuExpanded by remember { mutableStateOf(false) }
+                Box {
+                    Icon(
+                        Icons.Filled.MoreVert,
+                        contentDescription = "更多",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { menuExpanded = true }
                     )
-                    DropdownMenuItem(
-                        text = { Text("全部已读", color = WaColors.TextPrimary) },
-                        onClick = { menuExpanded = false }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("列表", color = WaColors.TextPrimary) },
-                        onClick = { menuExpanded = false }
-                    )
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false },
+                        containerColor = WaColors.ReceivedBubble
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("选择对话", color = WaColors.TextPrimary) },
+                            onClick = {
+                                menuExpanded = false
+                                startSelecting()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("全部已读", color = WaColors.TextPrimary) },
+                            onClick = {
+                                menuExpanded = false
+                                contacts = contacts.map { it.copy(unread = 0) }
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("列表", color = WaColors.TextPrimary) },
+                            onClick = { menuExpanded = false }
+                        )
+                    }
                 }
             }
 
             Spacer(Modifier.weight(1f))
 
-            Icon(
-                Icons.Filled.CameraAlt,
-                contentDescription = "相机",
-                tint = Color.White,
-                modifier = Modifier
-                    .size(24.dp)
-                    .clickable(onClick = openCamera)
-            )
-            Spacer(Modifier.width(20.dp))
-            Icon(
-                Icons.Filled.Add,
-                contentDescription = "添加",
-                tint = Color.White,
-                modifier = Modifier.size(26.dp)
-            )
+            if (!selecting) {
+                Icon(
+                    Icons.Filled.CameraAlt,
+                    contentDescription = "相机",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable(onClick = openCamera)
+                )
+                Spacer(Modifier.width(20.dp))
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = "添加",
+                    tint = Color.White,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
         }
 
-        // 页面标题
+        // 页面标题（选择模式切换为已选数量）
         Text(
-            "聊天",
+            if (selecting) "已选择 " + selectedKeys.size + " 个" else "聊天",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             color = WaColors.TextPrimary,
@@ -191,17 +261,92 @@ private fun ChatsTab(onBack: () -> Unit, onOpenContact: (WaContact) -> Unit) {
             }
         }
 
+        // 列表快捷栏（筛选）
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ChatFilter.entries.forEach { f ->
+                FilterChip(label = f.label, selected = filter == f, onClick = { filter = f })
+                Spacer(Modifier.width(8.dp))
+            }
+            Spacer(Modifier.weight(1f))
+            Icon(
+                Icons.Filled.Add,
+                contentDescription = "新建",
+                tint = WaColors.IconGrey,
+                modifier = Modifier.size(22.dp)
+            )
+        }
+
         // 联系人聊天列表
         LazyColumn(Modifier.fillMaxSize()) {
-            items(sampleContacts) { contact ->
-                ContactRow(contact = contact, onClick = { onOpenContact(contact) })
+            items(filteredContacts, key = { it.key }) { contact ->
+                ContactRow(
+                    contact = contact,
+                    selecting = selecting,
+                    selected = contact.key in selectedKeys,
+                    onClick = {
+                        if (selecting) {
+                            selectedKeys =
+                                if (contact.key in selectedKeys) selectedKeys - contact.key
+                                else selectedKeys + contact.key
+                        } else {
+                            onOpenContact(contact)
+                        }
+                    }
+                )
             }
+        }
+
+        // 选择模式底部操作栏
+        if (selecting) {
+            SelectionActionBar(
+                selectedCount = selectedKeys.size,
+                onAllRead = { contacts = contacts.map { it.copy(unread = 0) } },
+                onList = { /* 列表功能待接入 */ },
+                onRead = {
+                    contacts = contacts.map {
+                        if (it.key in selectedKeys) it.copy(unread = 0) else it
+                    }
+                    selectedKeys = emptySet()
+                },
+                onClear = {
+                    contacts = contacts.filterNot { it.key in selectedKeys }
+                    selectedKeys = emptySet()
+                }
+            )
         }
     }
 }
 
 @Composable
-private fun ContactRow(contact: WaContact, onClick: () -> Unit) {
+private fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(if (selected) WaColors.MicGreen else WaColors.InputField)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 6.dp)
+    ) {
+        Text(
+            label,
+            fontSize = 13.sp,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+            color = if (selected) Color.White else WaColors.IconGrey
+        )
+    }
+}
+
+@Composable
+private fun ContactRow(
+    contact: WaContact,
+    selecting: Boolean,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -209,6 +354,16 @@ private fun ContactRow(contact: WaContact, onClick: () -> Unit) {
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        if (selecting) {
+            Icon(
+                if (selected) Icons.Filled.CheckCircle else Icons.Filled.RadioButtonUnchecked,
+                contentDescription = if (selected) "已选择" else "未选择",
+                tint = if (selected) WaColors.MicGreen else WaColors.IconGrey,
+                modifier = Modifier.size(22.dp)
+            )
+            Spacer(Modifier.width(12.dp))
+        }
+
         Box(
             modifier = Modifier
                 .size(48.dp)
@@ -216,11 +371,31 @@ private fun ContactRow(contact: WaContact, onClick: () -> Unit) {
                 .background(WaColors.MicGreen),
             contentAlignment = Alignment.Center
         ) {
-            Text(contact.name.take(1), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            if (contact.isGroup) {
+                Icon(
+                    Icons.Filled.Group,
+                    contentDescription = "群组",
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Text(contact.name.take(1), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(contact.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = WaColors.TextPrimary)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(contact.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = WaColors.TextPrimary)
+                if (contact.favorite) {
+                    Spacer(Modifier.width(4.dp))
+                    Icon(
+                        Icons.Filled.Star,
+                        contentDescription = "特别关注",
+                        tint = Color(0xFFF7C948),
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+            }
             Spacer(Modifier.height(2.dp))
             Text(contact.lastMessage, fontSize = 13.sp, color = WaColors.IconGrey, maxLines = 1)
         }
@@ -240,6 +415,51 @@ private fun ContactRow(contact: WaContact, onClick: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SelectionActionBar(
+    selectedCount: Int,
+    onAllRead: () -> Unit,
+    onList: () -> Unit,
+    onRead: () -> Unit,
+    onClear: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(WaColors.Header)
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (selectedCount == 0) {
+            SelectionBarButton(Icons.Filled.DoneAll, "全部已读", onClick = onAllRead, modifier = Modifier.weight(1f))
+        } else {
+            SelectionBarButton(Icons.AutoMirrored.Filled.List, "列表", onClick = onList, modifier = Modifier.weight(1f))
+            SelectionBarButton(Icons.Filled.DoneAll, "已读", onClick = onRead, modifier = Modifier.weight(1f))
+            SelectionBarButton(Icons.Filled.Delete, "清除", onClick = onClear, modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun SelectionBarButton(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .padding(vertical = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(icon, contentDescription = label, tint = WaColors.MicGreen, modifier = Modifier.size(22.dp))
+        Spacer(Modifier.height(2.dp))
+        Text(label, fontSize = 11.sp, color = WaColors.MicGreen)
     }
 }
 
