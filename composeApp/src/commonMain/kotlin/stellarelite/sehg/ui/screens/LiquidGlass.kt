@@ -290,7 +290,7 @@ internal fun GlassCircleButton(
     val style = HazeStyle(
         backgroundColor = Color.Transparent,
         tint = HazeTint(Color.Transparent),
-        blurRadius = 22.dp,
+        blurRadius = 10.dp,
         noiseFactor = 0f,
         fallbackTint = HazeTint(Color.Transparent)
     )

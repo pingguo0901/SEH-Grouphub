@@ -1,7 +1,7 @@
 {
-  "versionCode": 27,
-  "versionName": "1.0.26",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.26/seh-grouphub.apk",
-  "changelog": "- 去掉按钮上的液态水珠高光元素，保留透明背景 + 半透明边框 + 22dp 磨砂",
+  "versionCode": 28,
+  "versionName": "1.0.27",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.27/seh-grouphub.apk",
+  "changelog": "- 按钮磨砂模糊从 22dp 降到 10dp，边框保持不变",
   "buildDate": "2026-09-26"
 }
