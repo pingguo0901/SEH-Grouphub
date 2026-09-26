@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,6 +12,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
@@ -261,7 +263,7 @@ internal fun GlassSurface(
     )
 }
 
-/** 圆形玻璃按钮：透明背景 + 半透明边框（所有按钮都是圆的） */
+/** 圆形玻璃按钮：透明背景 + 半透明边框 + 液态水珠元素（所有按钮都是圆的） */
 @Composable
 internal fun GlassCircleButton(
     hazeState: HazeState,
@@ -284,6 +286,13 @@ internal fun GlassCircleButton(
         label = "circleBorder"
     )
 
+    // 水珠高光强度：按压时减弱（水珠被压扁，反光变弱）
+    val dropletAlpha by animateFloatAsState(
+        targetValue = if (pressed) 0.30f else 0.85f,
+        animationSpec = tween(if (pressed) PRESS_MS else RELEASE_MS, easing = LiquidEasing),
+        label = "dropletAlpha"
+    )
+
     // 透明背景：只保留 backdrop blur 透出底层，不叠加蒙版色
     val style = HazeStyle(
         backgroundColor = Color.Transparent,
@@ -302,6 +311,54 @@ internal fun GlassCircleButton(
             .clickable(interactionSource = interaction, indication = null, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
+        // 液态水珠元素：顶部高光点 + 底部次级反光 + 内部边缘折射
+        Canvas(Modifier.fillMaxSize()) {
+            val r = minOf(this.size.width, this.size.height) / 2f
+            val c = center
+
+            // 1. 内部边缘折射：径向渐变，边缘微亮、中心透明（水珠曲面边缘）
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0f),
+                        Color.White.copy(alpha = 0.10f * dropletAlpha)
+                    ),
+                    center = c,
+                    radius = r
+                ),
+                radius = r,
+                center = c
+            )
+
+            // 2. 顶部高光点：水珠主反光（偏左上，椭圆光斑）
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.55f * dropletAlpha),
+                        Color.White.copy(alpha = 0f)
+                    ),
+                    center = Offset(c.x - r * 0.32f, c.y - r * 0.38f),
+                    radius = r * 0.40f
+                ),
+                radius = r * 0.40f,
+                center = Offset(c.x - r * 0.32f, c.y - r * 0.38f)
+            )
+
+            // 3. 底部次级反光：水珠底缘弱反光（偏右下）
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.16f * dropletAlpha),
+                        Color.White.copy(alpha = 0f)
+                    ),
+                    center = Offset(c.x + r * 0.34f, c.y + r * 0.40f),
+                    radius = r * 0.34f
+                ),
+                radius = r * 0.34f,
+                center = Offset(c.x + r * 0.34f, c.y + r * 0.40f)
+            )
+        }
+
         Icon(
             icon,
             contentDescription = contentDescription,

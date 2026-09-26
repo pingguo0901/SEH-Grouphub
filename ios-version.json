@@ -1,7 +1,7 @@
 {
-  "versionCode": 25,
-  "versionName": "1.0.24",
+  "versionCode": 26,
+  "versionName": "1.0.25",
   "ipaUrl": "",
-  "changelog": "- 圆形按钮改为透明背景 + 半透明边框，保留 backdrop blur 透出底层",
+  "changelog": "- 圆形按钮新增液态水珠元素：顶部高光点 + 底部次级反光 + 内部边缘折射",
   "buildDate": "2026-09-26"
 }
