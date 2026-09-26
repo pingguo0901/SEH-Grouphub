@@ -573,24 +573,22 @@ private fun GlassButtonSurface(
 
 @Composable
 private fun WaBottomBar(hazeState: HazeState, currentTab: WaTab, onSelect: (WaTab) -> Unit) {
-    // 5 个按钮各自按钮风格（透明背景 + 半透明边框），直接浮在页面上，能透出背后聊天
-    Row(
+    // 整体胶囊板块：透明无背景（无 blur、无蒙版，能透出背后聊天）+ 连成整体的半透明边框（左右弧形 + 上下横线，四边都可见）
+    val shape = RoundedCornerShape(26.dp)
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .clip(shape)
+            .border(1.dp, Color.White.copy(alpha = 0.25f), shape)
     ) {
-        WaTab.entries.forEach { tab ->
-            val selected = currentTab == tab
-            GlassButtonSurface(
-                hazeState = hazeState,
-                shape = RoundedCornerShape(18.dp),
-                modifier = Modifier.weight(1f)
-            ) {
+        Row(Modifier.fillMaxWidth()) {
+            WaTab.entries.forEach { tab ->
+                val selected = currentTab == tab
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .weight(1f)
                         .clickable { onSelect(tab) }
                         .padding(vertical = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
