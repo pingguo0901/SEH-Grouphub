@@ -1,6 +1,7 @@
 package stellarelite.sehg.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -31,6 +32,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.HazeTint
+import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.hazeSource
 import stellarelite.sehg.rememberCameraLauncher
 
@@ -546,11 +550,22 @@ private fun PlaceholderTab(label: String) {
 
 @Composable
 private fun WaBottomBar(hazeState: HazeState, currentTab: WaTab, onSelect: (WaTab) -> Unit) {
-    GlassSurface(
-        hazeState = hazeState,
-        spec = GlassSpecs.bar,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        modifier = Modifier.fillMaxWidth()
+    // 整体胶囊板块：透明背景 + 均匀半透明边框（左右弧形 + 上下横线，四边都可见）
+    val shape = RoundedCornerShape(26.dp)
+    val style = HazeStyle(
+        backgroundColor = Color.Transparent,
+        tint = HazeTint(Color.Transparent),
+        blurRadius = 10.dp,
+        noiseFactor = 0f,
+        fallbackTint = HazeTint(Color.Transparent)
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .clip(shape)
+            .hazeEffect(state = hazeState, style = style)
+            .border(1.dp, Color.White.copy(alpha = 0.25f), shape)
     ) {
         Row(
             modifier = Modifier

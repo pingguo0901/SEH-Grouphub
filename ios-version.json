@@ -1,7 +1,7 @@
 {
-  "versionCode": 28,
-  "versionName": "1.0.27",
+  "versionCode": 29,
+  "versionName": "1.0.28",
   "ipaUrl": "",
-  "changelog": "- 按钮磨砂模糊从 22dp 降到 10dp，边框保持不变",
+  "changelog": "- 底部快捷栏改为整体胶囊板块：透明背景 + 均匀半透明边框（左右弧形 + 上下横线，四边都可见）",
   "buildDate": "2026-09-26"
 }
