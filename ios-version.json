@@ -1,7 +1,7 @@
 {
-  "versionCode": 35,
-  "versionName": "1.0.34",
+  "versionCode": 36,
+  "versionName": "1.0.35",
   "ipaUrl": "",
-  "changelog": "- 底部快捷栏只要边框、不要背景板块，透过背部内容做半透明磨砂（blur）",
+  "changelog": "- 上滑会话列表时标题自动移到顶部栏中间，搜索框和筛选栏随上滑逐渐消失",
   "buildDate": "2026-09-27"
 }

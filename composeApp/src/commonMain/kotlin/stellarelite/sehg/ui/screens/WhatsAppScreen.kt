@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -34,7 +35,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -207,6 +210,17 @@ private fun ChatsTab(
         ChatFilter.Group -> contacts.filter { it.isGroup }
     }
 
+    // 上滑折叠进度：0 = 完全展开，1 = 标题已收进顶部栏
+    val listState = rememberLazyListState()
+    val density = LocalDensity.current
+    val collapseRangePx = with(density) { 150.dp.toPx() }
+    val collapseProgress by remember {
+        derivedStateOf {
+            if (listState.firstVisibleItemIndex > 0) 1f
+            else (listState.firstVisibleItemScrollOffset / collapseRangePx).coerceIn(0f, 1f)
+        }
+    }
+
     Column(Modifier.fillMaxSize()) {
         // 顶部透明栏：无背景板块，聊天记录从背后透出
         Box(
@@ -270,7 +284,20 @@ private fun ChatsTab(
                     }
                 }
 
-                Spacer(Modifier.weight(1f))
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (!selecting) {
+                        Text(
+                            "聊天",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = GlassColors.TextPrimary,
+                            modifier = Modifier.graphicsLayer { alpha = collapseProgress }
+                        )
+                    }
+                }
 
                 if (!selecting) {
                     GlassCircleButton(
@@ -290,91 +317,98 @@ private fun ChatsTab(
             }
         }
 
-        // 页面标题
-        Text(
-            if (selecting) "已选择 " + selectedKeys.size + " 个" else "聊天",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold,
-            color = GlassColors.TextPrimary,
-            modifier = Modifier.padding(start = 16.dp, top = 14.dp, bottom = 4.dp)
-        )
-
-        // 搜索框（按钮风格：透明背景 + 半透明边框）
-        GlassButtonSurface(
-            hazeState = hazeState,
-            shape = RoundedCornerShape(22.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 6.dp)
-        ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    Icons.Filled.Search,
-                    contentDescription = null,
-                    tint = GlassColors.TextSecondary,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text("搜索", fontSize = 14.sp, color = GlassColors.TextSecondary)
-            }
-        }
-
-        // 列表快捷栏（筛选）
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .horizontalScroll(rememberScrollState()),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ChatFilter.entries.forEach { f ->
-                    FilterChip(hazeState = hazeState, label = f.label, selected = filter == f, onClick = { filter = f })
-                    Spacer(Modifier.width(8.dp))
-                }
-            }
-            Spacer(Modifier.width(8.dp))
-            GlassCircleButton(
-                hazeState = hazeState,
-                Icons.Filled.Add,
-                contentDescription = "新建",
-                onClick = { },
-                size = 34.dp,
-                iconSize = 18.dp
-            )
-        }
-
-        // 联系人聊天列表（底部留白，让最后一条能滚到悬浮快捷栏上方）
+        // 联系人聊天列表（头部：标题 + 搜索框 + 筛选栏 随列表上滑逐渐消失；底部留白让最后一条滚到悬浮快捷栏上方）
         LazyColumn(
             Modifier
                 .weight(1f)
                 .fillMaxWidth(),
-            contentPadding = PaddingValues(start = 10.dp, end = 10.dp, top = 6.dp, bottom = 88.dp)
+            state = listState,
+            contentPadding = PaddingValues(top = 6.dp, bottom = 88.dp)
         ) {
-            items(filteredContacts, key = { it.key }) { contact ->
-                ContactRow(
-                    hazeState = hazeState,
-                    contact = contact,
-                    selecting = selecting,
-                    selected = contact.key in selectedKeys,
-                    onClick = {
-                        if (selecting) {
-                            selectedKeys =
-                                if (contact.key in selectedKeys) selectedKeys - contact.key
-                                else selectedKeys + contact.key
-                        } else {
-                            onOpenContact(contact)
+            item(key = "header") {
+                Column(Modifier.fillMaxWidth()) {
+                    // 页面标题
+                    Text(
+                        if (selecting) "已选择 " + selectedKeys.size + " 个" else "聊天",
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = GlassColors.TextPrimary,
+                        modifier = Modifier.padding(start = 16.dp, top = 14.dp, bottom = 4.dp)
+                    )
+
+                    // 搜索框（按钮风格：透明背景 + 半透明边框）
+                    GlassButtonSurface(
+                        hazeState = hazeState,
+                        shape = RoundedCornerShape(22.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Filled.Search,
+                                contentDescription = null,
+                                tint = GlassColors.TextSecondary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text("搜索", fontSize = 14.sp, color = GlassColors.TextSecondary)
                         }
-                    },
-                    onAvatarClick = { onOpenAvatarCard(contact) }
-                )
+                    }
+
+                    // 列表快捷栏（筛选）
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
+                                .horizontalScroll(rememberScrollState()),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            ChatFilter.entries.forEach { f ->
+                                FilterChip(hazeState = hazeState, label = f.label, selected = filter == f, onClick = { filter = f })
+                                Spacer(Modifier.width(8.dp))
+                            }
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        GlassCircleButton(
+                            hazeState = hazeState,
+                            Icons.Filled.Add,
+                            contentDescription = "新建",
+                            onClick = { },
+                            size = 34.dp,
+                            iconSize = 18.dp
+                        )
+                    }
+                }
+            }
+
+            items(filteredContacts, key = { it.key }) { contact ->
+                Box(Modifier.padding(horizontal = 10.dp)) {
+                    ContactRow(
+                        hazeState = hazeState,
+                        contact = contact,
+                        selecting = selecting,
+                        selected = contact.key in selectedKeys,
+                        onClick = {
+                            if (selecting) {
+                                selectedKeys =
+                                    if (contact.key in selectedKeys) selectedKeys - contact.key
+                                    else selectedKeys + contact.key
+                            } else {
+                                onOpenContact(contact)
+                            }
+                        },
+                        onAvatarClick = { onOpenAvatarCard(contact) }
+                    )
+                }
                 Spacer(Modifier.height(8.dp))
             }
         }
