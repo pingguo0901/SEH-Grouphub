@@ -78,8 +78,8 @@ android {
         applicationId = "stellarelite.sehg"
         minSdk = 26
         targetSdk = 35
-        versionCode = 31
-        versionName = "1.0.30"
+        versionCode = 32
+        versionName = "1.0.31"
     }
 
     compileOptions {

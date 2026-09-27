@@ -123,10 +123,16 @@ fun WhatsAppScreen(onBack: () -> Unit) {
                     else -> PlaceholderTab(currentTab.label)
                 }
             }
+        }
 
-            if (!chatSelecting) {
-                WaBottomBar(hazeState = hazeState, currentTab = currentTab, onSelect = { currentTab = it })
-            }
+        // 底部快捷栏：透明浮层，叠在聊天列表上方，背后透出聊天记录
+        if (!chatSelecting) {
+            WaBottomBar(
+                hazeState = hazeState,
+                currentTab = currentTab,
+                onSelect = { currentTab = it },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
     }
 }
@@ -164,11 +170,8 @@ private fun ChatsTab(
     }
 
     Column(Modifier.fillMaxSize()) {
-        // 顶部玻璃栏
-        GlassSurface(
-            hazeState = hazeState,
-            spec = GlassSpecs.bar,
-            shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
+        // 顶部透明栏：无背景板块，聊天记录从背后透出
+        Box(
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
@@ -310,12 +313,12 @@ private fun ChatsTab(
             )
         }
 
-        // 联系人聊天列表
+        // 联系人聊天列表（底部留白，让最后一条能滚到悬浮快捷栏上方）
         LazyColumn(
             Modifier
                 .weight(1f)
                 .fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
+            contentPadding = PaddingValues(start = 10.dp, end = 10.dp, top = 6.dp, bottom = 88.dp)
         ) {
             items(filteredContacts, key = { it.key }) { contact ->
                 ContactRow(
@@ -572,16 +575,18 @@ private fun GlassButtonSurface(
 }
 
 @Composable
-private fun WaBottomBar(hazeState: HazeState, currentTab: WaTab, onSelect: (WaTab) -> Unit) {
-    // 整体胶囊板块：透明无背景（无 blur、无蒙版，能透出背后聊天）+ 连成整体的半透明边框（左右弧形 + 上下横线，四边都可见）
-    val shape = RoundedCornerShape(26.dp)
+private fun WaBottomBar(
+    hazeState: HazeState,
+    currentTab: WaTab,
+    onSelect: (WaTab) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // 完全透明：无背景、无边框、无 blur，聊天记录直接从背后透出
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
             .padding(horizontal = 12.dp, vertical = 8.dp)
-            .clip(shape)
-            .border(1.dp, Color.White.copy(alpha = 0.25f), shape)
     ) {
         Row(Modifier.fillMaxWidth()) {
             WaTab.entries.forEach { tab ->
