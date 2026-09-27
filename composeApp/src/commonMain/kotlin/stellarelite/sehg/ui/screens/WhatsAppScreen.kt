@@ -236,7 +236,8 @@ private fun ChatsTab(
                     hazeState = hazeState,
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "返回",
-                    onClick = { if (selecting) endSelecting() else onBack() }
+                    onClick = { if (selecting) endSelecting() else onBack() },
+                    transparent = true
                 )
                 Spacer(Modifier.width(10.dp))
 
@@ -246,7 +247,8 @@ private fun ChatsTab(
                         Icons.Filled.Check,
                         contentDescription = "完成",
                         onClick = { endSelecting() },
-                        selected = true
+                        selected = true,
+                        transparent = true
                     )
                 } else {
                     var menuExpanded by remember { mutableStateOf(false) }
@@ -255,7 +257,8 @@ private fun ChatsTab(
                             hazeState = hazeState,
                             Icons.Filled.MoreVert,
                             contentDescription = "更多",
-                            onClick = { menuExpanded = true }
+                            onClick = { menuExpanded = true },
+                            transparent = true
                         )
                         DropdownMenu(
                             expanded = menuExpanded,
@@ -304,14 +307,16 @@ private fun ChatsTab(
                         hazeState = hazeState,
                         Icons.Filled.CameraAlt,
                         contentDescription = "相机",
-                        onClick = openCamera
+                        onClick = openCamera,
+                        transparent = true
                     )
                     Spacer(Modifier.width(10.dp))
                     GlassCircleButton(
                         hazeState = hazeState,
                         Icons.Filled.Add,
                         contentDescription = "添加",
-                        onClick = { }
+                        onClick = { },
+                        transparent = true
                     )
                 }
             }

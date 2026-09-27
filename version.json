@@ -1,7 +1,7 @@
 {
-  "versionCode": 36,
-  "versionName": "1.0.35",
-  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.35/seh-grouphub.apk",
-  "changelog": "- 上滑会话列表时标题自动移到顶部栏中间，搜索框和筛选栏随上滑逐渐消失",
+  "versionCode": 37,
+  "versionName": "1.0.36",
+  "apkUrl": "https://github.com/pingguo0901/SEH-Grouphub/releases/download/v1.0.36/seh-grouphub.apk",
+  "changelog": "- 顶部栏按钮去掉磨砂背景板块，改为纯透明图标",
   "buildDate": "2026-09-27"
 }

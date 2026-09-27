@@ -274,7 +274,8 @@ internal fun GlassCircleButton(
     size: Dp = 48.dp,
     iconSize: Dp = 22.dp,
     tint: Color = GlassColors.TextPrimary,
-    selected: Boolean = false
+    selected: Boolean = false,
+    transparent: Boolean = false
 ) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
@@ -299,8 +300,15 @@ internal fun GlassCircleButton(
         modifier = modifier
             .size(size)
             .clip(CircleShape)
-            .hazeEffect(state = hazeState, style = style)
-            .border(1.dp, borderColor, CircleShape)
+            .then(
+                if (transparent) {
+                    Modifier
+                } else {
+                    Modifier
+                        .hazeEffect(state = hazeState, style = style)
+                        .border(1.dp, borderColor, CircleShape)
+                }
+            )
             .clickable(interactionSource = interaction, indication = null, onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
