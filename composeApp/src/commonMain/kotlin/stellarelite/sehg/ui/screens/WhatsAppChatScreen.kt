@@ -1,6 +1,13 @@
 package stellarelite.sehg.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,12 +20,16 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,6 +59,7 @@ fun WhatsAppChatScreen(
     onOpenContactInfo: () -> Unit
 ) {
     val hazeState = remember { HazeState() }
+    var showAvatarCard by remember { mutableStateOf(false) }
 
     Box(Modifier.fillMaxSize()) {
         GlassWallpaper(
@@ -57,7 +69,7 @@ fun WhatsAppChatScreen(
         )
 
         Column(Modifier.fillMaxSize()) {
-            ChatHeader(hazeState = hazeState, contactName = contactName, onBack = onBack, onOpenContactInfo = onOpenContactInfo)
+            ChatHeader(hazeState = hazeState, contactName = contactName, onBack = onBack, onAvatarClick = { showAvatarCard = true })
 
             LazyColumn(
                 modifier = Modifier
@@ -73,11 +85,29 @@ fun WhatsAppChatScreen(
 
             ChatInputBar(hazeState = hazeState)
         }
+
+        // 点头像弹出的卡片：从原位放大到居中，关闭时缩回
+        AnimatedVisibility(
+            visible = showAvatarCard,
+            enter = fadeIn(tween(180)) + scaleIn(initialScale = 0.6f, animationSpec = tween(240)),
+            exit = fadeOut(tween(160)) + scaleOut(targetScale = 0.6f, animationSpec = tween(180))
+        ) {
+            AvatarCardPopup(
+                contactName = contactName,
+                onInfo = { showAvatarCard = false },
+                onVoiceCall = { showAvatarCard = false },
+                onDetail = {
+                    showAvatarCard = false
+                    onOpenContactInfo()
+                },
+                onDismiss = { showAvatarCard = false }
+            )
+        }
     }
 }
 
 @Composable
-private fun ChatHeader(hazeState: HazeState, contactName: String, onBack: () -> Unit, onOpenContactInfo: () -> Unit) {
+private fun ChatHeader(hazeState: HazeState, contactName: String, onBack: () -> Unit, onAvatarClick: () -> Unit) {
     GlassSurface(
         hazeState = hazeState,
         spec = GlassSpecs.bar,
@@ -102,7 +132,7 @@ private fun ChatHeader(hazeState: HazeState, contactName: String, onBack: () -> 
                     .size(38.dp)
                     .clip(CircleShape)
                     .background(Brush.linearGradient(listOf(GlassColors.Accent, Color(0xFF5AA7FF))))
-                    .clickable(onClick = onOpenContactInfo),
+                    .clickable(onClick = onAvatarClick),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -242,5 +272,82 @@ private fun ChatInputBar(hazeState: HazeState) {
                 Icon(Icons.Filled.Mic, contentDescription = "语音", tint = Color.White, modifier = Modifier.size(22.dp))
             }
         }
+    }
+}
+
+/** 点头像弹出的详情卡片：四方形头像 + 下方三个图标按钮（信息 / 语音通话 / 详情） */
+@Composable
+private fun AvatarCardPopup(
+    contactName: String,
+    onInfo: () -> Unit,
+    onVoiceCall: () -> Unit,
+    onDetail: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Box(Modifier.fillMaxSize()) {
+        // 半透明遮罩，点击关闭
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f))
+                .clickable(onClick = onDismiss)
+        )
+
+        // 居中卡片
+        Column(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .clip(RoundedCornerShape(28.dp))
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color(0xFF2A2A2E), Color(0xFF1B1B1F))
+                    )
+                )
+                .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(28.dp))
+                .padding(horizontal = 28.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // 四方形头像
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(Brush.linearGradient(listOf(GlassColors.Accent, Color(0xFF5AA7FF)))),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    contactName.take(1),
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+            Spacer(Modifier.height(20.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                CardIconButton(Icons.Filled.Info, "信息", onInfo)
+                CardIconButton(Icons.Filled.Call, "语音通话", onVoiceCall)
+                CardIconButton(Icons.Filled.Person, "详情", onDetail)
+            }
+        }
+    }
+}
+
+@Composable
+private fun CardIconButton(icon: ImageVector, contentDescription: String, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(56.dp)
+            .clip(CircleShape)
+            .background(Color.White.copy(alpha = 0.1f))
+            .border(1.dp, Color.White.copy(alpha = 0.25f), CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            icon,
+            contentDescription = contentDescription,
+            tint = GlassColors.Accent,
+            modifier = Modifier.size(26.dp)
+        )
     }
 }
