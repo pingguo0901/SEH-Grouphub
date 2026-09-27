@@ -622,12 +622,23 @@ private fun WaBottomBar(
     onSelect: (WaTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 完全透明：无背景、无边框、无 blur，聊天记录直接从背后透出
+    // 只要边框、不要背景板块：透过背部内容做半透明磨砂（blur + 轻微半透明白色）
+    val shape = RoundedCornerShape(26.dp)
+    val style = HazeStyle(
+        backgroundColor = Color.Transparent,
+        tint = HazeTint(Color.White.copy(alpha = 0.08f)),
+        blurRadius = 12.dp,
+        noiseFactor = 0f,
+        fallbackTint = HazeTint(Color.White.copy(alpha = 0.10f))
+    )
     Box(
         modifier = modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
             .padding(horizontal = 12.dp, vertical = 8.dp)
+            .clip(shape)
+            .hazeEffect(state = hazeState, style = style)
+            .border(1.dp, Color.White.copy(alpha = 0.25f), shape)
     ) {
         Row(Modifier.fillMaxWidth()) {
             WaTab.entries.forEach { tab ->
