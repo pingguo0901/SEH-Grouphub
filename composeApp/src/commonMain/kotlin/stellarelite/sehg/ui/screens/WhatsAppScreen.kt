@@ -237,7 +237,7 @@ private fun ChatsTab(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "返回",
                     onClick = { if (selecting) endSelecting() else onBack() },
-                    transparent = true
+                    borderOnly = true
                 )
                 Spacer(Modifier.width(10.dp))
 
@@ -248,7 +248,7 @@ private fun ChatsTab(
                         contentDescription = "完成",
                         onClick = { endSelecting() },
                         selected = true,
-                        transparent = true
+                        borderOnly = true
                     )
                 } else {
                     var menuExpanded by remember { mutableStateOf(false) }
@@ -258,7 +258,7 @@ private fun ChatsTab(
                             Icons.Filled.MoreVert,
                             contentDescription = "更多",
                             onClick = { menuExpanded = true },
-                            transparent = true
+                            borderOnly = true
                         )
                         DropdownMenu(
                             expanded = menuExpanded,
@@ -308,7 +308,7 @@ private fun ChatsTab(
                         Icons.Filled.CameraAlt,
                         contentDescription = "相机",
                         onClick = openCamera,
-                        transparent = true
+                        borderOnly = true
                     )
                     Spacer(Modifier.width(10.dp))
                     GlassCircleButton(
@@ -316,7 +316,7 @@ private fun ChatsTab(
                         Icons.Filled.Add,
                         contentDescription = "添加",
                         onClick = { },
-                        transparent = true
+                        borderOnly = true
                     )
                 }
             }
