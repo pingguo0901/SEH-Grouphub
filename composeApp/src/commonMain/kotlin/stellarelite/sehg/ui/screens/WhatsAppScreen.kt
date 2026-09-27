@@ -1,5 +1,11 @@
 package stellarelite.sehg.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -87,7 +93,17 @@ fun WhatsAppScreen(onBack: () -> Unit) {
     var openContact by remember { mutableStateOf<WaContact?>(null) }
     var showContactInfo by remember { mutableStateOf(false) }
     var chatSelecting by remember { mutableStateOf(false) }
+    var cardContact by remember { mutableStateOf<WaContact?>(null) }
+    var showAvatarCard by remember { mutableStateOf(false) }
+    var directInfoContact by remember { mutableStateOf<WaContact?>(null) }
     val hazeState = remember { HazeState() }
+
+    // 头像卡片「详情」直接进入联系人信息页面
+    val directInfo = directInfoContact
+    if (directInfo != null) {
+        ContactInfoScreen(contact = directInfo, onBack = { directInfoContact = null })
+        return
+    }
 
     val contact = openContact
     if (contact != null) {
@@ -118,6 +134,7 @@ fun WhatsAppScreen(onBack: () -> Unit) {
                         hazeState = hazeState,
                         onBack = onBack,
                         onOpenContact = { openContact = it },
+                        onOpenAvatarCard = { cardContact = it; showAvatarCard = true },
                         onSelectingChange = { chatSelecting = it }
                     )
                     else -> PlaceholderTab(currentTab.label)
@@ -134,6 +151,26 @@ fun WhatsAppScreen(onBack: () -> Unit) {
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
+
+        // 头像详情卡片：点头像从原位放大居中，关闭缩回
+        AnimatedVisibility(
+            visible = showAvatarCard,
+            enter = fadeIn(tween(180)) + scaleIn(initialScale = 0.6f, animationSpec = tween(240)),
+            exit = fadeOut(tween(160)) + scaleOut(targetScale = 0.6f, animationSpec = tween(180))
+        ) {
+            cardContact?.let { c ->
+                AvatarCardPopup(
+                    contact = c,
+                    onInfo = { showAvatarCard = false },
+                    onVoiceCall = { showAvatarCard = false },
+                    onDetail = {
+                        showAvatarCard = false
+                        directInfoContact = c
+                    },
+                    onDismiss = { showAvatarCard = false }
+                )
+            }
+        }
     }
 }
 
@@ -142,6 +179,7 @@ private fun ChatsTab(
     hazeState: HazeState,
     onBack: () -> Unit,
     onOpenContact: (WaContact) -> Unit,
+    onOpenAvatarCard: (WaContact) -> Unit,
     onSelectingChange: (Boolean) -> Unit
 ) {
     val openCamera = rememberCameraLauncher()
@@ -334,7 +372,8 @@ private fun ChatsTab(
                         } else {
                             onOpenContact(contact)
                         }
-                    }
+                    },
+                    onAvatarClick = { onOpenAvatarCard(contact) }
                 )
                 Spacer(Modifier.height(8.dp))
             }
@@ -397,7 +436,8 @@ private fun ContactRow(
     contact: WaContact,
     selecting: Boolean,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onAvatarClick: () -> Unit
 ) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
@@ -434,7 +474,8 @@ private fun ContactRow(
                     .clip(CircleShape)
                     .background(
                         Brush.linearGradient(listOf(GlassColors.Accent, Color(0xFF5AA7FF)))
-                    ),
+                    )
+                    .then(if (!selecting) Modifier.clickable(onClick = onAvatarClick) else Modifier),
                 contentAlignment = Alignment.Center
             ) {
                 if (contact.isGroup) {
@@ -613,5 +654,91 @@ private fun WaBottomBar(
                 }
             }
         }
+    }
+}
+
+/** 聊天主页面点头像弹出的详情卡片：四方形头像 + 下方三个图标按钮（信息 / 语音通话 / 详情） */
+@Composable
+private fun AvatarCardPopup(
+    contact: WaContact,
+    onInfo: () -> Unit,
+    onVoiceCall: () -> Unit,
+    onDetail: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Box(Modifier.fillMaxSize()) {
+        // 半透明遮罩，点击关闭
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f))
+                .clickable(onClick = onDismiss)
+        )
+
+        // 居中卡片
+        Column(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .clip(RoundedCornerShape(28.dp))
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color(0xFF2A2A2E), Color(0xFF1B1B1F))
+                    )
+                )
+                .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(28.dp))
+                .padding(horizontal = 28.dp, vertical = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // 四方形头像
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(Brush.linearGradient(listOf(GlassColors.Accent, Color(0xFF5AA7FF)))),
+                contentAlignment = Alignment.Center
+            ) {
+                if (contact.isGroup) {
+                    Icon(
+                        Icons.Filled.Group,
+                        contentDescription = "群组",
+                        tint = Color.White,
+                        modifier = Modifier.size(52.dp)
+                    )
+                } else {
+                    Text(
+                        contact.name.take(1),
+                        fontSize = 48.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+            }
+            Spacer(Modifier.height(20.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                CardIconButton(Icons.Filled.Info, "信息", onInfo)
+                CardIconButton(Icons.Filled.Call, "语音通话", onVoiceCall)
+                CardIconButton(Icons.Filled.Person, "详情", onDetail)
+            }
+        }
+    }
+}
+
+@Composable
+private fun CardIconButton(icon: ImageVector, contentDescription: String, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(56.dp)
+            .clip(CircleShape)
+            .background(Color.White.copy(alpha = 0.1f))
+            .border(1.dp, Color.White.copy(alpha = 0.25f), CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            icon,
+            contentDescription = contentDescription,
+            tint = GlassColors.Accent,
+            modifier = Modifier.size(26.dp)
+        )
     }
 }
