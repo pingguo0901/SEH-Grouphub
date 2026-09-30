@@ -18,7 +18,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 html {
-  background: #06090D;
+  background: #0E1A2A;
 }
 
 html, body {
@@ -29,6 +29,7 @@ html, body {
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
+  overflow: hidden;
   touch-action: manipulation;
 }
 
@@ -39,7 +40,7 @@ body {
     radial-gradient(ellipse at 90% 8%, rgba(94, 92, 230, 0.30), transparent 55%),
     radial-gradient(ellipse at 45% 108%, rgba(10, 132, 255, 0.22), transparent 60%),
     radial-gradient(ellipse at 70% 60%, rgba(191, 90, 242, 0.16), transparent 50%),
-    linear-gradient(180deg, #111A22 0%, #14202B 48%, #06090D 100%);
+    linear-gradient(180deg, #111A22 0%, #14202B 48%, #0E1A2A 100%);
 }
 
 #app {
@@ -184,7 +185,7 @@ body {
     radial-gradient(ellipse at 12% -5%, rgba(10,132,255,0.34), transparent 55%),
     radial-gradient(ellipse at 90% 8%, rgba(94,92,230,0.30), transparent 55%),
     radial-gradient(ellipse at 45% 108%, rgba(10,132,255,0.22), transparent 60%),
-    linear-gradient(180deg, #111A22 0%, #14202B 48%, #06090D 100%);
+    linear-gradient(180deg, #111A22 0%, #14202B 48%, #0E1A2A 100%);
 }
 .overlay.hidden { display: none; }
 

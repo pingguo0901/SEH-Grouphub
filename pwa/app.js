@@ -334,6 +334,19 @@ function bindEmployeeList() {
 
 // ===== 初始化 =====
 function init() {
+  // iOS 视口高度修复：用实际可视高度精确设置，绕过 100vh/100dvh 的 iOS bug
+  function fixViewportHeight() {
+    var h = window.innerHeight;
+    document.documentElement.style.height = h + 'px';
+    document.body.style.height = h + 'px';
+    var app = document.getElementById('app');
+    app.style.height = h + 'px';
+    app.style.minHeight = h + 'px';
+  }
+  fixViewportHeight();
+  window.addEventListener('resize', fixViewportHeight);
+  window.addEventListener('orientationchange', function () { setTimeout(fixViewportHeight, 150); });
+
   // 禁止页面缩放（iOS 双指/双击手势）
   document.addEventListener('gesturestart', function (e) { e.preventDefault(); }, { passive: false });
   document.addEventListener('gesturechange', function (e) { e.preventDefault(); }, { passive: false });
