@@ -139,14 +139,14 @@ function renderHr() {
       '<div class="stats-total">' + c.total + '</div>' +
       '<div class="stats-divider"></div>' +
       '<div class="stats-row">' +
-        '<div class="stat-cell"><div class="stat-label">在职</div><div class="stat-value" style="color:#12B76A">' + c.active + '</div></div>' +
-        '<div class="stat-cell"><div class="stat-label">待入职</div><div class="stat-value" style="color:#2E90FA">' + c.pending + '</div></div>' +
-        '<div class="stat-cell"><div class="stat-label">辞职</div><div class="stat-value" style="color:#F04438">' + c.resigned + '</div></div>' +
+        '<div class="stat-cell"><div class="stat-label">在职</div><div class="stat-value" style="color:#30D158">' + c.active + '</div></div>' +
+        '<div class="stat-cell"><div class="stat-label">待入职</div><div class="stat-value" style="color:#0A84FF">' + c.pending + '</div></div>' +
+        '<div class="stat-cell"><div class="stat-label">辞职</div><div class="stat-value" style="color:#FF453A">' + c.resigned + '</div></div>' +
       '</div>' +
       '<div class="stats-row">' +
-        '<div class="stat-cell"><div class="stat-label">即将辞职</div><div class="stat-value" style="color:#F79009">' + c.resigningSoon + '</div></div>' +
-        '<div class="stat-cell"><div class="stat-label">放假</div><div class="stat-value" style="color:#475467">' + c.onLeave + '</div></div>' +
-        '<div class="stat-cell"><div class="stat-label">值班</div><div class="stat-value" style="color:#C9A227">' + c.onDuty + '</div></div>' +
+        '<div class="stat-cell"><div class="stat-label">即将辞职</div><div class="stat-value" style="color:#FF9F0A">' + c.resigningSoon + '</div></div>' +
+        '<div class="stat-cell"><div class="stat-label">放假</div><div class="stat-value" style="color:#98A6B2">' + c.onLeave + '</div></div>' +
+        '<div class="stat-cell"><div class="stat-label">值班</div><div class="stat-value" style="color:#BF5AF2">' + c.onDuty + '</div></div>' +
       '</div></div>';
   }).join('');
 
