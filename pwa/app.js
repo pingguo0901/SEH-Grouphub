@@ -1,12 +1,44 @@
+// ===== Material 矢量图标（24x24 path） =====
+const ICONS = {
+  home: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',
+  people: 'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z',
+  wallet: 'M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z',
+  gavel: 'M1 21h12v2H1v-2zM5.24 8.07l2.83-2.83 14.14 14.14-2.83 2.83L5.24 8.07zM12.32 1l5.66 5.66-2.83 2.83-5.66-5.66L12.32 1zM3.83 9.48l5.66 5.66-2.83 2.83-5.66-5.66 2.83-2.83z',
+  business: 'M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z',
+  shield: 'M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z',
+  person: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
+  badge: 'M20 7h-5V4c0-1.1-.9-2-2-2h-2c-1.1 0-2 .9-2 2v3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM9 12c.83 0 1.5.67 1.5 1.5S9.83 15 9 15s-1.5-.67-1.5-1.5S8.17 12 9 12zm3 6H6v-.75c0-1 2-1.5 3-1.5s3 .5 3 1.5V18zm1-9h-2V4h2v5zm5 7.5h-4V15h4v1.5zm0-3h-4V12h4v1.5z',
+  folder: 'M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z',
+  clock: 'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z',
+  calendar: 'M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z',
+  payments: 'M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9-1c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm13-6v11c0 1.1-.9 2-2 2H4v-2h17V7h2z',
+  chart: 'M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z',
+  campaign: 'M18 11v2h4v-2h-4zm-2 6.61c.96.71 2.21 1.65 3.2 2.39.4-.53.8-1.07 1.2-1.6-.99-.74-2.24-1.68-3.2-2.4-.4.54-.8 1.08-1.2 1.61zM20.4 5.6c-.4-.53-.8-1.07-1.2-1.6-.99.74-2.24 1.68-3.2 2.4.4.53.8 1.07 1.2 1.6.96-.72 2.21-1.65 3.2-2.4zM4 9c-1.1 0-2 .9-2 2v2c0 1.1.9 2 2 2h1v4h2v-4h1l5 3V6L8 9H4zm11.5 3c0-1.33-.58-2.53-1.5-3.35v6.69c.92-.81 1.5-2.01 1.5-3.34z',
+  history: 'M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z',
+  search: 'M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z',
+  chat: 'M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z',
+  work: 'M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z',
+  description: 'M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z',
+  attach: 'M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z',
+  event: 'M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z',
+  back: 'M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z',
+  close: 'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'
+};
+
+function icon(name, cls) {
+  cls = cls || 'icon';
+  return '<svg class="' + cls + '" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="' + (ICONS[name] || '') + '"/></svg>';
+}
+
 // ===== 数据 =====
 const PAGES = [
-  { key: 'home', title: '首页', icon: '🏠' },
-  { key: 'hr', title: '人事', icon: '👥' },
-  { key: 'finance', title: '财务', icon: '💼' },
-  { key: 'legal', title: '法务', icon: '⚖️' },
-  { key: 'admin', title: '行政', icon: '🏢' },
-  { key: 'audit', title: '内审', icon: '🛡️' },
-  { key: 'profile', title: '我', icon: '👤' }
+  { key: 'home', title: '首页', icon: 'home' },
+  { key: 'hr', title: '人事', icon: 'people' },
+  { key: 'finance', title: '财务', icon: 'wallet' },
+  { key: 'legal', title: '法务', icon: 'gavel' },
+  { key: 'admin', title: '行政', icon: 'business' },
+  { key: 'audit', title: '内审', icon: 'shield' },
+  { key: 'profile', title: '我', icon: 'person' }
 ];
 
 const SUBSIDIARIES = [
@@ -23,14 +55,14 @@ const COMPANY_STATS = [
 ];
 
 const HR_MODULES = [
-  { label: '员工名册', icon: '🪪' },
-  { label: '员工档案', icon: '📁', action: 'employees' },
-  { label: '考勤管理', icon: '⏱️' },
-  { label: '排班管理', icon: '📅' },
-  { label: '薪资管理', icon: '💰' },
-  { label: '申报报表', icon: '📊' },
-  { label: '人事公告', icon: '📣' },
-  { label: '人事审计记录', icon: '🕐' }
+  { label: '员工名册', icon: 'badge' },
+  { label: '员工档案', icon: 'folder', action: 'employees' },
+  { label: '考勤管理', icon: 'clock' },
+  { label: '排班管理', icon: 'calendar' },
+  { label: '薪资管理', icon: 'payments' },
+  { label: '申报报表', icon: 'chart' },
+  { label: '人事公告', icon: 'campaign' },
+  { label: '人事审计记录', icon: 'history' }
 ];
 
 const EMPLOYEES = [
@@ -50,11 +82,11 @@ const EMPLOYEES = [
 ];
 
 const PLACEHOLDERS = {
-  finance: { title: '财务板块', subtitle: '资金与账务', icon: '💼', desc: '资金流、账务核算、预算与报表等内容将在此呈现。' },
-  legal: { title: '法务板块', subtitle: '合规与风控', icon: '⚖️', desc: '合同审查、合规管理、风险防控等内容将在此呈现。' },
-  admin: { title: '行政板块', subtitle: '行政与后勤', icon: '🏢', desc: '办公资产、印章证照、后勤保障等内容将在此呈现。' },
-  audit: { title: '内审板块', subtitle: '审计与监督', icon: '🛡️', desc: '内部审计、流程监督、风险预警等内容将在此呈现。' },
-  profile: { title: '我', subtitle: '董事长', icon: '👤', desc: '个人中心、账号与权限设置等内容将在此呈现。' }
+  finance: { title: '财务板块', subtitle: '资金与账务', icon: 'wallet', desc: '资金流、账务核算、预算与报表等内容将在此呈现。' },
+  legal: { title: '法务板块', subtitle: '合规与风控', icon: 'gavel', desc: '合同审查、合规管理、风险防控等内容将在此呈现。' },
+  admin: { title: '行政板块', subtitle: '行政与后勤', icon: 'business', desc: '办公资产、印章证照、后勤保障等内容将在此呈现。' },
+  audit: { title: '内审板块', subtitle: '审计与监督', icon: 'shield', desc: '内部审计、流程监督、风险预警等内容将在此呈现。' },
+  profile: { title: '我', subtitle: '董事长', icon: 'person', desc: '个人中心、账号与权限设置等内容将在此呈现。' }
 };
 
 // ===== 工具 =====
@@ -77,29 +109,29 @@ function buildArchive(emp) {
       nameEn: emp.en
     },
     sections: [
-      { title: '个人基础资料', icon: '👤', rows: [
+      { title: '个人基础资料', icon: 'person', rows: [
         ['姓名', emp.zh], ['性别', '男'], ['NRIC/Passport', '900101-' + emp.id + '-0000'], ['EMF编号', 'EMF' + emp.id],
         ['出生日期', '1990-01-01'], ['国籍', '马来西亚'], ['邮箱地址', emp.wechat + '@stellarelite.com'], ['婚姻状态', '未婚'],
         ['联系电话', emp.phone], ['居住地址', 'Kuala Lumpur, Malaysia'], ['紧急联系人姓名', '待填写'], ['紧急联系人关系', '待填写'], ['紧急联系人电话', '待填写']
       ]},
-      { title: '雇佣信息', icon: '💼', rows: [
+      { title: '雇佣信息', icon: 'work', rows: [
         ['基础薪资', 'RM 3,000'], ['EPF会员编号', 'EPF-' + emp.id], ['SOCSO编号', 'SOCSO-' + emp.id], ['EIS编号', 'EIS-' + emp.id],
         ['LHDN税务编号', 'LHDN-' + emp.id], ['银行名称', 'Maybank'], ['银行持有人', emp.en], ['银行账户', '1122-' + emp.id + '-8899']
       ]},
-      { title: '雇佣合约信息', icon: '📄', rows: [
+      { title: '雇佣合约信息', icon: 'description', rows: [
         ['入职日期', '2023-06-01'], ['试用期起始', '2023-06-01'], ['试用期截止', '2023-09-01'], ['合约到期', '长期'],
         ['雇佣类型', '全职'], ['工作地点', emp.subsidiary], ['直属主管', '董事长']
       ]},
-      { title: '证件与附件', icon: '📎', rows: [
+      { title: '证件与附件', icon: 'attach', rows: [
         ['NRIC/Passport复印件', '已提交'], ['雇佣合约', '已提交'], ['相关执照', emp.position === '司机' ? '已提交' : '不适用'],
         ['跨境资格/工作许可', '已提交'], ['健康证明', '已提交']
       ]},
-      { title: '假期与考勤摘要', icon: '🗓️', rows: [
+      { title: '假期与考勤摘要', icon: 'event', rows: [
         ['年假剩余天数', '10 天'], ['病假剩余天数', '8 天'], ['最后年假日期', '2026-08-10'], ['最后病假日期', '2026-07-05'],
         ['最后事假日期', '2026-06-18'], ['系部联系电话', emp.phone], ['事假记录', '1 次'], ['迟到记录', '0 次'],
         ['旷工记录', '0 次'], ['状态记录', '正常']
       ]},
-      { title: '变更记录与认证', icon: '🕐', rows: [
+      { title: '变更记录与认证', icon: 'history', rows: [
         ['修改日期', '2026-09-24'], ['修改操作人', '小聪'], ['变更前', '—'], ['变更后', '—']
       ]}
     ]
@@ -107,8 +139,8 @@ function buildArchive(emp) {
 }
 
 // ===== 渲染 =====
-function pageHeader(title, subtitle, icon) {
-  return '<div class="page-header"><div class="header-row"><span class="header-icon">' + icon + '</span><h1>' + title + '</h1></div><div class="subtitle">' + subtitle + '</div></div>';
+function pageHeader(title, subtitle, iconName) {
+  return '<div class="page-header"><div class="header-row"><span class="header-icon">' + icon(iconName, 'header-icon') + '</span><h1>' + title + '</h1></div><div class="subtitle">' + subtitle + '</div></div>';
 }
 
 function renderHome() {
@@ -116,11 +148,11 @@ function renderHome() {
     const link = s.phone ? 'https://wa.me/' + s.phone : '#';
     const desc = s.phone ? 'WhatsApp 联系' : '号码待配置';
     return '<div class="sub-card" onclick="window.open(\'' + link + '\', \'_blank\')">' +
-      '<div class="sub-logo">💬</div>' +
+      '<div class="sub-logo">' + icon('chat', 'sub-logo-icon') + '</div>' +
       '<div class="sub-info"><div class="sub-name">' + s.nameZh + '</div><div class="sub-desc">' + desc + '</div></div>' +
       '<div class="sub-arrow">›</div></div>';
   }).join('');
-  return pageHeader('首页', '星域控股集团 · 董事长驾驶舱', '🏠') +
+  return pageHeader('首页', '星域控股集团 · 董事长驾驶舱', 'home') +
     '<div class="page-body">' +
     '<div class="placeholder-title">欢迎回来，董事长</div>' +
     '<div class="placeholder-desc">这里是集团全域概览，后续接入各板块核心数据。</div>' +
@@ -152,10 +184,10 @@ function renderHr() {
 
   let modules = HR_MODULES.map(function (m) {
     const action = m.action || '';
-    return '<button class="module-btn" data-action="' + action + '"><span class="icon">' + m.icon + '</span><span class="label">' + m.label + '</span></button>';
+    return '<button class="module-btn" data-action="' + action + '">' + icon(m.icon, 'module-icon') + '<span class="label">' + m.label + '</span></button>';
   }).join('');
 
-  return pageHeader('人事', '组织与人才', '👥') +
+  return pageHeader('人事', '组织与人才', 'people') +
     '<div class="page-body">' + stats +
     '<div style="height:8px"></div>' +
     '<div class="module-grid">' + modules + '</div>' +
@@ -176,7 +208,7 @@ function renderPage(key) {
 
 function renderNav() {
   return PAGES.map(function (p) {
-    return '<button class="nav-item" data-key="' + p.key + '"><span class="icon">' + p.icon + '</span><span class="label">' + p.title + '</span></button>';
+    return '<button class="nav-item" data-key="' + p.key + '">' + icon(p.icon, 'nav-icon') + '<span class="label">' + p.title + '</span></button>';
   }).join('');
 }
 
@@ -190,8 +222,8 @@ function renderEmployeeList() {
   });
   const keys = Object.keys(groups).sort(function (a, b) { return (a === '#' ? 'ZZZZ' : a) < (b === '#' ? 'ZZZZ' : b) ? -1 : 1; });
 
-  let html = '<div class="overlay-header"><button class="back" data-back="hr">‹</button><h2>员工档案</h2></div>' +
-    '<div class="search-box"><span class="search-icon">🔍</span><input id="emp-search" type="text" placeholder="搜索ID" /><span class="clear" id="emp-clear" style="display:none">✕</span></div>' +
+  let html = '<div class="overlay-header"><button class="back" data-back="hr">' + icon('back', 'back-icon') + '</button><h2>员工档案</h2></div>' +
+    '<div class="search-box">' + icon('search', 'search-icon') + '<input id="emp-search" type="text" placeholder="搜索ID" /><span class="clear" id="emp-clear" style="display:none">' + icon('close', 'clear-icon') + '</span></div>' +
     '<div id="emp-list">';
 
   keys.forEach(function (k) {
@@ -217,10 +249,10 @@ function renderEmployeeArchive(emp) {
     let rows = s.rows.map(function (r) {
       return '<div class="archive-row"><span class="archive-label">' + r[0] + '</span><span class="archive-value">' + r[1] + '</span></div>';
     }).join('');
-    return '<div class="archive-section"><div class="archive-section-title"><span class="icon">' + s.icon + '</span>' + s.title + '</div>' + rows + '</div>';
+    return '<div class="archive-section"><div class="archive-section-title">' + icon(s.icon, 'section-icon') + s.title + '</div>' + rows + '</div>';
   }).join('');
 
-  return '<div class="overlay-header"><button class="back" data-back="employees">‹</button><h2>员工个人档案</h2></div>' +
+  return '<div class="overlay-header"><button class="back" data-back="employees">' + icon('back', 'back-icon') + '</button><h2>员工个人档案</h2></div>' +
     '<div class="archive-body">' +
       '<div class="archive-tag-row">' +
         '<span class="archive-tag">档案编号 ' + a.header.archiveNo + '</span>' +
@@ -276,8 +308,6 @@ function bindBack(target) {
 function bindEmployeeList() {
   const input = document.getElementById('emp-search');
   const clear = document.getElementById('emp-clear');
-  const list = document.getElementById('emp-list');
-
   function filter() {
     const q = input.value.trim();
     clear.style.display = q ? 'block' : 'none';
@@ -295,7 +325,6 @@ function bindEmployeeList() {
       h.style.display = hasVisible ? 'block' : 'none';
     });
   }
-
   input.addEventListener('input', filter);
   clear.addEventListener('click', function () { input.value = ''; filter(); });
   document.querySelectorAll('.emp-card').forEach(function (card) {
