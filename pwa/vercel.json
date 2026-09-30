@@ -1,0 +1,6 @@
+{
+  "buildCommand": "echo 'Static PWA deploy'",
+  "outputDirectory": ".",
+  "installCommand": "echo 'No install needed'",
+  "cleanUrls": true
+}

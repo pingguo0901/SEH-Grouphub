@@ -1,0 +1,229 @@
+:root {
+  --primary: #0A2540;
+  --primary-light: #1E4A7A;
+  --accent: #C9A227;
+  --bg: #F5F7FA;
+  --surface: #FFFFFF;
+  --surface-variant: #EAEFF5;
+  --navbar: #FFFFFF;
+  --navbar-border: #DCE4EE;
+  --text-primary: #101828;
+  --text-secondary: #475467;
+  --text-muted: #98A2B3;
+  --success: #12B76A;
+  --warning: #F79009;
+  --error: #F04438;
+  --info: #2E90FA;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Helvetica Neue", sans-serif;
+  color: var(--text-primary);
+  overscroll-behavior: none;
+}
+
+#app {
+  display: flex; flex-direction: column;
+  width: 100%; height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--bg);
+  position: relative;
+}
+
+/* 内容区 */
+.content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 顶部栏 */
+.page-header {
+  background: linear-gradient(180deg, #0E3050 0%, var(--primary) 100%);
+  padding: calc(20px + var(--safe-top)) 20px 20px;
+  color: #fff;
+}
+.page-header .header-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.page-header .header-icon { font-size: 26px; color: var(--accent); line-height: 1; }
+.page-header h1 { font-size: 24px; font-weight: 700; color: #fff; }
+.page-header .subtitle { font-size: 13px; color: rgba(255,255,255,0.72); margin-top: 4px; }
+
+/* 页面内容容器 */
+.page-body { padding: 20px; }
+
+/* 卡片 */
+.card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 2px rgba(16,24,40,0.04);
+}
+
+/* 首页 - 子公司 WhatsApp 卡片 */
+.sub-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.sub-card:active { transform: scale(0.98); }
+.sub-logo {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: #25D366;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: #fff; flex-shrink: 0;
+}
+.sub-info { flex: 1 1 auto; min-width: 0; }
+.sub-name { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+.sub-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.sub-arrow { color: var(--text-muted); font-size: 20px; }
+
+/* 标题段落 */
+.section-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 4px 0 12px; }
+
+/* HR - 公司统计卡片 */
+.stats-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+.stats-head { display: flex; align-items: baseline; gap: 6px; }
+.stats-zh { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+.stats-note { font-size: 12px; color: var(--text-muted); }
+.stats-en { font-size: 10px; letter-spacing: 0.5px; color: var(--text-muted); margin-top: 2px; }
+.stats-total-label { font-size: 12px; color: var(--text-secondary); margin-top: 14px; }
+.stats-total { font-size: 34px; font-weight: 700; color: var(--primary); line-height: 1.1; }
+.stats-divider { height: 1px; background: var(--surface-variant); margin: 14px 0; }
+.stats-row { display: flex; }
+.stats-row + .stats-row { margin-top: 12px; }
+.stat-cell { flex: 1 1 0; }
+.stat-label { font-size: 11px; color: var(--text-muted); }
+.stat-value { font-size: 20px; font-weight: 700; margin-top: 2px; }
+
+/* HR - 模块网格 */
+.module-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.module-btn {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 14px 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s;
+}
+.module-btn:active { transform: scale(0.95); }
+.module-btn .icon { font-size: 22px; color: var(--accent); }
+.module-btn .label { font-size: 11px; line-height: 1.3; text-align: center; color: var(--text-primary); }
+
+/* 占位页 */
+.placeholder-title { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+.placeholder-desc { font-size: 14px; color: var(--text-secondary); margin-top: 8px; line-height: 1.6; }
+
+/* 底部导航 */
+.bottom-nav {
+  flex: 0 0 auto;
+  display: flex;
+  background: var(--navbar);
+  border-top: 1px solid var(--navbar-border);
+  padding: 6px 4px calc(6px + var(--safe-bottom));
+}
+.nav-item {
+  flex: 1 1 0;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 4px 0;
+  cursor: pointer;
+  border: none; background: none;
+}
+.nav-item .icon { font-size: 22px; line-height: 1; }
+.nav-item .label { font-size: 10px; margin-top: 2px; }
+.nav-item.active .icon, .nav-item.active .label { color: var(--accent); }
+.nav-item .icon, .nav-item .label { color: var(--text-muted); }
+.nav-item.active .label { font-weight: 600; }
+
+/* Overlay（员工档案列表 + 完整档案） */
+.overlay {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 50;
+  display: flex; flex-direction: column;
+  max-width: 480px; margin: 0 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.overlay.hidden { display: none; }
+
+.overlay-header {
+  background: var(--primary);
+  padding: calc(12px + var(--safe-top)) 12px 12px;
+  display: flex; align-items: center; gap: 8px;
+  position: sticky; top: 0; z-index: 10;
+}
+.overlay-header .back { font-size: 24px; color: #fff; cursor: pointer; padding: 4px 8px; border: none; background: none; line-height: 1; }
+.overlay-header h2 { font-size: 20px; font-weight: 700; color: #fff; }
+
+/* 搜索框 */
+.search-box {
+  display: flex; align-items: center;
+  background: var(--surface);
+  border-radius: 12px;
+  margin: 12px 16px;
+  padding: 0 14px;
+}
+.search-box input {
+  flex: 1 1 auto; border: none; outline: none; background: none;
+  padding: 12px 10px; font-size: 15px; color: var(--text-primary);
+}
+.search-box .search-icon { color: var(--text-muted); }
+.search-box .clear { color: var(--text-muted); cursor: pointer; font-size: 18px; }
+
+/* 员工列表 */
+.emp-section-header {
+  background: var(--surface-variant);
+  padding: 4px 16px;
+  font-size: 13px; font-weight: 700; color: var(--accent);
+}
+.emp-card {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface);
+  border-radius: 12px;
+  margin: 6px 16px;
+  padding: 12px;
+  cursor: pointer;
+}
+.emp-avatar {
+  width: 48px; height: 56px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700; color: #fff;
+  border-radius: 0; flex-shrink: 0;
+}
+.emp-info { flex: 1 1 auto; min-width: 0; }
+.emp-name-row { display: flex; justify-content: space-between; align-items: center; }
+.emp-name { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.emp-id { font-size: 12px; color: var(--text-muted); }
+.emp-line { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-top: 5px; }
+.emp-line .sub { color: var(--text-muted); }
+.empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 40px 0; }
+
+/* 员工完整档案 */
+.archive-body { padding: 16px 16px 40px; }
+.archive-tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.archive-tag { background: var(--surface-variant); color: var(--primary-light); border-radius: 6px; padding: 3px 8px; font-size: 11px; }
+.archive-status { background: rgba(18,183,106,0.12); color: var(--success); font-weight: 600; }
+.archive-name { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+.archive-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.archive-section { background: var(--surface); border-radius: 16px; padding: 16px; margin-top: 12px; }
+.archive-section-title { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.archive-section-title .icon { color: var(--accent); }
+.archive-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid var(--surface-variant); }
+.archive-row:last-child { border-bottom: none; }
+.archive-label { color: var(--text-muted); flex-shrink: 0; margin-right: 12px; }
+.archive-value { color: var(--text-primary); text-align: right; word-break: break-all; }
