@@ -334,6 +334,13 @@ function bindEmployeeList() {
 
 // ===== 初始化 =====
 function init() {
+  // 禁止页面缩放（iOS 双指/双击手势）
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); }, { passive: false });
+  document.addEventListener('gesturechange', function (e) { e.preventDefault(); }, { passive: false });
+  document.addEventListener('gestureend', function (e) { e.preventDefault(); }, { passive: false });
+  document.addEventListener('touchmove', function (e) { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+  document.addEventListener('dblclick', function (e) { e.preventDefault(); }, { passive: false });
+
   document.getElementById('bottom-nav').innerHTML = renderNav();
   navigate('home');
   document.querySelectorAll('.nav-item').forEach(function (n) {
