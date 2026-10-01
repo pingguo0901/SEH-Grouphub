@@ -91,7 +91,7 @@ const PLACEHOLDERS = {
 
 // ===== 工具 =====
 function avatarColor(id) {
-  const palette = ['#1E4A7A', '#2E7D6B', '#8A5A2B', '#7A3E7A', '#2E90FA', '#B4442C'];
+  const palette = ['#3A3A3A', '#2E7D6B', '#8A5A2B', '#7A3E7A', '#555555', '#B4442C'];
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
   return palette[h % palette.length];
@@ -172,7 +172,7 @@ function renderHr() {
       '<div class="stats-divider"></div>' +
       '<div class="stats-row">' +
         '<div class="stat-cell"><div class="stat-label">在职</div><div class="stat-value" style="color:#30D158">' + c.active + '</div></div>' +
-        '<div class="stat-cell"><div class="stat-label">待入职</div><div class="stat-value" style="color:#0A84FF">' + c.pending + '</div></div>' +
+        '<div class="stat-cell"><div class="stat-label">待入职</div><div class="stat-value" style="color:#FFFFFF">' + c.pending + '</div></div>' +
         '<div class="stat-cell"><div class="stat-label">辞职</div><div class="stat-value" style="color:#FF453A">' + c.resigned + '</div></div>' +
       '</div>' +
       '<div class="stats-row">' +
