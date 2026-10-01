@@ -54,7 +54,7 @@ body {
   overflow: hidden;
 }
 
-.content { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(72px + var(--safe-bottom)); }
+.content { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(88px + var(--safe-bottom)); }
 
 /* ===== SVG 图标 ===== */
 .header-icon { width: 26px; height: 26px; color: var(--accent); flex-shrink: 0; }
@@ -159,17 +159,19 @@ body {
 /* 底部导航（与页面连通的玻璃，非黑方块） */
 .bottom-nav {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  bottom: calc(12px + var(--safe-bottom));
+  left: 16px;
+  right: 16px;
   margin: 0 auto;
-  max-width: 480px;
+  max-width: 448px;
   display: flex;
-  padding: 6px 4px calc(6px + var(--safe-bottom));
-  background-color: rgba(255, 255, 255, 0.04);
+  padding: 8px 4px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(30px) saturate(118%);
   -webkit-backdrop-filter: blur(30px) saturate(118%);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
   z-index: 100;
 }
 .nav-item {
