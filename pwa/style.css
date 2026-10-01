@@ -1,12 +1,10 @@
 :root {
   --accent: #FFFFFF;
-  --text-primary: #F2F6FA;
+  --text-primary: #FFFFFF;
   --text-secondary: #98A6B2;
   --text-muted: #6B7A8A;
   --glass-tint: rgba(255, 255, 255, 0.07);
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --glass-highlight: rgba(255, 255, 255, 0.42);
-  --glass-shadow: rgba(0, 0, 0, 0.22);
+  --glass-border: rgba(255, 255, 255, 0.08);
   --success: #30D158;
   --warning: #FF9F0A;
   --error: #FF453A;
@@ -18,7 +16,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 html {
-  background: #000000;
+  background: #070709;
 }
 
 html, body {
@@ -33,24 +31,26 @@ html, body {
   touch-action: manipulation;
 }
 
-/* 液态玻璃壁纸：深色底 + 彩色光斑（供 backdrop-filter 折射/模糊） */
+/* 液态玻璃壁纸：极冷灰底 + 极淡白光斑（供 backdrop-filter 模糊） */
 body {
   background:
     radial-gradient(ellipse at 12% -5%, rgba(255, 255, 255, 0.10), transparent 55%),
     radial-gradient(ellipse at 90% 8%, rgba(255, 255, 255, 0.07), transparent 55%),
     radial-gradient(ellipse at 45% 108%, rgba(255, 255, 255, 0.05), transparent 60%),
     radial-gradient(ellipse at 70% 60%, rgba(255, 255, 255, 0.04), transparent 50%),
-    linear-gradient(180deg, #000000 0%, #080808 48%, #000000 100%);
+    linear-gradient(180deg, #070709 0%, #0A0A0D 48%, #070709 100%);
 }
 
 #app {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
   display: flex; flex-direction: column;
   width: 100%;
-  height: 100%;
-  height: 100dvh;
   max-width: 480px;
-  margin: 0 auto;
-  position: relative;
   overflow: hidden;
 }
 
@@ -70,36 +70,35 @@ body {
 .page-header {
   padding: calc(10px + var(--safe-top)) 20px 14px;
   background: var(--glass-tint);
-  backdrop-filter: blur(26px) saturate(1.4) brightness(0.96);
-  -webkit-backdrop-filter: blur(26px) saturate(1.4) brightness(0.96);
+  backdrop-filter: blur(18px) saturate(118%);
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
   border-bottom: 1px solid var(--glass-border);
-  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.06);
 }
 .page-header .header-row { display: flex; align-items: center; gap: 10px; }
-.page-header h1 { font-size: 24px; font-weight: 700; color: var(--text-primary); }
-.page-header .subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+.page-header h1 { font-size: 19px; font-weight: 600; color: #ffffff; }
+.page-header .subtitle { font-size: 15px; color: var(--text-secondary); opacity: 0.58; margin-top: 4px; }
 
 .page-body { padding: 20px; }
 
-/* ===== 卡片 ===== */
+/* ===== 卡片（iOS 玻璃：极淡白叠加 + 顶部高光，无外阴影） ===== */
 .card {
-  border-radius: 20px; padding: 16px; margin-bottom: 12px;
+  border-radius: 21px; padding: 16px; margin-bottom: 12px;
   background: var(--glass-tint);
-  backdrop-filter: blur(22px) saturate(1.4) brightness(0.96) contrast(1.03);
-  -webkit-backdrop-filter: blur(22px) saturate(1.4) brightness(0.96) contrast(1.03);
+  backdrop-filter: blur(18px) saturate(118%);
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
   border: 1px solid var(--glass-border);
-  box-shadow: inset 0 0 22px -6px var(--glass-highlight), 0 4px 26px var(--glass-shadow);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
 }
 
 /* 首页 - 子公司卡片 */
 .sub-card {
   display: flex; align-items: center; gap: 14px;
-  border-radius: 20px; padding: 16px; margin-bottom: 12px; cursor: pointer;
+  border-radius: 21px; padding: 16px; margin-bottom: 12px; cursor: pointer;
   background: var(--glass-tint);
-  backdrop-filter: blur(22px) saturate(1.4) brightness(0.96) contrast(1.03);
-  -webkit-backdrop-filter: blur(22px) saturate(1.4) brightness(0.96) contrast(1.03);
+  backdrop-filter: blur(18px) saturate(118%);
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
   border: 1px solid var(--glass-border);
-  box-shadow: inset 0 0 22px -6px var(--glass-highlight), 0 4px 26px var(--glass-shadow);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
   transition: transform 0.15s;
 }
 .sub-card:active { transform: scale(0.98); }
@@ -112,18 +111,18 @@ body {
 .sub-info { flex: 1 1 auto; min-width: 0; }
 .sub-name { font-size: 16px; font-weight: 600; color: var(--text-primary); }
 .sub-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-.sub-arrow { color: var(--text-muted); font-size: 20px; }
+.sub-arrow { color: var(--text-muted); font-size: 20px; opacity: 0.48; }
 
 .section-title { font-size: 15px; font-weight: 600; color: var(--text-secondary); margin: 4px 0 12px; }
 
 /* HR - 公司统计卡片 */
 .stats-card {
-  border-radius: 20px; padding: 16px; margin-bottom: 12px;
+  border-radius: 21px; padding: 16px; margin-bottom: 12px;
   background: var(--glass-tint);
-  backdrop-filter: blur(22px) saturate(1.4) brightness(0.96) contrast(1.03);
-  -webkit-backdrop-filter: blur(22px) saturate(1.4) brightness(0.96) contrast(1.03);
+  backdrop-filter: blur(18px) saturate(118%);
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
   border: 1px solid var(--glass-border);
-  box-shadow: inset 0 0 22px -6px var(--glass-highlight), 0 4px 26px var(--glass-shadow);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
 }
 .stats-head { display: flex; align-items: baseline; gap: 6px; }
 .stats-zh { font-size: 17px; font-weight: 700; color: var(--text-primary); }
@@ -145,9 +144,9 @@ body {
   display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer;
   border: 1px solid var(--glass-border);
   background: var(--glass-tint);
-  backdrop-filter: blur(20px) saturate(1.4) brightness(0.96);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4) brightness(0.96);
-  box-shadow: inset 0 0 18px -6px var(--glass-highlight), 0 3px 18px var(--glass-shadow);
+  backdrop-filter: blur(18px) saturate(118%);
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
   transition: transform 0.15s;
 }
 .module-btn:active { transform: scale(0.94); }
@@ -157,7 +156,7 @@ body {
 .placeholder-title { font-size: 22px; font-weight: 700; color: var(--text-primary); }
 .placeholder-desc { font-size: 14px; color: var(--text-secondary); margin-top: 8px; line-height: 1.6; }
 
-/* 底部导航（玻璃） */
+/* 底部导航（与页面连通的玻璃，非黑方块） */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -167,11 +166,10 @@ body {
   max-width: 480px;
   display: flex;
   padding: 6px 4px calc(6px + var(--safe-bottom));
-  background: rgba(16, 18, 24, 0.82);
-  backdrop-filter: blur(28px) saturate(1.5) brightness(0.94);
-  -webkit-backdrop-filter: blur(28px) saturate(1.5) brightness(0.94);
-  border-top: 1px solid var(--glass-border);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  background-color: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(30px) saturate(118%);
+  -webkit-backdrop-filter: blur(30px) saturate(118%);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   z-index: 100;
 }
 .nav-item {
@@ -193,7 +191,7 @@ body {
     radial-gradient(ellipse at 12% -5%, rgba(255,255,255,0.10), transparent 55%),
     radial-gradient(ellipse at 90% 8%, rgba(255,255,255,0.07), transparent 55%),
     radial-gradient(ellipse at 45% 108%, rgba(255,255,255,0.05), transparent 60%),
-    linear-gradient(180deg, #000000 0%, #080808 48%, #000000 100%);
+    linear-gradient(180deg, #070709 0%, #0A0A0D 48%, #070709 100%);
 }
 .overlay.hidden { display: none; }
 
@@ -202,8 +200,8 @@ body {
   display: flex; align-items: center; gap: 8px;
   position: sticky; top: 0; z-index: 10;
   background: var(--glass-tint);
-  backdrop-filter: blur(26px) saturate(1.4) brightness(0.96);
-  -webkit-backdrop-filter: blur(26px) saturate(1.4) brightness(0.96);
+  backdrop-filter: blur(18px) saturate(118%);
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
   border-bottom: 1px solid var(--glass-border);
 }
 .overlay-header .back { padding: 4px 8px; border: none; background: none; line-height: 1; cursor: pointer; }
@@ -214,10 +212,9 @@ body {
   display: flex; align-items: center;
   border-radius: 14px; margin: 12px 16px; padding: 0 14px;
   background: var(--glass-tint);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(118%);
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
   border: 1px solid var(--glass-border);
-  box-shadow: inset 0 0 18px -6px var(--glass-highlight);
 }
 .search-box input {
   flex: 1 1 auto; border: none; outline: none; background: none;
@@ -232,12 +229,12 @@ body {
 }
 .emp-card {
   display: flex; align-items: center; gap: 12px;
-  border-radius: 16px; margin: 6px 16px; padding: 12px; cursor: pointer;
+  border-radius: 21px; margin: 6px 16px; padding: 12px; cursor: pointer;
   background: var(--glass-tint);
-  backdrop-filter: blur(20px) saturate(1.4) brightness(0.96);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4) brightness(0.96);
+  backdrop-filter: blur(18px) saturate(118%);
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
   border: 1px solid var(--glass-border);
-  box-shadow: inset 0 0 18px -6px var(--glass-highlight), 0 3px 18px var(--glass-shadow);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
 }
 .emp-avatar {
   width: 48px; height: 56px;
@@ -265,12 +262,12 @@ body {
 .archive-name { font-size: 22px; font-weight: 700; color: var(--text-primary); }
 .archive-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 .archive-section {
-  border-radius: 20px; padding: 16px; margin-top: 12px;
+  border-radius: 21px; padding: 16px; margin-top: 12px;
   background: var(--glass-tint);
-  backdrop-filter: blur(22px) saturate(1.4) brightness(0.96);
-  -webkit-backdrop-filter: blur(22px) saturate(1.4) brightness(0.96);
+  backdrop-filter: blur(18px) saturate(118%);
+  -webkit-backdrop-filter: blur(18px) saturate(118%);
   border: 1px solid var(--glass-border);
-  box-shadow: inset 0 0 22px -6px var(--glass-highlight), 0 4px 26px var(--glass-shadow);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
 }
 .archive-section-title { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
 .archive-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.08); }
