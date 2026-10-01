@@ -53,7 +53,7 @@ body {
   overflow: hidden;
 }
 
-.content { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; background-color: #070709; padding-bottom: 80px; }
+.content { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; background-color: #070709; padding-bottom: 88px; }
 
 /* ===== SVG 图标 ===== */
 .header-icon { width: 26px; height: 26px; color: var(--accent); flex-shrink: 0; }
@@ -68,9 +68,7 @@ body {
 /* ===== 顶部栏 ===== */
 .page-header {
   padding: 10px 20px 14px;
-  background: var(--glass-tint);
-  backdrop-filter: blur(18px) saturate(118%);
-  -webkit-backdrop-filter: blur(18px) saturate(118%);
+  background-color: #070709;
   border-bottom: 1px solid var(--glass-border);
 }
 .page-header .header-row { display: flex; align-items: center; gap: 10px; }
@@ -158,29 +156,27 @@ body {
 /* 底部导航（与页面连通的玻璃，非黑方块） */
 .bottom-nav {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  max-width: 480px;
+  bottom: 12px;
+  left: 16px;
+  right: 16px;
   margin: 0 auto;
-  background-color: rgba(255, 255, 255, 0.04);
+  max-width: 448px;
+  display: flex;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(30px) saturate(118%);
   -webkit-backdrop-filter: blur(30px) saturate(118%);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding-top: 8px;
-  padding-bottom: 8px;
-  padding-left: 4px;
-  padding-right: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  padding: 8px 4px;
   z-index: 999;
 }
 
-/* 内层 flex 容器：只有这里才留边距 + 圆角，不做玻璃（避免两层模糊发灰） */
+/* 内层 flex 容器 */
 .bottom-nav-inner {
   display: flex;
   justify-content: space-around;
-  border-radius: 21px;
-  margin: 0 12px;
+  width: 100%;
 }
 .nav-item {
   flex: 1 1 0; display: flex; flex-direction: column; align-items: center;
