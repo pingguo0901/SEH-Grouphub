@@ -207,9 +207,9 @@ function renderPage(key) {
 }
 
 function renderNav() {
-  return PAGES.map(function (p) {
+  return '<div class="bottom-nav-inner">' + PAGES.map(function (p) {
     return '<button class="nav-item" data-key="' + p.key + '">' + icon(p.icon, 'nav-icon') + '<span class="label">' + p.title + '</span></button>';
-  }).join('');
+  }).join('') + '</div>';
 }
 
 function renderEmployeeList() {

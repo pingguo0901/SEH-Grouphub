@@ -54,7 +54,7 @@ body {
   overflow: hidden;
 }
 
-.content { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(88px + var(--safe-bottom)); }
+.content { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(76px + var(--safe-bottom)); }
 
 /* ===== SVG 图标 ===== */
 .header-icon { width: 26px; height: 26px; color: var(--accent); flex-shrink: 0; }
@@ -159,20 +159,29 @@ body {
 /* 底部导航（与页面连通的玻璃，非黑方块） */
 .bottom-nav {
   position: fixed;
-  bottom: calc(12px + var(--safe-bottom));
-  left: 16px;
-  right: 16px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 480px;
   margin: 0 auto;
-  max-width: 448px;
-  display: flex;
-  padding: 8px 4px;
-  border-radius: 999px;
-  background-color: rgba(255, 255, 255, 0.06);
+  background-color: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(30px) saturate(118%);
   -webkit-backdrop-filter: blur(30px) saturate(118%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 8px;
+  padding-bottom: calc(8px + var(--safe-bottom));
+  padding-left: 4px;
+  padding-right: 4px;
   z-index: 100;
+}
+
+/* 内层 flex 容器：只有这里才留边距 + 圆角，不做玻璃（避免两层模糊发灰） */
+.bottom-nav-inner {
+  display: flex;
+  justify-content: space-around;
+  border-radius: 21px;
+  margin: 0 12px;
 }
 .nav-item {
   flex: 1 1 0; display: flex; flex-direction: column; align-items: center;
