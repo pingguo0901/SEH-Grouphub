@@ -33,12 +33,12 @@ html, body {
 
 /* 液态玻璃壁纸：极冷灰底 + 极淡白光斑（供 backdrop-filter 模糊） */
 body {
-  background:
+  background-color: #070709;
+  background-image:
     radial-gradient(ellipse at 12% -5%, rgba(255, 255, 255, 0.10), transparent 55%),
     radial-gradient(ellipse at 90% 8%, rgba(255, 255, 255, 0.07), transparent 55%),
     radial-gradient(ellipse at 45% 108%, rgba(255, 255, 255, 0.05), transparent 60%),
-    radial-gradient(ellipse at 70% 60%, rgba(255, 255, 255, 0.04), transparent 50%),
-    linear-gradient(180deg, #070709 0%, #0A0A0D 48%, #070709 100%);
+    radial-gradient(ellipse at 70% 60%, rgba(255, 255, 255, 0.04), transparent 50%);
 }
 
 #app {
@@ -51,10 +51,11 @@ body {
   display: flex; flex-direction: column;
   width: 100%;
   max-width: 480px;
+  background-color: #070709;
   overflow: hidden;
 }
 
-.content { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(76px + var(--safe-bottom)); }
+.content { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; background-color: #070709; padding-bottom: calc(80px + var(--safe-bottom)); }
 
 /* ===== SVG 图标 ===== */
 .header-icon { width: 26px; height: 26px; color: var(--accent); flex-shrink: 0; }
@@ -173,7 +174,7 @@ body {
   padding-bottom: calc(8px + var(--safe-bottom));
   padding-left: 4px;
   padding-right: 4px;
-  z-index: 100;
+  z-index: 999;
 }
 
 /* 内层 flex 容器：只有这里才留边距 + 圆角，不做玻璃（避免两层模糊发灰） */
@@ -199,11 +200,11 @@ body {
   display: flex; flex-direction: column;
   max-width: 480px; margin: 0 auto;
   overflow-y: auto; -webkit-overflow-scrolling: touch;
-  background:
+  background-color: #070709;
+  background-image:
     radial-gradient(ellipse at 12% -5%, rgba(255,255,255,0.10), transparent 55%),
     radial-gradient(ellipse at 90% 8%, rgba(255,255,255,0.07), transparent 55%),
-    radial-gradient(ellipse at 45% 108%, rgba(255,255,255,0.05), transparent 60%),
-    linear-gradient(180deg, #070709 0%, #0A0A0D 48%, #070709 100%);
+    radial-gradient(ellipse at 45% 108%, rgba(255,255,255,0.05), transparent 60%);
 }
 .overlay.hidden { display: none; }
 
