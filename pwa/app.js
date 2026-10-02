@@ -421,9 +421,12 @@ async function waLoadChat(msisdn) {
     (eRes.data || []).forEach(function (e) { if (waWabaMatch(e.to_msisdn)) raw.push({ text: e.text_body, isSent: false, t: e.created_at }); });
     (rRes.data || []).forEach(function (r) { if (waWabaMatch(r.from_waba_number)) raw.push({ text: r.body_text, isSent: true, t: r.created_at }); });
     raw.sort(function (a, b) { return a.t < b.t ? -1 : 1; });
-    waChatMsgs = raw.map(function (m) { return { text: m.text, isSent: m.isSent, time: waFmtTime(m.t) }; });
+    var newMsgs = raw.map(function (m) { return { text: m.text, isSent: m.isSent, time: waFmtTime(m.t) }; });
+    var changed = JSON.stringify(newMsgs) !== JSON.stringify(waChatMsgs);
+    waChatMsgs = newMsgs;
     waChatMsisdn = msisdn;
-  } catch (e) { /* 忽略 */ }
+    return changed;
+  } catch (e) { return false; }
 }
 
 function waSubscribe() {
@@ -440,12 +443,16 @@ function waSubscribe() {
 
 function waRefresh() {
   if (!waScreenOpen()) return;
-  waLoadContacts().then(function () {
-    if (waScreenOpen()) renderWa();
-    if (waChatMsisdn) {
-      waLoadChat(waChatMsisdn).then(function () { if (waScreenOpen()) renderWa(); });
-    }
-  });
+  if (waChatContact) {
+    // 聊天窗打开：只刷新当前会话消息，不重载联系人列表，避免无谓重渲染
+    waLoadChat(waChatContact).then(function (changed) {
+      if (waScreenOpen() && changed) renderWa();
+    });
+  } else {
+    waLoadContacts().then(function (changed) {
+      if (waScreenOpen() && changed) renderWa();
+    });
+  }
 }
 
 let waPollTimer = null;
@@ -484,10 +491,26 @@ function closeWhatsApp() {
 
 function renderWa() {
   const screen = document.getElementById('wa-screen');
+  // 重渲染会重建 innerHTML，导致聊天滚动条弹回顶部；先记住位置，渲染后恢复
+  var keepScroll = 0, wasAtBottom = false;
+  if (waChatContact) {
+    var prev = screen.querySelector('.wa-chat-scroll');
+    if (prev) {
+      keepScroll = prev.scrollTop;
+      wasAtBottom = (prev.scrollHeight - prev.scrollTop - prev.clientHeight) < 80;
+    }
+  }
   if (waChatContact) screen.innerHTML = waChatHtml(waChatContact);
   else if (waSearchOpen) screen.innerHTML = waSearchHtml();
   else if (waTab !== 'chats') screen.innerHTML = waPlaceholderHtml();
   else screen.innerHTML = waListHtml();
+  if (waChatContact) {
+    var sc = screen.querySelector('.wa-chat-scroll');
+    if (sc) {
+      if (wasAtBottom) sc.scrollTop = sc.scrollHeight;  // 原来在底部：新消息来了自动滚到底
+      else sc.scrollTop = keepScroll;                    // 在看历史：保持原位置不弹
+    }
+  }
   moveWaIndicator();
   bindWaScroll();
 }
