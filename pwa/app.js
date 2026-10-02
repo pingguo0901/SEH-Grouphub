@@ -59,9 +59,9 @@ const PAGES = [
 ];
 
 const SUBSIDIARIES = [
-  { nameZh: '炙巷食铺', nameEn: 'ZHI XIANG FOOD ENTERPRISE', phone: '85251403695' },
-  { nameZh: '星域臻旅', nameEn: 'STELLAR ELITE ENTERPRISE', phone: '8617098925396' },
-  { nameZh: '星域科技', nameEn: 'STELLAR TECH STUDIO', phone: '6581945601' }
+  { nameZh: '炙巷食铺', nameEn: 'ZHI XIANG FOOD ENTERPRISE', phone: '85251403695', waba: ['85251403695'] },
+  { nameZh: '星域臻旅', nameEn: 'STELLAR ELITE ENTERPRISE', phone: '01167936058', waba: ['01167936058', '601167936058'] },
+  { nameZh: '星域科技', nameEn: 'STELLAR TECH STUDIO', phone: '6581945601', waba: ['6581945601'] }
 ];
 
 const COMPANY_STATS = [
@@ -267,6 +267,29 @@ let waContacts = [];
 let waChatMsgs = [];
 let waChatMsisdn = null;
 let waLoaded = false;
+let currentWaba = ['85251403695'];
+
+function normPhone(n) {
+  var d = String(n == null ? '' : n).replace(/\D/g, '');
+  if (d.length === 11 && d.charAt(0) === '0') d = '60' + d.slice(1);
+  return d;
+}
+
+function waWabaMatch(v) {
+  var nv = normPhone(v);
+  if (!nv) return false;
+  for (var i = 0; i < currentWaba.length; i++) {
+    if (normPhone(currentWaba[i]) === nv) return true;
+  }
+  return false;
+}
+
+function getWabaFor(store) {
+  for (var i = 0; i < SUBSIDIARIES.length; i++) {
+    if (SUBSIDIARIES[i].nameZh === store) return SUBSIDIARIES[i].waba || [];
+  }
+  return [];
+}
 
 function sehInit() {
   if (sehClient) return sehClient;
@@ -293,30 +316,25 @@ async function waLoadContacts() {
   if (!c) { waLoaded = true; return; }
   try {
     var contactsRes = await c.from('whatsapp_contacts').select('msisdn, display_name').order('updated_at', { ascending: false });
-    var eventsRes = await c.from('whatsapp_events').select('from_msisdn, text_body, created_at').order('created_at', { ascending: false }).limit(500);
-    var repliesRes = await c.from('whatsapp_replies').select('to_msisdn, body_text, created_at').order('created_at', { ascending: false }).limit(500);
+    var eventsRes = await c.from('whatsapp_events').select('from_msisdn, to_msisdn, text_body, created_at').order('created_at', { ascending: false }).limit(500);
+    var repliesRes = await c.from('whatsapp_replies').select('to_msisdn, from_waba_number, body_text, created_at').order('created_at', { ascending: false }).limit(500);
 
     var nameMap = {};
     (contactsRes.data || []).forEach(function (r) { nameMap[r.msisdn] = r.display_name; });
 
     var last = {};
     (eventsRes.data || []).forEach(function (e) {
+      if (!waWabaMatch(e.to_msisdn)) return;
       if (!last[e.from_msisdn] || e.created_at > last[e.from_msisdn].t) last[e.from_msisdn] = { text: e.text_body, t: e.created_at };
     });
     (repliesRes.data || []).forEach(function (r) {
+      if (!waWabaMatch(r.from_waba_number)) return;
       if (!last[r.to_msisdn] || r.created_at > last[r.to_msisdn].t) last[r.to_msisdn] = { text: r.body_text, t: r.created_at };
     });
 
     var list = [];
-    var seen = {};
-    Object.keys(nameMap).forEach(function (m) {
-      seen[m] = true;
-      var lm = last[m];
-      list.push({ msisdn: m, name: nameMap[m] || m, lastMessage: lm ? lm.text : '', time: lm ? waFmtTime(lm.t) : '', t: lm ? lm.t : '', unread: 0, favorite: false, isGroup: false });
-    });
     Object.keys(last).forEach(function (m) {
-      if (seen[m]) return;
-      list.push({ msisdn: m, name: m, lastMessage: last[m].text, time: waFmtTime(last[m].t), t: last[m].t, unread: 0, favorite: false, isGroup: false });
+      list.push({ msisdn: m, name: nameMap[m] || m, lastMessage: last[m].text, time: waFmtTime(last[m].t), t: last[m].t, unread: 0, favorite: false, isGroup: false });
     });
     list.sort(function (a, b) { return (a.t || '') < (b.t || '') ? 1 : -1; });
     waContacts = list;
@@ -329,11 +347,11 @@ async function waLoadChat(msisdn) {
   var c = sehInit();
   if (!c) return;
   try {
-    var eRes = await c.from('whatsapp_events').select('text_body, created_at').eq('from_msisdn', msisdn).order('created_at', { ascending: true });
-    var rRes = await c.from('whatsapp_replies').select('body_text, created_at').eq('to_msisdn', msisdn).order('created_at', { ascending: true });
+    var eRes = await c.from('whatsapp_events').select('to_msisdn, text_body, created_at').eq('from_msisdn', msisdn).order('created_at', { ascending: true });
+    var rRes = await c.from('whatsapp_replies').select('from_waba_number, body_text, created_at').eq('to_msisdn', msisdn).order('created_at', { ascending: true });
     var raw = [];
-    (eRes.data || []).forEach(function (e) { raw.push({ text: e.text_body, isSent: false, t: e.created_at }); });
-    (rRes.data || []).forEach(function (r) { raw.push({ text: r.body_text, isSent: true, t: r.created_at }); });
+    (eRes.data || []).forEach(function (e) { if (waWabaMatch(e.to_msisdn)) raw.push({ text: e.text_body, isSent: false, t: e.created_at }); });
+    (rRes.data || []).forEach(function (r) { if (waWabaMatch(r.from_waba_number)) raw.push({ text: r.body_text, isSent: true, t: r.created_at }); });
     raw.sort(function (a, b) { return a.t < b.t ? -1 : 1; });
     waChatMsgs = raw.map(function (m) { return { text: m.text, isSent: m.isSent, time: waFmtTime(m.t) }; });
     waChatMsisdn = msisdn;
@@ -376,6 +394,8 @@ let waRecents = [];
 
 function openWhatsApp(store) {
   currentWhatsApp = store || currentWhatsApp || '炙巷食铺';
+  currentWaba = getWabaFor(currentWhatsApp);
+  if (!currentWaba.length) currentWaba = ['85251403695'];
   waTab = 'chats';
   waChatContact = null;
   waSearchOpen = false;
