@@ -86,8 +86,26 @@ const PLACEHOLDERS = {
   legal: { title: '法务板块', subtitle: '合规与风控', icon: 'gavel', desc: '合同审查、合规管理、风险防控等内容将在此呈现。' },
   admin: { title: '行政板块', subtitle: '行政与后勤', icon: 'business', desc: '办公资产、印章证照、后勤保障等内容将在此呈现。' },
   audit: { title: '内审板块', subtitle: '审计与监督', icon: 'shield', desc: '内部审计、流程监督、风险预警等内容将在此呈现。' },
-  profile: { title: '我', subtitle: '董事长', icon: 'person', desc: '个人中心、账号与权限设置等内容将在此呈现。' }
+  profile: { title: '我', subtitle: '董事长', icon: 'person', desc: '个人中心、账号与权限设置等内容将在此呈现。' },
+  service: { title: '客服板块', subtitle: '客户服务', icon: 'chat', desc: '客户咨询、售后服务、工单处理等内容将在此呈现。' },
+  ops: { title: '运营板块', subtitle: '业务运营', icon: 'work', desc: '业务运营、数据分析、活动策划等内容将在此呈现。' },
+  tbd: { title: '待定板块', subtitle: '功能规划中', icon: 'badge', desc: '功能规划中，内容待定。' }
 };
+
+const HOME_GROUPS = [
+  { title: '职能管理', items: [
+    { label: '人事', icon: 'people', key: 'hr' },
+    { label: '财务', icon: 'wallet', key: 'finance' },
+    { label: '法务', icon: 'gavel', key: 'legal' },
+    { label: '行政', icon: 'business', key: 'admin' }
+  ]},
+  { title: '运营服务', items: [
+    { label: '内审', icon: 'shield', key: 'audit' },
+    { label: '客服', icon: 'chat', key: 'service' },
+    { label: '运营', icon: 'work', key: 'ops' },
+    { label: '待定', icon: 'badge', key: 'tbd' }
+  ]}
+];
 
 // ===== 工具 =====
 function avatarColor(id) {
@@ -144,14 +162,6 @@ function pageHeader(title, subtitle, iconName) {
 }
 
 function renderHome() {
-  let cards = SUBSIDIARIES.map(function (s) {
-    const link = s.phone ? 'https://wa.me/' + s.phone : '#';
-    const desc = s.phone ? 'WhatsApp 联系' : '号码待配置';
-    return '<div class="sub-card" onclick="window.open(\'' + link + '\', \'_blank\')">' +
-      '<div class="sub-logo">' + icon('chat', 'sub-logo-icon') + '</div>' +
-      '<div class="sub-info"><div class="sub-name">' + s.nameZh + '</div><div class="sub-desc">' + desc + '</div></div>' +
-      '<div class="sub-arrow">›</div></div>';
-  }).join('');
   const g = COMPANY_STATS[0];
   const now = new Date();
   const dateStr = now.getFullYear() + ' 年 ' + (now.getMonth() + 1) + ' 月 ' + now.getDate() + ' 日';
@@ -165,12 +175,17 @@ function renderHome() {
       '<div class="stat-cell"><div class="stat-label">待入职</div><div class="stat-value">' + g.pending + '</div></div>' +
       '<div class="stat-cell"><div class="stat-label">子公司</div><div class="stat-value">' + SUBSIDIARIES.length + '</div></div>' +
     '</div></div>';
+  const groups = HOME_GROUPS.map(function (grp) {
+    const btns = grp.items.map(function (b) {
+      return '<button class="module-btn" data-nav="' + b.key + '">' + icon(b.icon, 'module-icon') + '<span class="label">' + b.label + '</span></button>';
+    }).join('');
+    return '<div class="section-title">' + grp.title + '</div><div class="module-grid">' + btns + '</div>';
+  }).join('');
   return pageHeader('首页', '星域控股集团 · 董事长驾驶舱', 'home') +
     '<div class="page-body">' +
     summary +
     '<div style="height:16px"></div>' +
-    '<div class="section-title">子公司 WhatsApp</div>' +
-    cards +
+    groups +
     '</div>';
 }
 
@@ -360,7 +375,10 @@ function init() {
   });
   document.addEventListener('click', function (e) {
     const mod = e.target.closest('.module-btn');
-    if (mod && mod.getAttribute('data-action') === 'employees') openEmployees();
+    if (!mod) return;
+    const nav = mod.getAttribute('data-nav');
+    if (nav) { navigate(nav); return; }
+    if (mod.getAttribute('data-action') === 'employees') openEmployees();
   });
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(function () {});
