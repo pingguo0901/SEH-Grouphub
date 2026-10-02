@@ -347,14 +347,19 @@ body {
   display: flex; flex-direction: column;
   max-width: 480px; margin: 0 auto;
   overflow: hidden;
-  background: #000000;
+  background: #070709;
 }
 .wa-screen.hidden { display: none; }
 
 .wa-wallpaper {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
-  background: #000000;
+  background-color: #070709;
+  background-image:
+    radial-gradient(ellipse at 12% -5%, rgba(255, 255, 255, 0.10), transparent 55%),
+    radial-gradient(ellipse at 90% 8%, rgba(255, 255, 255, 0.07), transparent 55%),
+    radial-gradient(ellipse at 45% 108%, rgba(255, 255, 255, 0.05), transparent 60%),
+    radial-gradient(ellipse at 70% 60%, rgba(255, 255, 255, 0.04), transparent 50%);
 }
 
 /* 顶部栏 */
