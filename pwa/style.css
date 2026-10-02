@@ -87,6 +87,20 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.09);
 }
 
+/* 首页 - 今日摘要（爱马仕橙） */
+.summary-card {
+  background: linear-gradient(135deg, #FF7A00 0%, #E8551B 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+}
+.summary-card .stats-zh,
+.summary-card .stats-total,
+.summary-card .stat-value { color: #FFFFFF; }
+.summary-card .stats-note,
+.summary-card .stats-total-label,
+.summary-card .stat-label { color: rgba(255, 255, 255, 0.82); }
+.summary-card .stats-divider { background: rgba(255, 255, 255, 0.28); }
+
 /* 首页 - 子公司卡片 */
 .sub-card {
   display: flex; align-items: center; gap: 14px;
