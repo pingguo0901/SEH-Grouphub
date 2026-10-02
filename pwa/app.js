@@ -171,8 +171,9 @@ function buildArchive(emp) {
 }
 
 // ===== 渲染 =====
-function pageHeader(title, subtitle, iconName) {
-  return '<div class="page-header"><div class="header-row"><span class="header-icon">' + icon(iconName, 'header-icon') + '</span><h1>' + title + '</h1></div><div class="subtitle">' + subtitle + '</div></div>';
+function pageHeader(title, subtitle, iconName, backKey) {
+  const back = backKey ? '<button class="back-btn" data-nav="' + backKey + '">' + icon('back', 'back-icon') + '</button>' : '';
+  return '<div class="page-header"><div class="header-row">' + back + '<span class="header-icon">' + icon(iconName, 'header-icon') + '</span><h1>' + title + '</h1></div><div class="subtitle">' + subtitle + '</div></div>';
 }
 
 function renderHome() {
@@ -245,7 +246,7 @@ function renderService() {
       '<button class="wa-btn" data-wa="' + s.nameZh + '">' + icon('whatsapp', 'wa-icon') + '<span>WhatsApp</span></button>' +
       '</div>';
   }).join('');
-  return pageHeader('客服', '客户服务', 'chat') +
+  return pageHeader('客服', '客户服务', 'chat', 'home') +
     '<div class="page-body">' + cards + '</div>';
 }
 
@@ -559,7 +560,11 @@ function init() {
   window.addEventListener('resize', moveIndicator);
   document.addEventListener('click', function (e) {
     const mod = e.target.closest('.module-btn');
-    if (!mod) return;
+    if (!mod) {
+      const back = e.target.closest('.back-btn');
+      if (back) { navigate(back.getAttribute('data-nav')); }
+      return;
+    }
     const nav = mod.getAttribute('data-nav');
     if (nav) { navigate(nav); return; }
     if (mod.getAttribute('data-action') === 'employees') openEmployees();

@@ -72,6 +72,7 @@ body {
   border-bottom: 1px solid var(--glass-border);
 }
 .page-header .header-row { display: flex; align-items: center; gap: 10px; }
+.back-btn { padding: 4px 4px 4px 0; border: none; background: none; cursor: pointer; flex-shrink: 0; line-height: 1; }
 .page-header h1 { font-size: 19px; font-weight: 600; color: #ffffff; }
 .page-header .subtitle { font-size: 15px; color: var(--text-secondary); opacity: 0.58; margin-top: 4px; }
 
