@@ -186,21 +186,53 @@ body {
   z-index: 999;
 }
 
-/* 内层 flex 容器 */
+/* 内层 flex 容器（含滑动白块指示器） */
 .bottom-nav-inner {
+  position: relative;
   display: flex;
-  justify-content: space-around;
+  align-items: center;
   width: 100%;
 }
-.nav-item {
-  flex: 1 1 0; display: flex; flex-direction: column; align-items: center;
-  padding: 4px 0; cursor: pointer; border: none; background: none;
+.nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
 }
-.nav-item .nav-icon { color: var(--text-muted); }
-.nav-item:active .nav-icon, .nav-item:active .label { opacity: 0.6; }
-.nav-item .label { font-size: 10px; margin-top: 2px; color: var(--text-muted); }
-.nav-item.active .nav-icon, .nav-item.active .label { color: var(--accent); }
-.nav-item.active .label { font-weight: 600; }
+.nav-item {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 10px 0;
+  cursor: pointer;
+  border: none;
+  background: none;
+  position: relative;
+  z-index: 1;
+}
+.nav-item:active { opacity: 0.7; }
+.nav-item .nav-icon { color: var(--text-muted); flex-shrink: 0; width: 20px; height: 20px; transition: color 0.2s; }
+.nav-item .label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #111111;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-left: 0;
+  transition: max-width 0.25s ease, opacity 0.2s ease, margin-left 0.25s ease;
+}
+.nav-item.active .nav-icon { color: #111111; }
+.nav-item.active .label { max-width: 60px; opacity: 1; margin-left: 5px; }
 
 /* Overlay */
 .overlay {

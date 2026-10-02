@@ -234,9 +234,10 @@ function renderPage(key) {
 }
 
 function renderNav() {
-  return '<div class="bottom-nav-inner">' + PAGES.map(function (p) {
+  const items = PAGES.map(function (p) {
     return '<button class="nav-item" data-key="' + p.key + '">' + icon(p.icon, 'nav-icon') + '<span class="label">' + p.title + '</span></button>';
-  }).join('') + '</div>';
+  }).join('');
+  return '<div class="bottom-nav-inner"><div class="nav-indicator"></div>' + items + '</div>';
 }
 
 function renderEmployeeList() {
@@ -303,7 +304,16 @@ function navigate(key) {
   document.querySelectorAll('.nav-item').forEach(function (n) {
     n.classList.toggle('active', n.getAttribute('data-key') === key);
   });
+  moveIndicator();
   contentEl().scrollTop = 0;
+}
+
+function moveIndicator() {
+  const active = document.querySelector('.nav-item.active');
+  const ind = document.querySelector('.nav-indicator');
+  if (!active || !ind) return;
+  ind.style.transform = 'translateX(' + active.offsetLeft + 'px)';
+  ind.style.width = active.offsetWidth + 'px';
 }
 
 function openEmployees() {
@@ -373,6 +383,7 @@ function init() {
   document.querySelectorAll('.nav-item').forEach(function (n) {
     n.addEventListener('click', function () { navigate(n.getAttribute('data-key')); });
   });
+  window.addEventListener('resize', moveIndicator);
   document.addEventListener('click', function (e) {
     const mod = e.target.closest('.module-btn');
     if (!mod) return;
