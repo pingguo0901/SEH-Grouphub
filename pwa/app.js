@@ -23,7 +23,20 @@ const ICONS = {
   event: 'M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z',
   back: 'M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z',
   close: 'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
-  whatsapp: 'M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z'
+  whatsapp: 'M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z',
+  add: 'M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z',
+  camera: 'M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z',
+  more: 'M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z',
+  star: 'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z',
+  group: 'M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z',
+  call: 'M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z',
+  videocam: 'M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z',
+  mic: 'M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z',
+  doneall: 'M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z',
+  settings: 'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z',
+  build: 'M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z',
+  update: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z',
+  emoji: 'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z'
 };
 
 function icon(name, cls) {
@@ -236,10 +249,148 @@ function renderService() {
     '<div class="page-body">' + cards + '</div>';
 }
 
-function renderWhatsApp() {
-  const name = currentWhatsApp || '客服';
-  return pageHeader('WhatsApp', name, 'whatsapp') +
-    '<div class="page-body"><div class="placeholder-title">' + name + '</div><div class="placeholder-desc">WhatsApp 页面待完善。</div></div>';
+const WA_TABS = [
+  { key: 'updates', label: '更新', icon: 'update' },
+  { key: 'calls', label: '通话', icon: 'call' },
+  { key: 'tools', label: '工具', icon: 'build' },
+  { key: 'chats', label: '聊天', icon: 'chat' },
+  { key: 'settings', label: '设置', icon: 'settings' }
+];
+
+const WA_CONTACTS = [
+  { name: '阿康（店长）', phone: '+601162329701', lastMessage: '好的陈先生，今晚 7 点见！🍢', time: '14:35', unread: 0, favorite: false, isGroup: false },
+  { name: '张小姐', phone: '+60123456789', lastMessage: '你好，想问下今天有什么优惠？', time: '14:31', unread: 2, favorite: true, isGroup: false },
+  { name: '李先生', phone: '+60198765432', lastMessage: '帮我订一份烤串套餐，谢谢', time: '13:05', unread: 1, favorite: false, isGroup: false },
+  { name: '王先生', phone: '+60155512345', lastMessage: '收到，明天中午见', time: '昨天', unread: 0, favorite: false, isGroup: false },
+  { name: '陈小姐', phone: '+60155567890', lastMessage: '请问营业时间到几点？', time: '昨天', unread: 3, favorite: true, isGroup: false },
+  { name: '刘先生', phone: '+60133344455', lastMessage: '好的，谢谢！', time: '星期二', unread: 0, favorite: false, isGroup: false },
+  { name: '林女士', phone: '+60122233344', lastMessage: '有包间吗？8 人', time: '星期一', unread: 0, favorite: false, isGroup: false },
+  { name: '赵先生', phone: '+60111122233', lastMessage: '已付款，请查收', time: '星期日', unread: 0, favorite: false, isGroup: false },
+  { name: '炙巷食铺工作群', phone: '', lastMessage: '阿康：今日营业至 22:00', time: '14:20', unread: 0, favorite: false, isGroup: true }
+];
+
+const WA_MESSAGES = [
+  { text: '您好，欢迎光临炙巷食铺 🍢', isSent: false, time: '14:30' },
+  { text: '你好，想问问今天有什么优惠？', isSent: true, time: '14:31' },
+  { text: '今天有 2 个活动：满 100 减 10，套餐第二份半价', isSent: false, time: '14:32' },
+  { text: '好的，帮我订今晚 7 点，两位', isSent: true, time: '14:33' },
+  { text: '收到，已为您预留今晚 7 点两位，请问贵姓？', isSent: false, time: '14:33' },
+  { text: '姓陈', isSent: true, time: '14:34' },
+  { text: '好的陈先生，今晚 7 点见！🍢', isSent: false, time: '14:35' }
+];
+
+let waTab = 'chats';
+let waChatContact = null;
+let waFilter = '全部';
+
+function openWhatsApp(store) {
+  currentWhatsApp = store || currentWhatsApp || '炙巷食铺';
+  waTab = 'chats';
+  waChatContact = null;
+  const screen = document.getElementById('wa-screen');
+  screen.classList.remove('hidden');
+  renderWa();
+}
+
+function closeWhatsApp() {
+  const screen = document.getElementById('wa-screen');
+  screen.classList.add('hidden');
+  screen.innerHTML = '';
+}
+
+function renderWa() {
+  const screen = document.getElementById('wa-screen');
+  if (waChatContact) screen.innerHTML = waChatHtml(waChatContact);
+  else if (waTab !== 'chats') screen.innerHTML = waPlaceholderHtml();
+  else screen.innerHTML = waListHtml();
+}
+
+function waHeaderHtml(backAction) {
+  return '<div class="wa-header">' +
+    '<button class="wa-ico-btn" data-wa-action="' + backAction + '">' + icon('back', 'wa-ico') + '</button>' +
+    '<div class="wa-header-title">聊天</div>' +
+    '<button class="wa-ico-btn">' + icon('camera', 'wa-ico') + '</button>' +
+    '<button class="wa-ico-btn">' + icon('add', 'wa-ico') + '</button>' +
+    '</div>';
+}
+
+function waTabsHtml() {
+  return '<div class="wa-tabs">' + WA_TABS.map(function (t) {
+    return '<button class="wa-tab' + (t.key === waTab ? ' active' : '') + '" data-wa-tab="' + t.key + '">' + icon(t.icon, 'wa-tab-icon') + '<span>' + t.label + '</span></button>';
+  }).join('') + '</div>';
+}
+
+function waListHtml() {
+  const list = WA_CONTACTS.filter(function (c) {
+    if (waFilter === '未读') return c.unread > 0;
+    if (waFilter === '特别关注') return c.favorite;
+    if (waFilter === '群组') return c.isGroup;
+    return true;
+  });
+
+  const filters = ['全部', '未读', '特别关注', '群组'].map(function (f) {
+    return '<button class="wa-filter' + (f === waFilter ? ' active' : '') + '" data-wa-filter="' + f + '">' + f + '</button>';
+  }).join('');
+
+  const contacts = list.map(function (c) {
+    const avatar = c.isGroup ? icon('group', 'wa-avatar-icon') : '<span>' + c.name.charAt(0) + '</span>';
+    const star = c.favorite ? icon('star', 'wa-star') : '';
+    const unread = c.unread > 0 ? '<span class="wa-unread">' + c.unread + '</span>' : '';
+    return '<div class="wa-contact" data-wa-contact="' + c.name + '">' +
+      '<div class="wa-avatar">' + avatar + '</div>' +
+      '<div class="wa-contact-body">' +
+        '<div class="wa-contact-top"><span class="wa-contact-name">' + c.name + '</span>' + star + '</div>' +
+        '<div class="wa-contact-msg">' + c.lastMessage + '</div>' +
+      '</div>' +
+      '<div class="wa-contact-side"><span class="wa-time">' + c.time + '</span>' + unread + '</div>' +
+      '</div>';
+  }).join('');
+
+  return '<div class="wa-wallpaper">' +
+    waHeaderHtml('back') +
+    '<div class="wa-scroll">' +
+      '<div class="wa-title">聊天</div>' +
+      '<div class="wa-search">' + icon('search', 'wa-search-icon') + '<span>搜索</span></div>' +
+      '<div class="wa-filters">' + filters + '</div>' +
+      contacts +
+    '</div>' +
+    waTabsHtml() +
+    '</div>';
+}
+
+function waPlaceholderHtml() {
+  const tab = WA_TABS.find(function (t) { return t.key === waTab; });
+  return '<div class="wa-wallpaper">' +
+    waHeaderHtml('back') +
+    '<div class="wa-placeholder"><div class="wa-ph-title">' + (tab ? tab.label : '') + '</div><div class="wa-ph-desc">功能待接入</div></div>' +
+    waTabsHtml() +
+    '</div>';
+}
+
+function waChatHtml(name) {
+  const header = '<div class="wa-header">' +
+    '<button class="wa-ico-btn" data-wa-action="chat-back">' + icon('back', 'wa-ico') + '</button>' +
+    '<div class="wa-avatar wa-avatar-sm"><span>' + name.charAt(0) + '</span></div>' +
+    '<div class="wa-header-title wa-header-title-left"><div class="wa-chat-name">' + name + '</div><div class="wa-chat-status">在线</div></div>' +
+    '<button class="wa-ico-btn">' + icon('videocam', 'wa-ico') + '</button>' +
+    '<button class="wa-ico-btn">' + icon('call', 'wa-ico') + '</button>' +
+    '</div>';
+
+  const msgs = '<div class="wa-date-pill">今天</div>' + WA_MESSAGES.map(function (m) {
+    const cls = m.isSent ? ' sent' : ' recv';
+    const tick = m.isSent ? icon('doneall', 'wa-tick') : '';
+    return '<div class="wa-msg' + cls + '"><div class="wa-bubble' + cls + '"><span class="wa-bubble-text">' + m.text + '</span><span class="wa-msg-time">' + m.time + tick + '</span></div></div>';
+  }).join('');
+
+  const inputBar = '<div class="wa-input-bar">' +
+    '<button class="wa-ico-btn">' + icon('add', 'wa-ico') + '</button>' +
+    '<div class="wa-input">消息</div>' +
+    '<button class="wa-ico-btn">' + icon('emoji', 'wa-ico') + '</button>' +
+    '<button class="wa-ico-btn">' + icon('camera', 'wa-ico') + '</button>' +
+    '<button class="wa-mic-btn">' + icon('mic', 'wa-ico') + '</button>' +
+    '</div>';
+
+  return '<div class="wa-wallpaper">' + header + '<div class="wa-chat-scroll">' + msgs + '</div>' + inputBar + '</div>';
 }
 
 function renderPlaceholder(key) {
@@ -252,7 +403,6 @@ function renderPage(key) {
   if (key === 'home') return renderHome();
   if (key === 'hr') return renderHr();
   if (key === 'service') return renderService();
-  if (key === 'whatsapp') return renderWhatsApp();
   return renderPlaceholder(key);
 }
 
@@ -417,8 +567,21 @@ function init() {
   document.addEventListener('click', function (e) {
     const wa = e.target.closest('.wa-btn');
     if (!wa) return;
-    currentWhatsApp = wa.getAttribute('data-wa');
-    navigate('whatsapp');
+    openWhatsApp(wa.getAttribute('data-wa'));
+  });
+  document.addEventListener('click', function (e) {
+    const tab = e.target.closest('[data-wa-tab]');
+    if (tab) { waTab = tab.getAttribute('data-wa-tab'); renderWa(); return; }
+    const contact = e.target.closest('[data-wa-contact]');
+    if (contact) { waChatContact = contact.getAttribute('data-wa-contact'); renderWa(); return; }
+    const filter = e.target.closest('[data-wa-filter]');
+    if (filter) { waFilter = filter.getAttribute('data-wa-filter'); renderWa(); return; }
+    const action = e.target.closest('[data-wa-action]');
+    if (action) {
+      const a = action.getAttribute('data-wa-action');
+      if (a === 'back') closeWhatsApp();
+      else if (a === 'chat-back') { waChatContact = null; renderWa(); }
+    }
   });
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(function () {});

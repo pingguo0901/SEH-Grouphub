@@ -340,3 +340,187 @@ body {
 .archive-row:last-child { border-bottom: none; }
 .archive-label { color: var(--text-muted); flex-shrink: 0; margin-right: 12px; }
 .archive-value { color: var(--text-primary); text-align: right; word-break: break-all; }
+/* ===== WhatsApp 页面（照 APP 版 Liquid Glass WhatsApp） ===== */
+.wa-screen {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  max-width: 480px; margin: 0 auto;
+  overflow: hidden;
+  background: linear-gradient(180deg, #111A22 0%, #14202B 50%, #06090D 100%);
+}
+.wa-screen.hidden { display: none; }
+
+.wa-wallpaper {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  background:
+    radial-gradient(ellipse at 15% -10%, rgba(10,132,255,0.16), transparent 50%),
+    radial-gradient(ellipse at 85% 10%, rgba(90,167,255,0.12), transparent 50%),
+    radial-gradient(ellipse at 50% 110%, rgba(10,132,255,0.10), transparent 55%);
+}
+
+/* 顶部栏 */
+.wa-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px;
+  background: rgba(17,26,34,0.55);
+  backdrop-filter: blur(22px) saturate(130%);
+  -webkit-backdrop-filter: blur(22px) saturate(130%);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.wa-header-title {
+  flex: 1; text-align: center;
+  font-size: 18px; font-weight: 600; color: #F2F6FA;
+}
+.wa-header-title-left { text-align: left; }
+.wa-chat-name { font-size: 16px; font-weight: 600; color: #F2F6FA; line-height: 1.2; }
+.wa-chat-status { font-size: 12px; color: rgba(242,246,250,0.8); }
+.wa-ico-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer; border: none;
+  background: rgba(255,255,255,0.08);
+}
+.wa-ico { width: 20px; height: 20px; color: #F2F6FA; }
+
+/* 列表滚动区 */
+.wa-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.wa-title { font-size: 26px; font-weight: 700; color: #F2F6FA; padding: 14px 16px 4px; }
+.wa-search {
+  display: flex; align-items: center; gap: 8px;
+  margin: 6px 12px; padding: 10px 14px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #98A6B2; font-size: 14px;
+}
+.wa-search-icon { width: 18px; height: 18px; color: #98A6B2; }
+
+/* 筛选 chips */
+.wa-filters { display: flex; gap: 8px; padding: 4px 12px 8px; overflow-x: auto; }
+.wa-filter {
+  flex-shrink: 0; padding: 7px 15px;
+  border-radius: 18px; border: 1px solid rgba(255,255,255,0.18);
+  background: transparent; color: #98A6B2;
+  font-size: 13px; cursor: pointer;
+}
+.wa-filter.active {
+  background: linear-gradient(135deg, #0A84FF 0%, #5AA7FF 100%);
+  color: #fff; font-weight: 600; border-color: transparent;
+}
+
+/* 联系人卡片 */
+.wa-contact {
+  display: flex; align-items: center; gap: 12px;
+  margin: 6px 10px; padding: 12px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  border: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+}
+.wa-contact:active { transform: scale(0.98); background: rgba(255,255,255,0.12); }
+.wa-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #0A84FF 0%, #5AA7FF 100%);
+  color: #fff; font-size: 22px; font-weight: 700;
+}
+.wa-avatar-sm { width: 38px; height: 38px; font-size: 17px; }
+.wa-avatar-icon { width: 26px; height: 26px; color: #fff; }
+.wa-contact-body { flex: 1; min-width: 0; }
+.wa-contact-top { display: flex; align-items: center; gap: 4px; }
+.wa-contact-name { font-size: 16px; font-weight: 600; color: #F2F6FA; }
+.wa-star { width: 14px; height: 14px; color: #F7C948; flex-shrink: 0; }
+.wa-contact-msg {
+  font-size: 13px; color: #98A6B2; margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.wa-contact-side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.wa-time { font-size: 11px; color: #98A6B2; }
+.wa-unread {
+  min-width: 20px; height: 20px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: #0A84FF; color: #fff;
+  font-size: 11px; font-weight: 700; padding: 0 6px;
+}
+
+/* 底部 5 标签栏 */
+.wa-tabs {
+  display: flex; flex-shrink: 0;
+  padding: 6px 4px;
+  background: rgba(17,26,34,0.55);
+  backdrop-filter: blur(22px) saturate(130%);
+  -webkit-backdrop-filter: blur(22px) saturate(130%);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.wa-tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 0; cursor: pointer; border: none; background: none;
+  color: #98A6B2;
+}
+.wa-tab.active { color: #0A84FF; }
+.wa-tab-icon { width: 22px; height: 22px; }
+.wa-tab span { font-size: 10px; }
+
+/* 占位 */
+.wa-placeholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.wa-ph-title { font-size: 18px; font-weight: 600; color: #F2F6FA; }
+.wa-ph-desc { font-size: 13px; color: #98A6B2; }
+
+/* 聊天会话 */
+.wa-chat-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 10px 8px; }
+.wa-date-pill {
+  width: max-content; margin: 6px auto 10px;
+  padding: 4px 12px; border-radius: 10px;
+  background: rgba(44,44,46,0.7);
+  color: #98A6B2; font-size: 12px;
+}
+.wa-msg { display: flex; margin: 2px 0; }
+.wa-msg.sent { justify-content: flex-end; }
+.wa-msg.recv { justify-content: flex-start; }
+.wa-bubble {
+  max-width: 78%; padding: 8px 12px;
+  border-radius: 18px; font-size: 15px; line-height: 1.4;
+}
+.wa-bubble.sent {
+  background: linear-gradient(135deg, #0A84FF 0%, #5AA7FF 100%);
+  color: #fff; border-top-right-radius: 6px;
+}
+.wa-bubble.recv {
+  background: rgba(44,44,46,0.85);
+  color: #F2F6FA; border-top-left-radius: 6px;
+}
+.wa-bubble-text { word-break: break-word; }
+.wa-msg-time {
+  float: right; margin-left: 8px; margin-top: 4px;
+  display: inline-flex; align-items: center; gap: 2px;
+  font-size: 10px; opacity: 0.75;
+}
+.wa-tick { width: 14px; height: 14px; }
+
+/* 输入栏 */
+.wa-input-bar {
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  padding: 8px 10px;
+  background: rgba(17,26,34,0.55);
+  backdrop-filter: blur(22px) saturate(130%);
+  -webkit-backdrop-filter: blur(22px) saturate(130%);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.wa-input {
+  flex: 1; padding: 10px 14px;
+  border-radius: 22px;
+  background: rgba(44,44,46,0.9);
+  color: #98A6B2; font-size: 15px;
+}
+.wa-mic-btn {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer; border: none;
+  background: linear-gradient(135deg, #0A84FF 0%, #5AA7FF 100%);
+}
+.wa-mic-btn .wa-ico { color: #fff; }
+
