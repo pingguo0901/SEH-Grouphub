@@ -152,11 +152,23 @@ function renderHome() {
       '<div class="sub-info"><div class="sub-name">' + s.nameZh + '</div><div class="sub-desc">' + desc + '</div></div>' +
       '<div class="sub-arrow">›</div></div>';
   }).join('');
+  const g = COMPANY_STATS[0];
+  const now = new Date();
+  const dateStr = now.getFullYear() + ' 年 ' + (now.getMonth() + 1) + ' 月 ' + now.getDate() + ' 日';
+  const summary = '<div class="card">' +
+    '<div class="stats-head"><span class="stats-zh">当日摘要</span><span class="stats-note">' + dateStr + '</span></div>' +
+    '<div class="stats-total-label">集团总员工</div>' +
+    '<div class="stats-total">' + g.total + '</div>' +
+    '<div class="stats-divider"></div>' +
+    '<div class="stats-row">' +
+      '<div class="stat-cell"><div class="stat-label">在职</div><div class="stat-value" style="color:#30D158">' + g.active + '</div></div>' +
+      '<div class="stat-cell"><div class="stat-label">待入职</div><div class="stat-value">' + g.pending + '</div></div>' +
+      '<div class="stat-cell"><div class="stat-label">子公司</div><div class="stat-value">' + SUBSIDIARIES.length + '</div></div>' +
+    '</div></div>';
   return pageHeader('首页', '星域控股集团 · 董事长驾驶舱', 'home') +
     '<div class="page-body">' +
-    '<div class="placeholder-title">欢迎回来，董事长</div>' +
-    '<div class="placeholder-desc">这里是集团全域概览，后续接入各板块核心数据。</div>' +
-    '<div style="height:24px"></div>' +
+    summary +
+    '<div style="height:16px"></div>' +
     '<div class="section-title">子公司 WhatsApp</div>' +
     cards +
     '</div>';

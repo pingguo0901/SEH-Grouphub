@@ -1,4 +1,4 @@
-const CACHE = 'seh-pwa-v22';
+const CACHE = 'seh-pwa-v23';
 const ASSETS = ['./', './index.html', './style.css', './app.js', './liquid-glass.js', './manifest.json', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
