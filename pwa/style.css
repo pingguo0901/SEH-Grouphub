@@ -53,7 +53,7 @@ body {
   overflow: hidden;
 }
 
-.content { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; background-color: #070709; padding-bottom: 88px; }
+.content { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; background-color: #070709; padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
 
 /* ===== SVG 图标 ===== */
 .header-icon { width: 26px; height: 26px; color: var(--accent); flex-shrink: 0; }
@@ -153,32 +153,27 @@ body {
 .placeholder-title { font-size: 22px; font-weight: 700; color: var(--text-primary); }
 .placeholder-desc { font-size: 14px; color: var(--text-secondary); margin-top: 8px; line-height: 1.6; }
 
-/* 底部导航（与页面连通的玻璃，非黑方块） */
+/* 底部导航（iOS 18 原生深色材质：轻薄、全宽贴底、极细顶边，不厚重） */
 .bottom-nav {
   position: fixed;
-  bottom: 12px;
-  left: 16px;
-  right: 16px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 480px;
   margin: 0 auto;
-  max-width: 448px;
   display: flex;
-  border-radius: 999px;
-  background-color: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(30px) saturate(118%);
-  -webkit-backdrop-filter: blur(30px) saturate(118%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-top: 1px solid rgba(255, 255, 255, 0.10);
-  padding: 8px 4px;
   z-index: 999;
-}
 
-/* WebGL 液态玻璃激活时，DOM 玻璃外壳让位给 Canvas 真折射层，只保留内容 */
-.bottom-nav.lg-glass {
-  background-color: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border: none;
-  border-top: none;
+  backdrop-filter: blur(17px) saturate(106%);
+  -webkit-backdrop-filter: blur(17px) saturate(106%);
+
+  background-color: rgba(255, 255, 255, 0.028);
+
+  border-top: 0.5px solid rgba(255, 255, 255, 0.045);
+
+  padding-top: 8px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
 }
 
 /* 内层 flex 容器 */
