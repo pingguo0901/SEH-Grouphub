@@ -353,12 +353,19 @@ function waSubscribe() {
 }
 
 function waRefresh() {
+  if (!waScreenOpen()) return;
   waLoadContacts().then(function () {
     if (waScreenOpen()) renderWa();
     if (waChatMsisdn) {
       waLoadChat(waChatMsisdn).then(function () { if (waScreenOpen()) renderWa(); });
     }
   });
+}
+
+let waPollTimer = null;
+function waStartPolling() {
+  if (waPollTimer) return;
+  waPollTimer = setInterval(function () { waRefresh(); }, 4000);
 }
 
 let waTab = 'chats';
@@ -378,6 +385,7 @@ function openWhatsApp(store) {
   sehInit();
   waSubscribe();
   waRefresh();
+  waStartPolling();
 }
 
 function closeWhatsApp() {
