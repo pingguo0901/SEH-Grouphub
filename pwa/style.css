@@ -383,13 +383,28 @@ body {
   background: rgba(255,255,255,0.08);
 }
 .wa-ico { width: 20px; height: 20px; color: #F2F6FA; }
+.wa-add-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer; border: none;
+  background: #00C4B4;
+}
+.wa-add-icon { width: 22px; height: 22px; color: #000000; }
 
 /* 列表滚动区 */
-.wa-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.wa-title { font-size: 26px; font-weight: 700; color: #F2F6FA; padding: 14px 16px 4px; }
+.wa-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; }
+.wa-card {
+  border-radius: 22px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 6px 6px 12px;
+}
+.wa-title { font-size: 24px; font-weight: 700; color: #F2F6FA; padding: 14px 14px 4px; }
 .wa-search {
   display: flex; align-items: center; gap: 8px;
-  margin: 6px 12px; padding: 10px 14px;
+  margin: 6px 8px; padding: 10px 14px;
   border-radius: 22px;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.18);
@@ -413,15 +428,12 @@ body {
 /* 联系人卡片 */
 .wa-contact {
   display: flex; align-items: center; gap: 12px;
-  margin: 6px 10px; padding: 12px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.06);
-  backdrop-filter: blur(18px) saturate(120%);
-  -webkit-backdrop-filter: blur(18px) saturate(120%);
-  border: 1px solid rgba(255,255,255,0.08);
+  padding: 10px 8px;
   cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
-.wa-contact:active { transform: scale(0.98); background: rgba(255,255,255,0.12); }
+.wa-contact:last-child { border-bottom: none; }
+.wa-contact:active { background: rgba(255,255,255,0.06); }
 .wa-avatar {
   width: 52px; height: 52px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -450,21 +462,62 @@ body {
 
 /* 底部 5 标签栏 */
 .wa-tabs {
-  display: flex; flex-shrink: 0;
-  padding: 6px 4px;
-  background: rgba(17,26,34,0.55);
-  backdrop-filter: blur(22px) saturate(130%);
-  -webkit-backdrop-filter: blur(22px) saturate(130%);
-  border-top: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+  margin: 0 16px 14px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(30px) saturate(118%);
+  -webkit-backdrop-filter: blur(30px) saturate(118%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  padding: 8px 4px;
+}
+.wa-tabs-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.wa-tab-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 999px;
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
 }
 .wa-tab {
-  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 6px 0; cursor: pointer; border: none; background: none;
-  color: #98A6B2;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 10px 0;
+  cursor: pointer;
+  border: none;
+  background: none;
+  position: relative;
+  z-index: 1;
 }
-.wa-tab.active { color: #0A84FF; }
-.wa-tab-icon { width: 22px; height: 22px; }
-.wa-tab span { font-size: 10px; }
+.wa-tab:active { opacity: 0.7; }
+.wa-tab .wa-tab-icon { color: #98A6B2; flex-shrink: 0; width: 20px; height: 20px; transition: color 0.2s; }
+.wa-tab .wa-tab-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #111111;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-left: 0;
+  transition: max-width 0.25s ease, opacity 0.2s ease, margin-left 0.25s ease;
+}
+.wa-tab.active .wa-tab-icon { color: #111111; }
+.wa-tab.active .wa-tab-label { max-width: 60px; opacity: 1; margin-left: 5px; }
 
 /* 占位 */
 .wa-placeholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }

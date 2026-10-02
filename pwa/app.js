@@ -304,6 +304,15 @@ function renderWa() {
   if (waChatContact) screen.innerHTML = waChatHtml(waChatContact);
   else if (waTab !== 'chats') screen.innerHTML = waPlaceholderHtml();
   else screen.innerHTML = waListHtml();
+  moveWaIndicator();
+}
+
+function moveWaIndicator() {
+  const active = document.querySelector('.wa-tab.active');
+  const ind = document.querySelector('.wa-tab-indicator');
+  if (!active || !ind) return;
+  ind.style.transform = 'translateX(' + active.offsetLeft + 'px)';
+  ind.style.width = active.offsetWidth + 'px';
 }
 
 function waHeaderHtml(backAction) {
@@ -311,14 +320,14 @@ function waHeaderHtml(backAction) {
     '<button class="wa-ico-btn" data-wa-action="' + backAction + '">' + icon('back', 'wa-ico') + '</button>' +
     '<div class="wa-header-title">聊天</div>' +
     '<button class="wa-ico-btn">' + icon('camera', 'wa-ico') + '</button>' +
-    '<button class="wa-ico-btn">' + icon('add', 'wa-ico') + '</button>' +
+    '<button class="wa-add-btn">' + icon('add', 'wa-add-icon') + '</button>' +
     '</div>';
 }
 
 function waTabsHtml() {
-  return '<div class="wa-tabs">' + WA_TABS.map(function (t) {
-    return '<button class="wa-tab' + (t.key === waTab ? ' active' : '') + '" data-wa-tab="' + t.key + '">' + icon(t.icon, 'wa-tab-icon') + '<span>' + t.label + '</span></button>';
-  }).join('') + '</div>';
+  return '<div class="wa-tabs"><div class="wa-tabs-inner"><div class="wa-tab-indicator"></div>' + WA_TABS.map(function (t) {
+    return '<button class="wa-tab' + (t.key === waTab ? ' active' : '') + '" data-wa-tab="' + t.key + '">' + icon(t.icon, 'wa-tab-icon') + '<span class="wa-tab-label">' + t.label + '</span></button>';
+  }).join('') + '</div></div>';
 }
 
 function waListHtml() {
@@ -350,10 +359,12 @@ function waListHtml() {
   return '<div class="wa-wallpaper">' +
     waHeaderHtml('back') +
     '<div class="wa-scroll">' +
-      '<div class="wa-title">聊天</div>' +
-      '<div class="wa-search">' + icon('search', 'wa-search-icon') + '<span>搜索</span></div>' +
-      '<div class="wa-filters">' + filters + '</div>' +
-      contacts +
+      '<div class="wa-card">' +
+        '<div class="wa-title">聊天</div>' +
+        '<div class="wa-search">' + icon('search', 'wa-search-icon') + '<span>搜索</span></div>' +
+        '<div class="wa-filters">' + filters + '</div>' +
+        contacts +
+      '</div>' +
     '</div>' +
     waTabsHtml() +
     '</div>';
