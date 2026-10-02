@@ -428,6 +428,59 @@ body {
 }
 .wa-search-icon { width: 18px; height: 18px; color: #98A6B2; }
 
+/* 搜索页顶部：同款毛玻璃 + 返回按钮 + 搜索框 */
+.wa-header-search {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(30px) saturate(118%);
+  -webkit-backdrop-filter: blur(30px) saturate(118%);
+}
+.wa-search-box {
+  flex: 1; display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.wa-search-box .wa-search-icon { width: 18px; height: 18px; color: #98A6B2; flex-shrink: 0; }
+.wa-search-input {
+  flex: 1; min-width: 0; background: none; border: none; outline: none;
+  color: #F2F6FA; font-size: 15px;
+}
+.wa-search-input::placeholder { color: #98A6B2; }
+.wa-search-scroll { padding: 12px 12px 40px; }
+
+/* 最近搜索 */
+.wa-recent-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 12px 6px;
+}
+.wa-recent-title { font-size: 14px; font-weight: 600; color: #98A6B2; }
+.wa-clear-btn { font-size: 13px; color: #25D366; background: none; border: none; cursor: pointer; padding: 4px; }
+.wa-recent-list { padding: 0 4px; }
+.wa-recent-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 8px; cursor: pointer; border-radius: 12px;
+}
+.wa-recent-item:active { background: rgba(255, 255, 255, 0.06); }
+.wa-recent-body { flex: 1; min-width: 0; }
+.wa-recent-name { font-size: 16px; font-weight: 600; color: #F2F6FA; }
+.wa-recent-phone { font-size: 13px; color: #98A6B2; margin-top: 2px; }
+
+/* 影音内容 */
+.wa-media-title { font-size: 14px; font-weight: 600; color: #98A6B2; padding: 16px 12px 8px; }
+.wa-media-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  padding: 0 12px;
+}
+.wa-media-item {
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  padding: 16px 4px; border-radius: 14px; cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.wa-media-item:active { background: rgba(255, 255, 255, 0.12); }
+.wa-media-icon { width: 24px; height: 24px; color: #F2F6FA; }
+.wa-media-item span { font-size: 12px; color: #F2F6FA; }
+
 /* 筛选 chips */
 .wa-filters { display: flex; gap: 8px; padding: 4px 12px 8px; overflow-x: auto; }
 .wa-filter {

@@ -36,7 +36,10 @@ const ICONS = {
   settings: 'M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z',
   build: 'M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z',
   update: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z',
-  emoji: 'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z'
+  emoji: 'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z',
+  photo: 'M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z',
+  gif: 'M11.5 9H13v6h-1.5zM9 9H6c-.6 0-1 .5-1 1v4c0 .5.4 1 1 1h3c.6 0 1-.5 1-1v-1H8.5v.5h-2v-3h2V9zM14 9h3c.6 0 1 .5 1 1v4c0 .5-.4 1-1 1h-3c-.6 0-1-.5-1-1v-1h1.5v.5h2v-3h-2V9zM17.5 9H19v6h-1.5z',
+  link: 'M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'
 };
 
 function icon(name, cls) {
@@ -283,11 +286,19 @@ const WA_MESSAGES = [
 let waTab = 'chats';
 let waChatContact = null;
 let waFilter = '全部';
+let waSearchOpen = false;
+let waRecents = [
+  { name: '阿康（店长）', phone: '+601162329701' },
+  { name: '张小姐', phone: '+60123456789' },
+  { name: '李先生', phone: '+60198765432' },
+  { name: '王先生', phone: '+60155512345' }
+];
 
 function openWhatsApp(store) {
   currentWhatsApp = store || currentWhatsApp || '炙巷食铺';
   waTab = 'chats';
   waChatContact = null;
+  waSearchOpen = false;
   const screen = document.getElementById('wa-screen');
   screen.classList.remove('hidden');
   renderWa();
@@ -302,6 +313,7 @@ function closeWhatsApp() {
 function renderWa() {
   const screen = document.getElementById('wa-screen');
   if (waChatContact) screen.innerHTML = waChatHtml(waChatContact);
+  else if (waSearchOpen) screen.innerHTML = waSearchHtml();
   else if (waTab !== 'chats') screen.innerHTML = waPlaceholderHtml();
   else screen.innerHTML = waListHtml();
   moveWaIndicator();
@@ -372,11 +384,50 @@ function waListHtml() {
     waHeaderHtml('back', 'wa-header-list') +
     '<div class="wa-scroll">' +
       '<div class="wa-title">聊天</div>' +
-      '<div class="wa-search">' + icon('search', 'wa-search-icon') + '<span>搜索</span></div>' +
+      '<div class="wa-search" data-wa-action="open-search">' + icon('search', 'wa-search-icon') + '<span>搜索</span></div>' +
       '<div class="wa-filters">' + filters + '</div>' +
       contacts +
     '</div>' +
     waTabsHtml() +
+    '</div>';
+}
+
+function waSearchHtml() {
+  const recentItems = waRecents.map(function (c) {
+    return '<div class="wa-recent-item" data-wa-contact="' + c.name + '">' +
+      '<div class="wa-avatar wa-avatar-sm"><span>' + c.name.charAt(0) + '</span></div>' +
+      '<div class="wa-recent-body"><div class="wa-recent-name">' + c.name + '</div><div class="wa-recent-phone">' + c.phone + '</div></div>' +
+      '</div>';
+  }).join('');
+
+  const recentSection = waRecents.length > 0 ?
+    '<div class="wa-recent-head"><span class="wa-recent-title">最近搜索</span><button class="wa-clear-btn" data-wa-action="clear-recent">全部清除</button></div>' +
+    '<div class="wa-recent-list">' + recentItems + '</div>' : '';
+
+  const mediaFilters = [
+    { label: '照片', icon: 'photo' },
+    { label: '动图', icon: 'gif' },
+    { label: '链接', icon: 'link' },
+    { label: '视频', icon: 'videocam' },
+    { label: '文档', icon: 'description' },
+    { label: '音频', icon: 'mic' },
+    { label: '投票', icon: 'chart' },
+    { label: '活动', icon: 'event' }
+  ];
+  const mediaItems = mediaFilters.map(function (m) {
+    return '<button class="wa-media-item">' + icon(m.icon, 'wa-media-icon') + '<span>' + m.label + '</span></button>';
+  }).join('');
+
+  return '<div class="wa-wallpaper">' +
+    '<div class="wa-header wa-header-search">' +
+      '<button class="wa-ico-btn" data-wa-action="search-back">' + icon('back', 'wa-ico') + '</button>' +
+      '<div class="wa-search-box">' + icon('search', 'wa-search-icon') + '<input type="text" placeholder="搜索" class="wa-search-input"></div>' +
+    '</div>' +
+    '<div class="wa-scroll wa-search-scroll">' +
+      recentSection +
+      '<div class="wa-media-title">影音内容</div>' +
+      '<div class="wa-media-grid">' + mediaItems + '</div>' +
+    '</div>' +
     '</div>';
 }
 
@@ -607,6 +658,9 @@ function init() {
       const a = action.getAttribute('data-wa-action');
       if (a === 'back') closeWhatsApp();
       else if (a === 'chat-back') { waChatContact = null; renderWa(); }
+      else if (a === 'open-search') { waSearchOpen = true; renderWa(); }
+      else if (a === 'search-back') { waSearchOpen = false; renderWa(); }
+      else if (a === 'clear-recent') { waRecents = []; renderWa(); }
     }
   });
   if ('serviceWorker' in navigator) {
