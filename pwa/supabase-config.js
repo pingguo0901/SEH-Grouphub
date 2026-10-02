@@ -1,0 +1,3 @@
+// Supabase 客户端配置（anon key 为公开 key，可安全内嵌）
+window.SEH_SUPABASE_URL = "https://yldweqbpvlngmkhvjwrn.supabase.co";
+window.SEH_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsZHdlcWJwdmxuZ21raHZqd3JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA3MDA1NzksImV4cCI6MjEwNjI3NjU3OX0.PSfYg0P64dJYdoJKd3c703oe64Ed0sdN1R7bAJ9oLxQ";

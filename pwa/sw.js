@@ -1,5 +1,5 @@
-const CACHE = 'seh-pwa-v38';
-const ASSETS = ['./', './index.html', './style.css', './app.js', './liquid-glass.js', './manifest.json', './icons/icon-192.png', './icons/icon-512.png'];
+const CACHE = 'seh-pwa-v39';
+const ASSETS = ['./', './index.html', './style.css', './app.js', './liquid-glass.js', './supabase-config.js', './manifest.json', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

@@ -261,38 +261,111 @@ const WA_TABS = [
   { key: 'settings', label: '设置', icon: 'settings' }
 ];
 
-const WA_CONTACTS = [
-  { name: '阿康（店长）', phone: '+601162329701', lastMessage: '好的陈先生，今晚 7 点见！🍢', time: '14:35', unread: 0, favorite: false, isGroup: false },
-  { name: '张小姐', phone: '+60123456789', lastMessage: '你好，想问下今天有什么优惠？', time: '14:31', unread: 2, favorite: true, isGroup: false },
-  { name: '李先生', phone: '+60198765432', lastMessage: '帮我订一份烤串套餐，谢谢', time: '13:05', unread: 1, favorite: false, isGroup: false },
-  { name: '王先生', phone: '+60155512345', lastMessage: '收到，明天中午见', time: '昨天', unread: 0, favorite: false, isGroup: false },
-  { name: '陈小姐', phone: '+60155567890', lastMessage: '请问营业时间到几点？', time: '昨天', unread: 3, favorite: true, isGroup: false },
-  { name: '刘先生', phone: '+60133344455', lastMessage: '好的，谢谢！', time: '星期二', unread: 0, favorite: false, isGroup: false },
-  { name: '林女士', phone: '+60122233344', lastMessage: '有包间吗？8 人', time: '星期一', unread: 0, favorite: false, isGroup: false },
-  { name: '赵先生', phone: '+60111122233', lastMessage: '已付款，请查收', time: '星期日', unread: 0, favorite: false, isGroup: false },
-  { name: '炙巷食铺工作群', phone: '', lastMessage: '阿康：今日营业至 22:00', time: '14:20', unread: 0, favorite: false, isGroup: true }
-];
+// ===== Supabase 实时数据（集团枢纽 SEH） =====
+let sehClient = null;
+let waContacts = [];
+let waChatMsgs = [];
+let waChatMsisdn = null;
+let waLoaded = false;
 
-const WA_MESSAGES = [
-  { text: '您好，欢迎光临炙巷食铺 🍢', isSent: false, time: '14:30' },
-  { text: '你好，想问问今天有什么优惠？', isSent: true, time: '14:31' },
-  { text: '今天有 2 个活动：满 100 减 10，套餐第二份半价', isSent: false, time: '14:32' },
-  { text: '好的，帮我订今晚 7 点，两位', isSent: true, time: '14:33' },
-  { text: '收到，已为您预留今晚 7 点两位，请问贵姓？', isSent: false, time: '14:33' },
-  { text: '姓陈', isSent: true, time: '14:34' },
-  { text: '好的陈先生，今晚 7 点见！🍢', isSent: false, time: '14:35' }
-];
+function sehInit() {
+  if (sehClient) return sehClient;
+  if (!window.supabase || !window.SEH_SUPABASE_URL || !window.SEH_SUPABASE_ANON_KEY) return null;
+  sehClient = window.supabase.createClient(window.SEH_SUPABASE_URL, window.SEH_SUPABASE_ANON_KEY);
+  return sehClient;
+}
+
+function waFmtTime(iso) {
+  if (!iso) return '';
+  var d = new Date(iso);
+  var hh = ('0' + d.getHours()).slice(-2);
+  var mm = ('0' + d.getMinutes()).slice(-2);
+  return hh + ':' + mm;
+}
+
+function waScreenOpen() {
+  var s = document.getElementById('wa-screen');
+  return s && !s.classList.contains('hidden');
+}
+
+async function waLoadContacts() {
+  var c = sehInit();
+  if (!c) { waLoaded = true; return; }
+  try {
+    var contactsRes = await c.from('whatsapp_contacts').select('msisdn, display_name').order('updated_at', { ascending: false });
+    var eventsRes = await c.from('whatsapp_events').select('from_msisdn, text_body, created_at').order('created_at', { ascending: false }).limit(500);
+    var repliesRes = await c.from('whatsapp_replies').select('to_msisdn, body_text, created_at').order('created_at', { ascending: false }).limit(500);
+
+    var nameMap = {};
+    (contactsRes.data || []).forEach(function (r) { nameMap[r.msisdn] = r.display_name; });
+
+    var last = {};
+    (eventsRes.data || []).forEach(function (e) {
+      if (!last[e.from_msisdn] || e.created_at > last[e.from_msisdn].t) last[e.from_msisdn] = { text: e.text_body, t: e.created_at };
+    });
+    (repliesRes.data || []).forEach(function (r) {
+      if (!last[r.to_msisdn] || r.created_at > last[r.to_msisdn].t) last[r.to_msisdn] = { text: r.body_text, t: r.created_at };
+    });
+
+    var list = [];
+    var seen = {};
+    Object.keys(nameMap).forEach(function (m) {
+      seen[m] = true;
+      var lm = last[m];
+      list.push({ msisdn: m, name: nameMap[m] || m, lastMessage: lm ? lm.text : '', time: lm ? waFmtTime(lm.t) : '', t: lm ? lm.t : '', unread: 0, favorite: false, isGroup: false });
+    });
+    Object.keys(last).forEach(function (m) {
+      if (seen[m]) return;
+      list.push({ msisdn: m, name: m, lastMessage: last[m].text, time: waFmtTime(last[m].t), t: last[m].t, unread: 0, favorite: false, isGroup: false });
+    });
+    list.sort(function (a, b) { return (a.t || '') < (b.t || '') ? 1 : -1; });
+    waContacts = list;
+    waRecents = list.slice(0, 4).map(function (c) { return { name: c.name, phone: c.msisdn }; });
+  } catch (e) { /* 忽略 */ }
+  waLoaded = true;
+}
+
+async function waLoadChat(msisdn) {
+  var c = sehInit();
+  if (!c) return;
+  try {
+    var eRes = await c.from('whatsapp_events').select('text_body, created_at').eq('from_msisdn', msisdn).order('created_at', { ascending: true });
+    var rRes = await c.from('whatsapp_replies').select('body_text, created_at').eq('to_msisdn', msisdn).order('created_at', { ascending: true });
+    var raw = [];
+    (eRes.data || []).forEach(function (e) { raw.push({ text: e.text_body, isSent: false, t: e.created_at }); });
+    (rRes.data || []).forEach(function (r) { raw.push({ text: r.body_text, isSent: true, t: r.created_at }); });
+    raw.sort(function (a, b) { return a.t < b.t ? -1 : 1; });
+    waChatMsgs = raw.map(function (m) { return { text: m.text, isSent: m.isSent, time: waFmtTime(m.t) }; });
+    waChatMsisdn = msisdn;
+  } catch (e) { /* 忽略 */ }
+}
+
+function waSubscribe() {
+  var c = sehInit();
+  if (!c) return;
+  try {
+    c.channel('seh-wa-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'whatsapp_contacts' }, function () { waRefresh(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'whatsapp_events' }, function () { waRefresh(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'whatsapp_replies' }, function () { waRefresh(); })
+      .subscribe();
+  } catch (e) { /* 忽略 */ }
+}
+
+function waRefresh() {
+  waLoadContacts().then(function () {
+    if (waScreenOpen()) renderWa();
+    if (waChatMsisdn) {
+      waLoadChat(waChatMsisdn).then(function () { if (waScreenOpen()) renderWa(); });
+    }
+  });
+}
 
 let waTab = 'chats';
 let waChatContact = null;
 let waFilter = '全部';
 let waSearchOpen = false;
-let waRecents = [
-  { name: '阿康（店长）', phone: '+601162329701' },
-  { name: '张小姐', phone: '+60123456789' },
-  { name: '李先生', phone: '+60198765432' },
-  { name: '王先生', phone: '+60155512345' }
-];
+let waRecents = [];
 
 function openWhatsApp(store) {
   currentWhatsApp = store || currentWhatsApp || '炙巷食铺';
@@ -302,6 +375,9 @@ function openWhatsApp(store) {
   const screen = document.getElementById('wa-screen');
   screen.classList.remove('hidden');
   renderWa();
+  sehInit();
+  waSubscribe();
+  waRefresh();
 }
 
 function closeWhatsApp() {
@@ -355,7 +431,13 @@ function waTabsHtml() {
 }
 
 function waListHtml() {
-  const list = WA_CONTACTS.filter(function (c) {
+  if (!waLoaded) {
+    return '<div class="wa-wallpaper">' + waHeaderHtml('back', 'wa-header-list') +
+      '<div class="wa-scroll"><div class="wa-title">聊天</div>' +
+      '<div class="wa-ph-desc" style="text-align:center;padding:40px 0">加载中…</div></div>' +
+      waTabsHtml() + '</div>';
+  }
+  const list = waContacts.filter(function (c) {
     if (waFilter === '未读') return c.unread > 0;
     if (waFilter === '特别关注') return c.favorite;
     if (waFilter === '群组') return c.isGroup;
@@ -370,7 +452,7 @@ function waListHtml() {
     const avatar = c.isGroup ? icon('group', 'wa-avatar-icon') : '<span>' + c.name.charAt(0) + '</span>';
     const star = c.favorite ? icon('star', 'wa-star') : '';
     const unread = c.unread > 0 ? '<span class="wa-unread">' + c.unread + '</span>' : '';
-    return '<div class="wa-contact" data-wa-contact="' + c.name + '">' +
+    return '<div class="wa-contact" data-wa-contact="' + c.msisdn + '">' +
       '<div class="wa-avatar">' + avatar + '</div>' +
       '<div class="wa-contact-body">' +
         '<div class="wa-contact-top"><span class="wa-contact-name">' + c.name + '</span>' + star + '</div>' +
@@ -394,7 +476,7 @@ function waListHtml() {
 
 function waSearchHtml() {
   const recentItems = waRecents.map(function (c) {
-    return '<div class="wa-recent-item" data-wa-contact="' + c.name + '">' +
+    return '<div class="wa-recent-item" data-wa-contact="' + c.phone + '">' +
       '<div class="wa-avatar wa-avatar-sm"><span>' + c.name.charAt(0) + '</span></div>' +
       '<div class="wa-recent-body"><div class="wa-recent-name">' + c.name + '</div><div class="wa-recent-phone">' + c.phone + '</div></div>' +
       '</div>';
@@ -440,7 +522,10 @@ function waPlaceholderHtml() {
     '</div>';
 }
 
-function waChatHtml(name) {
+function waChatHtml(msisdn) {
+  var contact = null;
+  for (var i = 0; i < waContacts.length; i++) { if (waContacts[i].msisdn === msisdn) { contact = waContacts[i]; break; } }
+  var name = contact ? contact.name : msisdn;
   const header = '<div class="wa-header">' +
     '<button class="wa-ico-btn" data-wa-action="chat-back">' + icon('back', 'wa-ico') + '</button>' +
     '<div class="wa-avatar wa-avatar-sm"><span>' + name.charAt(0) + '</span></div>' +
@@ -449,11 +534,16 @@ function waChatHtml(name) {
     '<button class="wa-ico-btn">' + icon('call', 'wa-ico') + '</button>' +
     '</div>';
 
-  const msgs = '<div class="wa-date-pill">今天</div>' + WA_MESSAGES.map(function (m) {
-    const cls = m.isSent ? ' sent' : ' recv';
-    const tick = m.isSent ? icon('doneall', 'wa-tick') : '';
-    return '<div class="wa-msg' + cls + '"><div class="wa-bubble' + cls + '"><span class="wa-bubble-text">' + m.text + '</span><span class="wa-msg-time">' + m.time + tick + '</span></div></div>';
-  }).join('');
+  var msgs;
+  if (!waChatMsgs.length) {
+    msgs = '<div class="wa-ph-desc" style="text-align:center;padding:40px 0">暂无消息</div>';
+  } else {
+    msgs = waChatMsgs.map(function (m) {
+      const cls = m.isSent ? ' sent' : ' recv';
+      const tick = m.isSent ? icon('doneall', 'wa-tick') : '';
+      return '<div class="wa-msg' + cls + '"><div class="wa-bubble' + cls + '"><span class="wa-bubble-text">' + m.text + '</span><span class="wa-msg-time">' + m.time + tick + '</span></div></div>';
+    }).join('');
+  }
 
   const inputBar = '<div class="wa-input-bar">' +
     '<button class="wa-ico-btn">' + icon('add', 'wa-ico') + '</button>' +
@@ -650,7 +740,13 @@ function init() {
     const tab = e.target.closest('[data-wa-tab]');
     if (tab) { waTab = tab.getAttribute('data-wa-tab'); renderWa(); return; }
     const contact = e.target.closest('[data-wa-contact]');
-    if (contact) { waChatContact = contact.getAttribute('data-wa-contact'); renderWa(); return; }
+    if (contact) {
+      const m = contact.getAttribute('data-wa-contact');
+      waChatContact = m;
+      renderWa();
+      waLoadChat(m).then(function () { if (waScreenOpen() && waChatContact === m) renderWa(); });
+      return;
+    }
     const filter = e.target.closest('[data-wa-filter]');
     if (filter) { waFilter = filter.getAttribute('data-wa-filter'); renderWa(); return; }
     const action = e.target.closest('[data-wa-action]');
