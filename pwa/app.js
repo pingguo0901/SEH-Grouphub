@@ -173,7 +173,7 @@ function buildArchive(emp) {
 // ===== 渲染 =====
 function pageHeader(title, subtitle, iconName, backKey) {
   const back = backKey ? '<button class="back-btn" data-nav="' + backKey + '">' + icon('back', 'back-icon') + '</button>' : '';
-  return '<div class="page-header"><div class="header-row">' + back + '<span class="header-icon">' + icon(iconName, 'header-icon') + '</span><h1>' + title + '</h1></div><div class="subtitle">' + subtitle + '</div></div>';
+  return '<div class="page-header"><div class="header-row">' + back + '<h1>' + title + '</h1></div><div class="subtitle">' + subtitle + '</div></div>';
 }
 
 function renderHome() {
