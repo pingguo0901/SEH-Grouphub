@@ -305,6 +305,7 @@ function renderWa() {
   else if (waTab !== 'chats') screen.innerHTML = waPlaceholderHtml();
   else screen.innerHTML = waListHtml();
   moveWaIndicator();
+  bindWaScroll();
 }
 
 function moveWaIndicator() {
@@ -315,8 +316,20 @@ function moveWaIndicator() {
   ind.style.width = active.offsetWidth + 'px';
 }
 
-function waHeaderHtml(backAction) {
-  return '<div class="wa-header">' +
+function bindWaScroll() {
+  const scroll = document.querySelector('.wa-scroll');
+  const title = document.querySelector('.wa-header-list .wa-header-title');
+  if (!scroll || !title) return;
+  const update = function () {
+    const st = scroll.scrollTop;
+    title.style.opacity = Math.max(0, Math.min(1, st / 48));
+  };
+  update();
+  scroll.addEventListener('scroll', update, { passive: true });
+}
+
+function waHeaderHtml(backAction, extraClass) {
+  return '<div class="wa-header' + (extraClass ? ' ' + extraClass : '') + '">' +
     '<button class="wa-ico-btn" data-wa-action="' + backAction + '">' + icon('back', 'wa-ico') + '</button>' +
     '<div class="wa-header-title">聊天</div>' +
     '<button class="wa-ico-btn">' + icon('camera', 'wa-ico') + '</button>' +
@@ -357,7 +370,7 @@ function waListHtml() {
   }).join('');
 
   return '<div class="wa-wallpaper">' +
-    waHeaderHtml('back') +
+    waHeaderHtml('back', 'wa-header-list') +
     '<div class="wa-scroll">' +
       '<div class="wa-title">聊天</div>' +
       '<div class="wa-search">' + icon('search', 'wa-search-icon') + '<span>搜索</span></div>' +
