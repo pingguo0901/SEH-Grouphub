@@ -104,16 +104,28 @@ body {
 
 /* 首页 - 子公司卡片 */
 .sub-card {
+  position: relative; overflow: hidden;
   display: flex; align-items: center; gap: 14px;
-  border-radius: 21px; padding: 16px; margin-bottom: 12px; cursor: pointer;
+  border-radius: 21px; padding: 16px; margin-bottom: 12px;
   background: var(--glass-tint);
   backdrop-filter: blur(18px) saturate(118%);
   -webkit-backdrop-filter: blur(18px) saturate(118%);
   border: 1px solid var(--glass-border);
   border-top: 1px solid rgba(255, 255, 255, 0.09);
-  transition: transform 0.15s;
 }
-.sub-card:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.13); }
+/* 点击 WhatsApp 按钮时从按钮中心向外圆形扩散的涟漪 */
+.wa-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  opacity: 0.45;
+  transform: scale(0);
+  pointer-events: none;
+  animation: wa-ripple 0.6s ease-out forwards;
+}
+@keyframes wa-ripple {
+  to { transform: scale(1); opacity: 0; }
+}
 .sub-logo {
   width: 44px; height: 44px; border-radius: 10px;
   background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
@@ -133,7 +145,8 @@ body {
   border: none; border-radius: 999px; padding: 9px 14px; cursor: pointer;
   flex-shrink: 0;
 }
-.wa-btn:active { opacity: 0.85; }
+.wa-btn:active { opacity: 0.85; transform: scale(0.95); }
+.wa-btn { transition: transform 0.1s ease, opacity 0.1s ease; }
 .wa-icon { width: 16px; height: 16px; color: #fff; flex-shrink: 0; }
 
 .section-title { font-size: 15px; font-weight: 600; color: var(--text-secondary); margin: 4px 0 12px; }

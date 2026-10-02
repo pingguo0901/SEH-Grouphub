@@ -241,6 +241,30 @@ function renderHr() {
 
 let currentWhatsApp = null;
 
+function waBtnRipple(btn) {
+  const card = btn.closest('.sub-card');
+  if (!card) return;
+  const cardRect = card.getBoundingClientRect();
+  const btnRect = btn.getBoundingClientRect();
+  const cx = btnRect.left + btnRect.width / 2 - cardRect.left;
+  const cy = btnRect.top + btnRect.height / 2 - cardRect.top;
+  const maxR = Math.max(
+    Math.hypot(cx, cy),
+    Math.hypot(cardRect.width - cx, cy),
+    Math.hypot(cx, cardRect.height - cy),
+    Math.hypot(cardRect.width - cx, cardRect.height - cy)
+  );
+  const d = maxR * 2;
+  const ripple = document.createElement('span');
+  ripple.className = 'wa-ripple';
+  ripple.style.width = d + 'px';
+  ripple.style.height = d + 'px';
+  ripple.style.left = (cx - d / 2) + 'px';
+  ripple.style.top = (cy - d / 2) + 'px';
+  card.appendChild(ripple);
+  setTimeout(function () { ripple.remove(); }, 650);
+}
+
 function renderService() {
   const cards = SUBSIDIARIES.map(function (s) {
     return '<div class="sub-card">' +
@@ -381,7 +405,8 @@ function waScreenOpen() {
 
 async function waLoadContacts() {
   var c = sehInit();
-  if (!c) { waLoaded = true; return; }
+  if (!c) { waLoaded = true; return false; }
+  var changed = false;
   try {
     var contactsRes = await c.from('whatsapp_contacts').select('msisdn, display_name').order('updated_at', { ascending: false });
     var eventsRes = await c.from('whatsapp_events').select('from_msisdn, to_msisdn, text_body, created_at').order('created_at', { ascending: false }).limit(500);
@@ -405,10 +430,14 @@ async function waLoadContacts() {
       list.push({ msisdn: m, name: nameMap[m] || m, lastMessage: last[m].text, time: waFmtTime(last[m].t), t: last[m].t, unread: 0, favorite: false, isGroup: false });
     });
     list.sort(function (a, b) { return (a.t || '') < (b.t || '') ? 1 : -1; });
+    var fp = JSON.stringify(list.map(function (x) { return x.msisdn + '|' + x.lastMessage + '|' + x.t; }));
+    var prevFp = JSON.stringify(waContacts.map(function (x) { return x.msisdn + '|' + x.lastMessage + '|' + x.t; }));
+    changed = fp !== prevFp;
     waContacts = list;
     waRecents = list.slice(0, 4).map(function (c) { return { name: c.name, phone: c.msisdn }; });
   } catch (e) { /* 忽略 */ }
   waLoaded = true;
+  return changed;
 }
 
 async function waLoadChat(msisdn) {
@@ -854,6 +883,7 @@ function init() {
   document.addEventListener('click', function (e) {
     const wa = e.target.closest('.wa-btn');
     if (!wa) return;
+    waBtnRipple(wa);
     openWhatsApp(wa.getAttribute('data-wa'));
   });
   document.addEventListener('click', function (e) {
