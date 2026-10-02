@@ -298,6 +298,74 @@ function sehInit() {
   return sehClient;
 }
 
+// ===== 登录 / 身份 =====
+let currentUser = null;
+
+function roleLabel(role) {
+  const map = { chairman: '董事长', internal_audit: '内审', legal: '法务', hr: 'HR', agent: '坐席' };
+  return map[role] || role || '员工';
+}
+
+async function loadCurrentUser() {
+  const c = sehInit();
+  if (!c) return null;
+  try {
+    const { data } = await c.auth.getSession();
+    if (!data || !data.session) return null;
+    const uid = data.session.user.id;
+    const { data: prof, error } = await c.from('profiles').select('id, name, role, company_id, companies(name_zh)').eq('id', uid).single();
+    if (error || !prof) return null;
+    return prof;
+  } catch (e) { return null; }
+}
+
+function showLogin() { document.getElementById('login-screen').classList.remove('hidden'); }
+function hideLogin() { document.getElementById('login-screen').classList.add('hidden'); }
+function setLoginError(msg) {
+  const el = document.getElementById('login-error');
+  if (el) el.textContent = msg || '';
+}
+
+async function doLogin(email, password) {
+  const c = sehInit();
+  if (!c) { setLoginError('无法连接服务器'); return; }
+  const { error } = await c.auth.signInWithPassword({ email: email, password: password });
+  if (error) { setLoginError('邮箱或密码错误'); return; }
+  currentUser = await loadCurrentUser();
+  if (!currentUser) { setLoginError('账号未开通'); return; }
+  hideLogin();
+  navigate('home');
+}
+
+async function doLogout() {
+  const c = sehInit();
+  if (c) { try { await c.auth.signOut(); } catch (e) {} }
+  currentUser = null;
+  showLogin();
+}
+
+async function bootstrapAuth() {
+  currentUser = await loadCurrentUser();
+  if (currentUser) hideLogin(); else showLogin();
+}
+
+function renderProfilePage() {
+  if (!currentUser) {
+    return pageHeader('我', '未登录', 'person') + '<div class="page-body"><div class="placeholder-desc">请先登录</div></div>';
+  }
+  const comp = (currentUser.companies && currentUser.companies.name_zh) || (currentUser.company_id ? '—' : '集团总部（查看全部）');
+  return pageHeader('我', currentUser.name, 'person') +
+    '<div class="page-body">' +
+      '<div class="profile-card">' +
+        '<div class="profile-avatar">' + (currentUser.name ? currentUser.name.charAt(0) : '?') + '</div>' +
+        '<div class="profile-name">' + currentUser.name + '</div>' +
+        '<div class="profile-role">' + roleLabel(currentUser.role) + '</div>' +
+        '<div class="profile-company">' + comp + '</div>' +
+      '</div>' +
+      '<button class="profile-logout" id="logout-btn">退出登录</button>' +
+    '</div>';
+}
+
 function waFmtTime(iso) {
   if (!iso) return '';
   var d = new Date(iso);
@@ -594,6 +662,7 @@ function renderPage(key) {
   if (key === 'home') return renderHome();
   if (key === 'hr') return renderHr();
   if (key === 'service') return renderService();
+  if (key === 'profile') return renderProfilePage();
   return renderPlaceholder(key);
 }
 
@@ -787,6 +856,23 @@ function init() {
       else if (a === 'clear-recent') { waRecents = []; renderWa(); }
     }
   });
+  // ===== 登录 =====
+  showLogin();
+  document.getElementById('login-submit').addEventListener('click', function () {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!email || !password) { setLoginError('请输入邮箱和密码'); return; }
+    setLoginError('');
+    doLogin(email, password);
+  });
+  document.getElementById('login-password').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') document.getElementById('login-submit').click();
+  });
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('#logout-btn')) doLogout();
+  });
+  bootstrapAuth();
+
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(function () {});
   }

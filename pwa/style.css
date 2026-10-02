@@ -652,3 +652,69 @@ body {
 }
 .wa-mic-btn .wa-ico { color: #fff; }
 
+/* ===== 登录屏 ===== */
+.login-screen {
+  position: fixed; inset: 0; z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  max-width: 480px; margin: 0 auto;
+  background-color: #070709;
+  background-image:
+    radial-gradient(ellipse at 12% -5%, rgba(255,255,255,0.10), transparent 55%),
+    radial-gradient(ellipse at 90% 8%, rgba(255,255,255,0.07), transparent 55%),
+    radial-gradient(ellipse at 45% 108%, rgba(255,255,255,0.05), transparent 60%);
+  padding: 24px;
+}
+.login-screen.hidden { display: none; }
+.login-box {
+  width: 100%;
+  border-radius: 24px;
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(30px) saturate(118%);
+  -webkit-backdrop-filter: blur(30px) saturate(118%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255,255,255,0.10);
+  padding: 28px 22px;
+}
+.login-title { font-size: 24px; font-weight: 700; color: #F2F6FA; text-align: center; }
+.login-subtitle { font-size: 13px; color: #98A6B2; text-align: center; margin-top: 4px; margin-bottom: 22px; }
+.login-box input {
+  width: 100%; padding: 13px 15px; margin-bottom: 12px;
+  border-radius: 14px; border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06); color: #F2F6FA; font-size: 16px; outline: none;
+}
+.login-box input::placeholder { color: #6B7A8A; }
+.login-error { font-size: 13px; color: #FF453A; min-height: 18px; margin-bottom: 6px; }
+.login-submit {
+  width: 100%; padding: 14px; border: none; border-radius: 14px;
+  background: linear-gradient(135deg, #FF7A00 0%, #E8551B 100%);
+  color: #fff; font-size: 16px; font-weight: 700; cursor: pointer;
+}
+.login-submit:active { opacity: 0.85; }
+
+/* ===== 我(账号)页 ===== */
+.profile-card {
+  border-radius: 20px;
+  background: rgba(255,255,255,0.07);
+  backdrop-filter: blur(24px) saturate(118%);
+  -webkit-backdrop-filter: blur(24px) saturate(118%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255,255,255,0.10);
+  padding: 22px 18px; margin-bottom: 14px;
+}
+.profile-avatar {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #FF7A00 0%, #E8551B 100%);
+  color: #fff; font-size: 28px; font-weight: 700; margin: 0 auto 12px;
+}
+.profile-name { font-size: 20px; font-weight: 700; color: #F2F6FA; text-align: center; }
+.profile-role { font-size: 14px; color: #98A6B2; text-align: center; margin-top: 4px; }
+.profile-company { font-size: 13px; color: #6B7A8A; text-align: center; margin-top: 8px; }
+.profile-logout {
+  width: 100%; padding: 14px; border-radius: 14px; cursor: pointer;
+  border: 1px solid rgba(255,69,58,0.35);
+  background: rgba(255,69,58,0.12); color: #FF453A;
+  font-size: 15px; font-weight: 600;
+}
+.profile-logout:active { opacity: 0.8; }
+

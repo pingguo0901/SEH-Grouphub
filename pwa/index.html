@@ -21,6 +21,16 @@
   </div>
   <div id="overlay" class="overlay hidden"></div>
   <div id="wa-screen" class="wa-screen hidden"></div>
+  <div id="login-screen" class="login-screen hidden">
+    <div class="login-box">
+      <div class="login-title">集团枢纽</div>
+      <div class="login-subtitle">星域集团 · 客服工作台</div>
+      <input id="login-email" type="email" placeholder="邮箱" autocomplete="username" />
+      <input id="login-password" type="password" placeholder="密码" autocomplete="current-password" />
+      <div id="login-error" class="login-error"></div>
+      <button id="login-submit" class="login-submit">登录</button>
+    </div>
+  </div>
   <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;overflow:hidden" color-interpolation-filters="sRGB" aria-hidden="true"><defs id="lg-defs"></defs></svg>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
