@@ -172,15 +172,6 @@ body {
   z-index: 999;
 }
 
-/* WebGL 液态玻璃激活时，DOM 玻璃外壳让位给 Canvas 真折射层，只保留内容 */
-.bottom-nav.lg-glass {
-  background-color: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border: none;
-  border-top: none;
-}
-
 /* 内层 flex 容器 */
 .bottom-nav-inner {
   display: flex;
