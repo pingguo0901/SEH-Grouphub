@@ -359,12 +359,10 @@ function waListHtml() {
   return '<div class="wa-wallpaper">' +
     waHeaderHtml('back') +
     '<div class="wa-scroll">' +
-      '<div class="wa-card">' +
-        '<div class="wa-title">聊天</div>' +
-        '<div class="wa-search">' + icon('search', 'wa-search-icon') + '<span>搜索</span></div>' +
-        '<div class="wa-filters">' + filters + '</div>' +
-        contacts +
-      '</div>' +
+      '<div class="wa-title">聊天</div>' +
+      '<div class="wa-search">' + icon('search', 'wa-search-icon') + '<span>搜索</span></div>' +
+      '<div class="wa-filters">' + filters + '</div>' +
+      contacts +
     '</div>' +
     waTabsHtml() +
     '</div>';
