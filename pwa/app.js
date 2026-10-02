@@ -318,11 +318,10 @@ function moveWaIndicator() {
 
 function bindWaScroll() {
   const scroll = document.querySelector('.wa-scroll');
-  const title = document.querySelector('.wa-header-list .wa-header-title');
-  if (!scroll || !title) return;
+  const header = document.querySelector('.wa-header-list');
+  if (!scroll || !header) return;
   const update = function () {
-    const st = scroll.scrollTop;
-    title.style.opacity = Math.max(0, Math.min(1, st / 48));
+    header.classList.toggle('scrolled', scroll.scrollTop > 8);
   };
   update();
   scroll.addEventListener('scroll', update, { passive: true });

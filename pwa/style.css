@@ -388,20 +388,35 @@ body {
 }
 .wa-add-icon { width: 22px; height: 22px; color: #000000; }
 
-/* 列表页顶部：无单独背景，标题随滚动淡入 */
+/* 列表页顶部：悬浮最高层，顶部无背景，下滑出现毛玻璃 */
 .wa-header-list {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
   background: transparent;
-  border-bottom: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0);
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 .wa-header-list .wa-header-title {
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.2s ease;
+}
+.wa-header-list.scrolled {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(30px) saturate(118%);
+  -webkit-backdrop-filter: blur(30px) saturate(118%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.wa-header-list.scrolled .wa-header-title {
+  opacity: 1;
 }
 
 /* 列表滚动区 */
-.wa-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 12px 88px; }
+.wa-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 64px 12px 88px; }
 .wa-title { font-size: 24px; font-weight: 700; color: #F2F6FA; padding: 14px 14px 4px; }
 .wa-search {
   display: flex; align-items: center; gap: 8px;
@@ -464,19 +479,16 @@ body {
 /* 底部 5 标签栏 */
 .wa-tabs {
   position: absolute;
-  bottom: 12px;
-  left: 16px;
-  right: 16px;
-  margin: 0 auto;
-  max-width: 448px;
-  border-radius: 999px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 22px 22px 0 0;
   z-index: 5;
   background-color: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(30px) saturate(118%);
   -webkit-backdrop-filter: blur(30px) saturate(118%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
   border-top: 1px solid rgba(255, 255, 255, 0.10);
-  padding: 8px 4px;
+  padding: 10px 8px;
 }
 .wa-tabs-inner {
   position: relative;
