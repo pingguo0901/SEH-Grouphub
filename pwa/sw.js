@@ -1,4 +1,4 @@
-const CACHE = 'seh-pwa-v44';
+const CACHE = 'seh-pwa-v45';
 const ASSETS = ['./', './index.html', './style.css', './app.js', './liquid-glass.js', './supabase-config.js', './manifest.json', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -27,12 +27,12 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // 其他资源：缓存优先，回退网络
+  // 其他资源：网络优先（有网时总是拿最新代码，避免旧缓存挡住更新），离线才回退缓存
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).then(resp => {
+    fetch(e.request).then(resp => {
       const copy = resp.clone();
       caches.open(CACHE).then(c => c.put(e.request, copy));
       return resp;
-    }).catch(() => caches.match('./index.html')))
+    }).catch(() => caches.match(e.request).then(cached => cached || caches.match('./index.html')))
   );
 });

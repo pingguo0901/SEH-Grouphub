@@ -926,6 +926,12 @@ function init() {
   });
   bootstrapAuth();
 
+  // 回到前台/重新聚焦时立即刷新（iPhone PWA 切后台再回来能立刻同步）
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') waRefresh();
+  });
+  window.addEventListener('focus', function () { waRefresh(); });
+
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(function () {});
   }
