@@ -1,4 +1,4 @@
-const CACHE = 'seh-pwa-v45';
+const CACHE = 'seh-pwa-v46';
 const ASSETS = ['./', './index.html', './style.css', './app.js', './liquid-glass.js', './supabase-config.js', './manifest.json', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {

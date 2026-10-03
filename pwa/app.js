@@ -444,13 +444,13 @@ async function waLoadChat(msisdn) {
   var c = sehInit();
   if (!c) return;
   try {
-    var eRes = await c.from('whatsapp_events').select('to_msisdn, text_body, created_at').eq('from_msisdn', msisdn).order('created_at', { ascending: true });
-    var rRes = await c.from('whatsapp_replies').select('from_waba_number, body_text, created_at').eq('to_msisdn', msisdn).order('created_at', { ascending: true });
+    var eRes = await c.from('whatsapp_events').select('message_id, to_msisdn, text_body, created_at').eq('from_msisdn', msisdn).order('created_at', { ascending: true });
+    var rRes = await c.from('whatsapp_replies').select('message_id, from_waba_number, body_text, meta_status, created_at').eq('to_msisdn', msisdn).order('created_at', { ascending: true });
     var raw = [];
-    (eRes.data || []).forEach(function (e) { if (waWabaMatch(e.to_msisdn)) raw.push({ text: e.text_body, isSent: false, t: e.created_at }); });
-    (rRes.data || []).forEach(function (r) { if (waWabaMatch(r.from_waba_number)) raw.push({ text: r.body_text, isSent: true, t: r.created_at }); });
+    (eRes.data || []).forEach(function (e) { if (waWabaMatch(e.to_msisdn)) raw.push({ id: e.message_id, text: e.text_body, isSent: false, t: e.created_at }); });
+    (rRes.data || []).forEach(function (r) { if (waWabaMatch(r.from_waba_number)) raw.push({ id: r.message_id, text: r.body_text, isSent: true, t: r.created_at, status: r.meta_status }); });
     raw.sort(function (a, b) { return a.t < b.t ? -1 : 1; });
-    var newMsgs = raw.map(function (m) { return { text: m.text, isSent: m.isSent, time: waFmtTime(m.t) }; });
+    var newMsgs = raw.map(function (m) { return { id: m.id, text: m.text, isSent: m.isSent, time: waFmtTime(m.t), at: m.t, status: m.status }; });
     var changed = JSON.stringify(newMsgs) !== JSON.stringify(waChatMsgs);
     waChatMsgs = newMsgs;
     waChatMsisdn = msisdn;
@@ -458,16 +458,134 @@ async function waLoadChat(msisdn) {
   } catch (e) { return false; }
 }
 
+let waChannels = [];
+
+function waCleanupChannels() {
+  var c = sehInit();
+  if (!c) { waChannels = []; return; }
+  try {
+    waChannels.forEach(function (ch) { c.removeChannel(ch); });
+  } catch (e) { /* 忽略 */ }
+  waChannels = [];
+}
+
 function waSubscribe() {
   var c = sehInit();
   if (!c) return;
+  waCleanupChannels();
   try {
-    c.channel('seh-wa-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'whatsapp_contacts' }, function () { waRefresh(); })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'whatsapp_events' }, function () { waRefresh(); })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'whatsapp_replies' }, function () { waRefresh(); })
-      .subscribe();
+    waChannels.push(
+      c.channel('wa-events')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'whatsapp_events' }, function (payload) { handleInboundEvent(payload.new); })
+        .subscribe(function (status) { console.log('[events]', status); })
+    );
+    waChannels.push(
+      c.channel('wa-replies')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'whatsapp_replies' }, function (payload) { handleOutboundReply(payload.new); })
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'whatsapp_replies' }, function (payload) { handleReplyStatusUpdate(payload.new); })
+        .subscribe(function (status) { console.log('[replies]', status); })
+    );
+    waChannels.push(
+      c.channel('wa-contacts')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'whatsapp_contacts' }, function (payload) { handleContactChange(payload); })
+        .subscribe(function (status) { console.log('[contacts]', status); })
+    );
   } catch (e) { /* 忽略 */ }
+}
+
+// ===== 实时事件 handler（按三表分工） =====
+function handleInboundEvent(row) {
+  if (!row || !row.from_msisdn) return;
+  if (!waWabaMatch(row.to_msisdn)) return; // 只处理当前子公司 WABA
+  appendMessage({ id: row.message_id, msisdn: row.from_msisdn, direction: 'in', type: row.message_type, text: row.text_body, at: row.created_at });
+}
+
+function handleOutboundReply(row) {
+  if (!row || !row.to_msisdn) return;
+  if (!waWabaMatch(row.from_waba_number)) return;
+  appendMessage({ id: row.message_id, msisdn: row.to_msisdn, direction: 'out', type: row.message_type, text: row.body_text, at: row.created_at });
+}
+
+function handleReplyStatusUpdate(row) {
+  if (!row || !row.message_id) return;
+  updateMessageStatus(row.message_id, row.meta_status);
+}
+
+function handleContactChange(payload) {
+  if (!payload || !payload.new) return;
+  if (payload.eventType === 'INSERT') upsertConversation(payload.new);
+  else if (payload.eventType === 'UPDATE') updateConversationMeta(payload.new);
+}
+
+// ===== 增量更新辅助（去重 by message_id，msisdn 作会话分组键） =====
+function appendMessage(msg) {
+  if (!msg || !msg.msisdn) return;
+  var at = msg.at || new Date().toISOString();
+  waTouchContact(msg.msisdn, msg.text || '', at);
+  var dup = false;
+  if (msg.id) {
+    for (var i = 0; i < waChatMsgs.length; i++) {
+      if (waChatMsgs[i].id === msg.id) { dup = true; break; }
+    }
+  }
+  if (!dup && waChatContact === msg.msisdn) {
+    waChatMsgs.push({ id: msg.id, text: msg.text || '', isSent: msg.direction === 'out', time: waFmtTime(at), at: at });
+    waChatMsgs.sort(function (a, b) { return (a.at || '') < (b.at || '') ? -1 : 1; });
+    renderWa();
+  } else if (waScreenOpen() && !waChatContact) {
+    renderWa(); // 会话列表视图：刷新最后一条
+  }
+}
+
+function updateMessageStatus(id, status) {
+  if (!id) return;
+  for (var i = 0; i < waChatMsgs.length; i++) {
+    if (waChatMsgs[i].id === id) {
+      waChatMsgs[i].status = status;
+      if (waScreenOpen()) renderWa();
+      return;
+    }
+  }
+}
+
+function waTouchContact(msisdn, text, at) {
+  var found = null;
+  for (var i = 0; i < waContacts.length; i++) {
+    if (waContacts[i].msisdn === msisdn) { found = waContacts[i]; break; }
+  }
+  if (!found) {
+    found = { msisdn: msisdn, name: msisdn, lastMessage: '', time: '', t: '', unread: 0, favorite: false, isGroup: false };
+    waContacts.push(found);
+  }
+  found.lastMessage = text;
+  found.t = at;
+  found.time = waFmtTime(at);
+  waContacts.sort(function (a, b) { return (a.t || '') < (b.t || '') ? 1 : -1; });
+}
+
+function upsertConversation(contact) {
+  if (!contact || !contact.msisdn) return;
+  for (var i = 0; i < waContacts.length; i++) {
+    if (waContacts[i].msisdn === contact.msisdn) {
+      if (contact.display_name) waContacts[i].name = contact.display_name;
+      if (waScreenOpen()) renderWa();
+      return;
+    }
+  }
+  waContacts.push({ msisdn: contact.msisdn, name: contact.display_name || contact.msisdn, lastMessage: '', time: '', t: '', unread: 0, favorite: false, isGroup: false });
+  if (waScreenOpen()) renderWa();
+}
+
+function updateConversationMeta(contact) {
+  if (!contact || !contact.msisdn) return;
+  for (var i = 0; i < waContacts.length; i++) {
+    if (waContacts[i].msisdn === contact.msisdn) {
+      if (contact.display_name) waContacts[i].name = contact.display_name;
+      if (typeof contact.unread !== 'undefined' && contact.unread !== null) waContacts[i].unread = contact.unread;
+      if (waScreenOpen()) renderWa();
+      return;
+    }
+  }
 }
 
 function waRefresh() {
@@ -926,11 +1044,11 @@ function init() {
   });
   bootstrapAuth();
 
-  // 回到前台/重新聚焦时立即刷新（iPhone PWA 切后台再回来能立刻同步）
+  // 回到前台/重新聚焦时：重连 Realtime 并立即刷新（iPhone PWA 切后台再回来能立刻同步）
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible') waRefresh();
+    if (document.visibilityState === 'visible') { waSubscribe(); waRefresh(); }
   });
-  window.addEventListener('focus', function () { waRefresh(); });
+  window.addEventListener('focus', function () { waSubscribe(); waRefresh(); });
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(function () {});
