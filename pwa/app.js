@@ -538,12 +538,12 @@ async function waSendMessage() {
   if (!text || !waChatContact) return;
   var c = sehInit();
   if (!c) { alert('未连接'); return; }
-  var pid = currentWabaIds && currentWabaIds[0];
-  if (!pid) { alert('当前子公司未配置 WABA 号码'); return; }
+  var waba = currentWaba && currentWaba[0];
+  if (!waba) { alert('当前子公司未配置 WABA 号码'); return; }
   input.disabled = true;
   try {
     var res = await c.functions.invoke('send-whatsapp', {
-      body: { to_msisdn: waChatContact, text: text, waba_phone_number_id: pid }
+      body: { to_msisdn: waChatContact, from_waba_number: waba, type: 'text', text: text }
     });
     if (res.error) throw res.error;
     if (res.data && res.data.error) throw new Error(res.data.error);
@@ -557,47 +557,45 @@ async function waSendMessage() {
   }
 }
 
-// ===== 语音录制 =====
+// ===== 语音录制（opus-recorder，OGG/Opus 单声道）=====
 let waRecorder = null;
 let waRecordStream = null;
-let waRecordChunks = [];
 let waAudioCtx = null;
 let waAnalyser = null;
 let waWaveRAF = null;
 let waRecording = false;
-let waRecordMime = '';
 let waRecordCancel = false;
+let waRecordOgg = null;
 let waVoiceTouchY = 0;
 let waVoiceSkipClick = false;
 
 async function waStartRecording() {
   if (waRecording) return;
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert('当前浏览器不支持语音录制');
-    return;
-  }
+  if (typeof Recorder === 'undefined') { alert('录音组件未加载，请刷新页面'); return; }
   try {
     waRecordStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    let mime = '';
-    const types = ['audio/mp4', 'audio/mpeg', 'audio/ogg', 'audio/webm'];
-    for (let i = 0; i < types.length; i++) {
-      if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(types[i])) { mime = types[i]; break; }
-    }
-    waRecordMime = mime;
-    waRecorder = mime ? new MediaRecorder(waRecordStream, { mimeType: mime }) : new MediaRecorder(waRecordStream);
-    waRecordChunks = [];
-    waRecorder.ondataavailable = function (e) { if (e.data && e.data.size) waRecordChunks.push(e.data); };
+    const AC = window.AudioContext || window.webkitAudioContext;
+    waAudioCtx = new AC();
+    const srcNode = waAudioCtx.createMediaStreamSource(waRecordStream);
+    waAnalyser = waAudioCtx.createAnalyser();
+    waAnalyser.fftSize = 256;
+    srcNode.connect(waAnalyser);
+
+    waRecordOgg = null;
+    waRecorder = new Recorder({
+      encoderPath: 'opus/encoderWorker.min.js',
+      numberOfChannels: 1,
+      streamPages: false,
+      monitorGain: 0,
+      recordingGain: 1,
+      sourceNode: srcNode
+    });
+    waRecorder.ondataavailable = function (buf) { waRecordOgg = buf; };
     waRecorder.onstop = waOnRecordStop;
-    waRecorder.start();
+
+    await waRecorder.start();
     waRecording = true;
     waRecordCancel = false;
-    try {
-      waAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const src = waAudioCtx.createMediaStreamSource(waRecordStream);
-      waAnalyser = waAudioCtx.createAnalyser();
-      waAnalyser.fftSize = 256;
-      src.connect(waAnalyser);
-    } catch (e2) { waAudioCtx = null; waAnalyser = null; }
     waSetRecordingUI(true);
     waDrawWaveform();
   } catch (e) {
@@ -618,29 +616,26 @@ function waOnRecordStop() {
   if (waRecordStream) { waRecordStream.getTracks().forEach(function (t) { t.stop(); }); waRecordStream = null; }
   if (waAudioCtx) { try { waAudioCtx.close(); } catch (e) {} waAudioCtx = null; waAnalyser = null; }
   waSetRecordingUI(false);
-  const chunks = waRecordChunks;
-  const mime = waRecordMime;
-  waRecorder = null; waRecordChunks = []; waRecordMime = '';
-  if (waRecordCancel || !chunks.length) return;
-  waSendAudio(new Blob(chunks, { type: mime || 'audio/webm' }), mime);
-}
-
-async function waSendAudio(blob, mime) {
-  const c = sehInit();
-  if (!c || !waChatContact) return;
-  const pid = currentWabaIds && currentWabaIds[0];
-  if (!pid) { alert('当前子公司未配置 WABA 号码'); return; }
-  const buf = await blob.arrayBuffer();
-  const bytes = new Uint8Array(buf);
+  const ogg = waRecordOgg;
+  waRecorder = null; waRecordOgg = null;
+  if (waRecordCancel || !ogg || !ogg.byteLength) return;
+  const bytes = ogg instanceof Uint8Array ? ogg : new Uint8Array(ogg);
   let bin = '';
   const CH = 0x8000;
   for (let i = 0; i < bytes.length; i += CH) {
     bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
   }
-  const b64 = btoa(bin);
+  waSendAudio(btoa(bin));
+}
+
+async function waSendAudio(audioBase64) {
+  const c = sehInit();
+  if (!c || !waChatContact) return;
+  const waba = currentWaba && currentWaba[0];
+  if (!waba) { alert('当前子公司未配置 WABA 号码'); return; }
   try {
     const res = await c.functions.invoke('send-whatsapp', {
-      body: { to_msisdn: waChatContact, waba_phone_number_id: pid, audio: b64, audio_mime: mime || 'audio/webm' }
+      body: { to_msisdn: waChatContact, from_waba_number: waba, type: 'audio', audio_base64: audioBase64 }
     });
     if (res.error) throw res.error;
     if (res.data && res.data.error) throw new Error(res.data.error);
