@@ -679,6 +679,46 @@ body {
 .wa-send-btn .wa-ico { color: #fff; }
 .wa-send-btn:active { opacity: 0.85; transform: scale(0.95); }
 
+/* 语音消息：+按钮 / 语音键 / 录音条 / 波形 */
+.wa-plus-btn {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer; border: none;
+  background: rgba(255,255,255,0.10);
+}
+.wa-plus-btn .wa-ico { width: 22px; height: 22px; color: #F2F6FA; }
+.wa-voice-btn {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer; border: none;
+  background: linear-gradient(135deg, #0A84FF 0%, #5AA7FF 100%);
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.wa-voice-btn .wa-ico { color: #fff; }
+.wa-voice-btn:active { transform: scale(0.95); }
+.wa-voice-btn.recording { background: #FF453A; }
+.wa-voice-btn.cancel { background: #FF9F0A; }
+.wa-record-bar {
+  flex: 1; min-width: 0; height: 42px;
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 14px; border-radius: 22px;
+  background: rgba(44,44,46,0.9);
+  overflow: hidden;
+}
+.wa-record-hint {
+  font-size: 13px; color: #F2F6FA; white-space: nowrap; flex-shrink: 0;
+}
+.wa-record-wave {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 3px; height: 100%;
+}
+.wa-wave-bar {
+  width: 3px; min-height: 4px; border-radius: 2px;
+  background: #25D366; flex-shrink: 0;
+  transition: height 0.08s linear;
+}
+
+
 /* ===== 登录屏 ===== */
 .login-screen {
   position: fixed; inset: 0; z-index: 2000;

@@ -548,12 +548,158 @@ async function waSendMessage() {
     if (res.error) throw res.error;
     if (res.data && res.data.error) throw new Error(res.data.error);
     input.value = '';
+    waUpdateSendVoice();
   } catch (e) {
     console.error('发送失败', e);
     alert('发送失败: ' + (e.message || e));
   } finally {
     input.disabled = false;
   }
+}
+
+// ===== 语音录制 =====
+let waRecorder = null;
+let waRecordStream = null;
+let waRecordChunks = [];
+let waAudioCtx = null;
+let waAnalyser = null;
+let waWaveRAF = null;
+let waRecording = false;
+let waRecordMime = '';
+let waRecordCancel = false;
+let waVoiceTouchY = 0;
+let waVoiceSkipClick = false;
+
+async function waStartRecording() {
+  if (waRecording) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert('当前浏览器不支持语音录制');
+    return;
+  }
+  try {
+    waRecordStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    let mime = '';
+    const types = ['audio/mp4', 'audio/mpeg', 'audio/ogg', 'audio/webm'];
+    for (let i = 0; i < types.length; i++) {
+      if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(types[i])) { mime = types[i]; break; }
+    }
+    waRecordMime = mime;
+    waRecorder = mime ? new MediaRecorder(waRecordStream, { mimeType: mime }) : new MediaRecorder(waRecordStream);
+    waRecordChunks = [];
+    waRecorder.ondataavailable = function (e) { if (e.data && e.data.size) waRecordChunks.push(e.data); };
+    waRecorder.onstop = waOnRecordStop;
+    waRecorder.start();
+    waRecording = true;
+    waRecordCancel = false;
+    try {
+      waAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = waAudioCtx.createMediaStreamSource(waRecordStream);
+      waAnalyser = waAudioCtx.createAnalyser();
+      waAnalyser.fftSize = 256;
+      src.connect(waAnalyser);
+    } catch (e2) { waAudioCtx = null; waAnalyser = null; }
+    waSetRecordingUI(true);
+    waDrawWaveform();
+  } catch (e) {
+    console.error('录音失败', e);
+    alert('无法访问麦克风，请检查权限');
+  }
+}
+
+function waStopRecording(send) {
+  if (!waRecording || !waRecorder) return;
+  waRecordCancel = !send;
+  try { waRecorder.stop(); } catch (e) {}
+}
+
+function waOnRecordStop() {
+  waRecording = false;
+  if (waWaveRAF) { cancelAnimationFrame(waWaveRAF); waWaveRAF = null; }
+  if (waRecordStream) { waRecordStream.getTracks().forEach(function (t) { t.stop(); }); waRecordStream = null; }
+  if (waAudioCtx) { try { waAudioCtx.close(); } catch (e) {} waAudioCtx = null; waAnalyser = null; }
+  waSetRecordingUI(false);
+  const chunks = waRecordChunks;
+  const mime = waRecordMime;
+  waRecorder = null; waRecordChunks = []; waRecordMime = '';
+  if (waRecordCancel || !chunks.length) return;
+  waSendAudio(new Blob(chunks, { type: mime || 'audio/webm' }), mime);
+}
+
+async function waSendAudio(blob, mime) {
+  const c = sehInit();
+  if (!c || !waChatContact) return;
+  const pid = currentWabaIds && currentWabaIds[0];
+  if (!pid) { alert('当前子公司未配置 WABA 号码'); return; }
+  const buf = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  const CH = 0x8000;
+  for (let i = 0; i < bytes.length; i += CH) {
+    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
+  }
+  const b64 = btoa(bin);
+  try {
+    const res = await c.functions.invoke('send-whatsapp', {
+      body: { to_msisdn: waChatContact, waba_phone_number_id: pid, audio: b64, audio_mime: mime || 'audio/webm' }
+    });
+    if (res.error) throw res.error;
+    if (res.data && res.data.error) throw new Error(res.data.error);
+  } catch (e) {
+    console.error('语音发送失败', e);
+    alert('语音发送失败: ' + (e.message || e));
+  }
+}
+
+function waSetRecordingUI(recording) {
+  const compose = document.getElementById('wa-compose');
+  const recBar = document.getElementById('wa-record-bar');
+  const voiceBtn = document.getElementById('wa-voice-btn');
+  const sendBtn = document.getElementById('wa-send-btn');
+  const hint = document.getElementById('wa-record-hint');
+  if (recording) {
+    if (compose) compose.style.display = 'none';
+    if (recBar) recBar.style.display = 'flex';
+    if (sendBtn) sendBtn.style.display = 'none';
+    if (voiceBtn) { voiceBtn.setAttribute('data-wa-action', 'wa-voice-stop'); voiceBtn.classList.add('recording'); voiceBtn.classList.remove('cancel'); }
+    if (hint) hint.textContent = '松开发送 · 上滑取消';
+  } else {
+    if (compose) compose.style.display = '';
+    if (recBar) recBar.style.display = 'none';
+    if (voiceBtn) { voiceBtn.setAttribute('data-wa-action', 'wa-voice-start'); voiceBtn.classList.remove('recording'); voiceBtn.classList.remove('cancel'); }
+    if (hint) hint.textContent = '松开发送 · 上滑取消';
+    waUpdateSendVoice();
+  }
+}
+
+function waUpdateSendVoice() {
+  const compose = document.getElementById('wa-compose');
+  const sendBtn = document.getElementById('wa-send-btn');
+  const voiceBtn = document.getElementById('wa-voice-btn');
+  if (!compose || waRecording) return;
+  const has = compose.value.trim().length > 0;
+  if (sendBtn) sendBtn.style.display = has ? 'flex' : 'none';
+  if (voiceBtn) voiceBtn.style.display = has ? 'none' : 'flex';
+}
+
+function waDrawWaveform() {
+  if (!waRecording) { waWaveRAF = null; return; }
+  const wave = document.getElementById('wa-record-wave');
+  if (!wave) { waWaveRAF = requestAnimationFrame(waDrawWaveform); return; }
+  if (waAnalyser) {
+    const bars = wave.querySelectorAll('.wa-wave-bar');
+    const n = bars.length;
+    if (n) {
+      const data = new Uint8Array(waAnalyser.frequencyBinCount);
+      waAnalyser.getByteFrequencyData(data);
+      const step = Math.max(1, Math.floor(data.length / n));
+      for (let i = 0; i < n; i++) {
+        const v = data[i * step] / 255;
+        const h = Math.max(4, Math.round(v * 44));
+        bars[i].style.height = h + 'px';
+      }
+    }
+  }
+  waWaveRAF = requestAnimationFrame(waDrawWaveform);
 }
 
 function appendMessage(msg) {
@@ -699,6 +845,7 @@ function renderWa() {
   }
   moveWaIndicator();
   bindWaScroll();
+  waSetRecordingUI(waRecording);
 }
 
 function moveWaIndicator() {
@@ -851,8 +998,14 @@ function waChatHtml(msisdn) {
   }
 
   const inputBar = '<div class="wa-input-bar">' +
+    '<button class="wa-plus-btn" data-wa-action="wa-plus">' + icon('add', 'wa-ico') + '</button>' +
     '<input id="wa-compose" class="wa-input wa-compose" type="text" placeholder="输入消息…" autocomplete="off" />' +
-    '<button class="wa-send-btn" data-wa-action="send-msg">' + icon('doneall', 'wa-ico') + '</button>' +
+    '<div class="wa-record-bar" id="wa-record-bar" style="display:none">' +
+      '<span class="wa-record-hint" id="wa-record-hint">松开发送 · 上滑取消</span>' +
+      '<div class="wa-record-wave" id="wa-record-wave">' + (function(){ var b=''; for (var i=0;i<24;i++) b+='<span class="wa-wave-bar"></span>'; return b; })() + '</div>' +
+    '</div>' +
+    '<button class="wa-send-btn" id="wa-send-btn" data-wa-action="send-msg" style="display:none">' + icon('doneall', 'wa-ico') + '</button>' +
+    '<button class="wa-voice-btn" id="wa-voice-btn" data-wa-action="wa-voice-start">' + icon('mic', 'wa-ico') + '</button>' +
     '</div>';
 
   return '<div class="wa-wallpaper">' + header + '<div class="wa-chat-scroll">' + msgs + '</div>' + inputBar + '</div>';
@@ -1062,6 +1215,9 @@ function init() {
       else if (a === 'search-back') { waSearchOpen = false; renderWa(); }
       else if (a === 'clear-recent') { waRecents = []; renderWa(); }
       else if (a === 'send-msg') { waSendMessage(); }
+      else if (a === 'wa-voice-start') { waStartRecording(); }
+      else if (a === 'wa-voice-stop') { if (waVoiceSkipClick) { waVoiceSkipClick = false; } else { waStopRecording(true); } }
+      else if (a === 'wa-plus') { /* 待接入 */ }
     }
   });
   // ===== 登录 =====
@@ -1081,6 +1237,40 @@ function init() {
       e.preventDefault();
       waSendMessage();
     }
+  });
+  // 语音键：点按发送 / 上滑取消
+  document.addEventListener('touchstart', function (e) {
+    const btn = e.target.closest('#wa-voice-btn');
+    if (!btn || !waRecording) return;
+    waVoiceTouchY = e.touches[0].clientY;
+    waVoiceSkipClick = false;
+  }, { passive: true });
+  document.addEventListener('touchmove', function (e) {
+    const btn = e.target.closest('#wa-voice-btn');
+    if (!btn || !waRecording) return;
+    const dy = waVoiceTouchY - e.touches[0].clientY;
+    const cancel = dy > 60;
+    if (cancel !== waRecordCancel) {
+      waRecordCancel = cancel;
+      const hint = document.getElementById('wa-record-hint');
+      if (hint) hint.textContent = cancel ? '松开取消' : '松开发送 · 上滑取消';
+      btn.classList.toggle('cancel', cancel);
+    }
+  }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    const btn = e.target.closest('#wa-voice-btn');
+    if (!btn || !waRecording) return;
+    if (waRecordCancel) {
+      waRecordCancel = false;
+      waVoiceSkipClick = true;
+      waStopRecording(false);
+    }
+  }, { passive: true });
+  document.addEventListener('touchcancel', function () {
+    if (waRecording) { waRecordCancel = false; waVoiceSkipClick = true; waStopRecording(false); }
+  }, { passive: true });
+  document.addEventListener('input', function (e) {
+    if (e.target && e.target.id === 'wa-compose') waUpdateSendVoice();
   });
   document.addEventListener('click', function (e) {
     if (e.target.closest('#logout-btn')) doLogout();
