@@ -664,6 +664,20 @@ body {
   background: linear-gradient(135deg, #0A84FF 0%, #5AA7FF 100%);
 }
 .wa-mic-btn .wa-ico { color: #fff; }
+.wa-input.wa-compose {
+  border: none; outline: none;
+  color: #F2F6FA;
+  -webkit-appearance: none; appearance: none;
+}
+.wa-input.wa-compose::placeholder { color: #98A6B2; }
+.wa-send-btn {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer; border: none;
+  background: linear-gradient(135deg, #0A84FF 0%, #5AA7FF 100%);
+}
+.wa-send-btn .wa-ico { color: #fff; }
+.wa-send-btn:active { opacity: 0.85; transform: scale(0.95); }
 
 /* ===== 登录屏 ===== */
 .login-screen {

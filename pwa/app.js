@@ -59,9 +59,9 @@ const PAGES = [
 ];
 
 const SUBSIDIARIES = [
-  { nameZh: '炙巷食铺', nameEn: 'ZHI XIANG FOOD ENTERPRISE', phone: '85251403695', waba: ['85251403695'] },
-  { nameZh: '星域臻旅', nameEn: 'STELLAR ELITE ENTERPRISE', phone: '01167936058', waba: ['01167936058', '601167936058'] },
-  { nameZh: '星域科技', nameEn: 'STELLAR TECH STUDIO', phone: '6581945601', waba: ['6581945601'] }
+  { nameZh: '炙巷食铺', nameEn: 'ZHI XIANG FOOD ENTERPRISE', phone: '85251403695', waba: ['85251403695'], wabaId: ['1416630394859129'] },
+  { nameZh: '星域臻旅', nameEn: 'STELLAR ELITE ENTERPRISE', phone: '01167936058', waba: ['01167936058', '601167936058'], wabaId: ['1357266170800067'] },
+  { nameZh: '星域科技', nameEn: 'STELLAR TECH STUDIO', phone: '6581945601', waba: ['6581945601'], wabaId: [] }
 ];
 
 const COMPANY_STATS = [
@@ -292,6 +292,7 @@ let waChatMsgs = [];
 let waChatMsisdn = null;
 let waLoaded = false;
 let currentWaba = ['85251403695'];
+let currentWabaIds = ['1416630394859129'];
 
 function normPhone(n) {
   var d = String(n == null ? '' : n).replace(/\D/g, '');
@@ -300,10 +301,15 @@ function normPhone(n) {
 }
 
 function waWabaMatch(v) {
-  var nv = normPhone(v);
+  if (v == null) return false;
+  var d = String(v);
+  for (var i = 0; i < currentWabaIds.length; i++) {
+    if (currentWabaIds[i] === d) return true;
+  }
+  var nv = normPhone(d);
   if (!nv) return false;
-  for (var i = 0; i < currentWaba.length; i++) {
-    if (normPhone(currentWaba[i]) === nv) return true;
+  for (var j = 0; j < currentWaba.length; j++) {
+    if (normPhone(currentWaba[j]) === nv) return true;
   }
   return false;
 }
@@ -311,6 +317,13 @@ function waWabaMatch(v) {
 function getWabaFor(store) {
   for (var i = 0; i < SUBSIDIARIES.length; i++) {
     if (SUBSIDIARIES[i].nameZh === store) return SUBSIDIARIES[i].waba || [];
+  }
+  return [];
+}
+
+function getWabaIdsFor(store) {
+  for (var i = 0; i < SUBSIDIARIES.length; i++) {
+    if (SUBSIDIARIES[i].nameZh === store) return SUBSIDIARIES[i].wabaId || [];
   }
   return [];
 }
@@ -409,19 +422,19 @@ async function waLoadContacts() {
   var changed = false;
   try {
     var contactsRes = await c.from('whatsapp_contacts').select('msisdn, display_name').order('updated_at', { ascending: false });
-    var eventsRes = await c.from('whatsapp_events').select('from_msisdn, to_msisdn, text_body, created_at').order('created_at', { ascending: false }).limit(500);
-    var repliesRes = await c.from('whatsapp_replies').select('to_msisdn, from_waba_number, body_text, created_at').order('created_at', { ascending: false }).limit(500);
+    var eventsRes = await c.from('whatsapp_events').select('from_msisdn, to_msisdn, waba_phone_number_id, text_body, created_at').order('created_at', { ascending: false }).limit(500);
+    var repliesRes = await c.from('whatsapp_replies').select('to_msisdn, from_waba_number, waba_phone_number_id, body_text, created_at').order('created_at', { ascending: false }).limit(500);
 
     var nameMap = {};
     (contactsRes.data || []).forEach(function (r) { nameMap[r.msisdn] = r.display_name; });
 
     var last = {};
     (eventsRes.data || []).forEach(function (e) {
-      if (!waWabaMatch(e.to_msisdn)) return;
+      if (!waWabaMatch(e.waba_phone_number_id || e.to_msisdn)) return;
       if (!last[e.from_msisdn] || e.created_at > last[e.from_msisdn].t) last[e.from_msisdn] = { text: e.text_body, t: e.created_at };
     });
     (repliesRes.data || []).forEach(function (r) {
-      if (!waWabaMatch(r.from_waba_number)) return;
+      if (!waWabaMatch(r.waba_phone_number_id || r.from_waba_number)) return;
       if (!last[r.to_msisdn] || r.created_at > last[r.to_msisdn].t) last[r.to_msisdn] = { text: r.body_text, t: r.created_at };
     });
 
@@ -444,11 +457,11 @@ async function waLoadChat(msisdn) {
   var c = sehInit();
   if (!c) return;
   try {
-    var eRes = await c.from('whatsapp_events').select('message_id, to_msisdn, text_body, created_at').eq('from_msisdn', msisdn).order('created_at', { ascending: true });
-    var rRes = await c.from('whatsapp_replies').select('message_id, from_waba_number, body_text, meta_status, created_at').eq('to_msisdn', msisdn).order('created_at', { ascending: true });
+    var eRes = await c.from('whatsapp_events').select('message_id, to_msisdn, waba_phone_number_id, text_body, created_at').eq('from_msisdn', msisdn).order('created_at', { ascending: true });
+    var rRes = await c.from('whatsapp_replies').select('message_id, from_waba_number, waba_phone_number_id, body_text, meta_status, created_at').eq('to_msisdn', msisdn).order('created_at', { ascending: true });
     var raw = [];
-    (eRes.data || []).forEach(function (e) { if (waWabaMatch(e.to_msisdn)) raw.push({ id: e.message_id, text: e.text_body, isSent: false, t: e.created_at }); });
-    (rRes.data || []).forEach(function (r) { if (waWabaMatch(r.from_waba_number)) raw.push({ id: r.message_id, text: r.body_text, isSent: true, t: r.created_at, status: r.meta_status }); });
+    (eRes.data || []).forEach(function (e) { if (waWabaMatch(e.waba_phone_number_id || e.to_msisdn)) raw.push({ id: e.message_id, text: e.text_body, isSent: false, t: e.created_at }); });
+    (rRes.data || []).forEach(function (r) { if (waWabaMatch(r.waba_phone_number_id || r.from_waba_number)) raw.push({ id: r.message_id, text: r.body_text, isSent: true, t: r.created_at, status: r.meta_status }); });
     raw.sort(function (a, b) { return a.t < b.t ? -1 : 1; });
     var newMsgs = raw.map(function (m) { return { id: m.id, text: m.text, isSent: m.isSent, time: waFmtTime(m.t), at: m.t, status: m.status }; });
     var changed = JSON.stringify(newMsgs) !== JSON.stringify(waChatMsgs);
@@ -496,13 +509,13 @@ function waSubscribe() {
 // ===== 实时事件 handler（按三表分工） =====
 function handleInboundEvent(row) {
   if (!row || !row.from_msisdn) return;
-  if (!waWabaMatch(row.to_msisdn)) return; // 只处理当前子公司 WABA
+  if (!waWabaMatch(row.waba_phone_number_id || row.to_msisdn)) return; // 只处理当前子公司 WABA
   appendMessage({ id: row.message_id, msisdn: row.from_msisdn, direction: 'in', type: row.message_type, text: row.text_body, at: row.created_at });
 }
 
 function handleOutboundReply(row) {
   if (!row || !row.to_msisdn) return;
-  if (!waWabaMatch(row.from_waba_number)) return;
+  if (!waWabaMatch(row.waba_phone_number_id || row.from_waba_number)) return;
   appendMessage({ id: row.message_id, msisdn: row.to_msisdn, direction: 'out', type: row.message_type, text: row.body_text, at: row.created_at });
 }
 
@@ -518,6 +531,31 @@ function handleContactChange(payload) {
 }
 
 // ===== 增量更新辅助（去重 by message_id，msisdn 作会话分组键） =====
+async function waSendMessage() {
+  var input = document.getElementById('wa-compose');
+  if (!input) return;
+  var text = input.value.trim();
+  if (!text || !waChatContact) return;
+  var c = sehInit();
+  if (!c) { alert('未连接'); return; }
+  var pid = currentWabaIds && currentWabaIds[0];
+  if (!pid) { alert('当前子公司未配置 WABA 号码'); return; }
+  input.disabled = true;
+  try {
+    var res = await c.functions.invoke('send-whatsapp', {
+      body: { to_msisdn: waChatContact, text: text, waba_phone_number_id: pid }
+    });
+    if (res.error) throw res.error;
+    if (res.data && res.data.error) throw new Error(res.data.error);
+    input.value = '';
+  } catch (e) {
+    console.error('发送失败', e);
+    alert('发送失败: ' + (e.message || e));
+  } finally {
+    input.disabled = false;
+  }
+}
+
 function appendMessage(msg) {
   if (!msg || !msg.msisdn) return;
   var at = msg.at || new Date().toISOString();
@@ -618,6 +656,7 @@ function openWhatsApp(store) {
   currentWhatsApp = store || currentWhatsApp || '炙巷食铺';
   currentWaba = getWabaFor(currentWhatsApp);
   if (!currentWaba.length) currentWaba = ['85251403695'];
+  currentWabaIds = getWabaIdsFor(currentWhatsApp);
   waTab = 'chats';
   waChatContact = null;
   waSearchOpen = false;
@@ -812,11 +851,8 @@ function waChatHtml(msisdn) {
   }
 
   const inputBar = '<div class="wa-input-bar">' +
-    '<button class="wa-ico-btn">' + icon('add', 'wa-ico') + '</button>' +
-    '<div class="wa-input">消息</div>' +
-    '<button class="wa-ico-btn">' + icon('emoji', 'wa-ico') + '</button>' +
-    '<button class="wa-ico-btn">' + icon('camera', 'wa-ico') + '</button>' +
-    '<button class="wa-mic-btn">' + icon('mic', 'wa-ico') + '</button>' +
+    '<input id="wa-compose" class="wa-input wa-compose" type="text" placeholder="输入消息…" autocomplete="off" />' +
+    '<button class="wa-send-btn" data-wa-action="send-msg">' + icon('doneall', 'wa-ico') + '</button>' +
     '</div>';
 
   return '<div class="wa-wallpaper">' + header + '<div class="wa-chat-scroll">' + msgs + '</div>' + inputBar + '</div>';
@@ -1025,6 +1061,7 @@ function init() {
       else if (a === 'open-search') { waSearchOpen = true; renderWa(); }
       else if (a === 'search-back') { waSearchOpen = false; renderWa(); }
       else if (a === 'clear-recent') { waRecents = []; renderWa(); }
+      else if (a === 'send-msg') { waSendMessage(); }
     }
   });
   // ===== 登录 =====
@@ -1038,6 +1075,12 @@ function init() {
   });
   document.getElementById('login-password').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') document.getElementById('login-submit').click();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target && e.target.id === 'wa-compose') {
+      e.preventDefault();
+      waSendMessage();
+    }
   });
   document.addEventListener('click', function (e) {
     if (e.target.closest('#logout-btn')) doLogout();
