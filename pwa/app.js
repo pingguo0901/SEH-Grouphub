@@ -648,6 +648,74 @@ async function waSendAudio(audioBase64) {
   }
 }
 
+// ===== 附件发送：图片/视频/文档（两步：上传拿 media_id → 发送）=====
+async function waSendMedia(type, mediaBase64, mimeType, filename, caption) {
+  const c = sehInit();
+  if (!c || !waChatContact) return;
+  const waba = currentWaba && currentWaba[0];
+  if (!waba) { alert('当前子公司未配置 WABA 号码'); return; }
+  try {
+    const res = await c.functions.invoke('send-whatsapp', {
+      body: { to_msisdn: waChatContact, from_waba_number: waba, type: type, media_base64: mediaBase64, mime_type: mimeType, filename: filename, caption: caption }
+    });
+    if (res.error) throw res.error;
+    if (res.data && res.data.error) throw new Error(res.data.error);
+    waAttachOpen = false;
+    renderWa();
+  } catch (e) {
+    console.error('媒体发送失败', e);
+    alert('媒体发送失败: ' + (e.message || e));
+  }
+}
+
+// 弹出文件选择器，选完转 base64 交给 waSendMedia
+function waPickFile(type, accept, capture) {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  if (accept) inp.accept = accept;
+  if (capture) inp.setAttribute('capture', capture);
+  inp.onchange = function () {
+    const f = inp.files && inp.files[0];
+    if (!f) return;
+    // 大小限制：图片/视频 16MB，文档 25MB，超出提示
+    const limit = type === 'document' ? 25 * 1024 * 1024 : 16 * 1024 * 1024;
+    if (f.size > limit) { alert('文件超过 ' + (limit / 1024 / 1024) + 'MB 上限'); return; }
+    const reader = new FileReader();
+    reader.onload = function () {
+      const dataUrl = String(reader.result || '');
+      const base64 = dataUrl.indexOf(',') >= 0 ? dataUrl.slice(dataUrl.indexOf(',') + 1) : dataUrl;
+      waSendMedia(type, base64, f.type || '', f.name || '', null);
+    };
+    reader.readAsDataURL(f);
+  };
+  inp.click();
+}
+
+// 位置消息（不走上传，直接经纬度）
+async function waSendLocation() {
+  if (!navigator.geolocation) { alert('浏览器不支持定位'); return; }
+  navigator.geolocation.getCurrentPosition(async function (pos) {
+    const c = sehInit();
+    if (!c || !waChatContact) return;
+    const waba = currentWaba && currentWaba[0];
+    if (!waba) { alert('当前子公司未配置 WABA 号码'); return; }
+    try {
+      const res = await c.functions.invoke('send-whatsapp', {
+        body: { to_msisdn: waChatContact, from_waba_number: waba, type: 'location', longitude: pos.coords.longitude, latitude: pos.coords.latitude }
+      });
+      if (res.error) throw res.error;
+      if (res.data && res.data.error) throw new Error(res.data.error);
+      waAttachOpen = false;
+      renderWa();
+    } catch (e) {
+      console.error('位置发送失败', e);
+      alert('位置发送失败: ' + (e.message || e));
+    }
+  }, function (err) {
+    alert('无法获取定位: ' + (err && err.message ? err.message : '请检查定位权限'));
+  }, { enableHighAccuracy: true, timeout: 10000 });
+}
+
 function waSetRecordingUI(recording) {
   const compose = document.getElementById('wa-compose');
   const recBar = document.getElementById('wa-record-bar');
@@ -1251,11 +1319,11 @@ function init() {
       else if (a === 'wa-voice-start') { waStartRecording(); }
       else if (a === 'wa-voice-stop') { if (waVoiceSkipClick) { waVoiceSkipClick = false; } else { waStopRecording(true); } }
       else if (a === 'wa-plus') { waAttachOpen = !waAttachOpen; renderWa(); }
-      else if (a === 'wa-attach-image') { waToast('图片发送待接入'); }
-      else if (a === 'wa-attach-video') { waToast('视频发送待接入'); }
-      else if (a === 'wa-attach-camera') { waToast('拍照待接入'); }
-      else if (a === 'wa-attach-document') { waToast('文档发送待接入'); }
-      else if (a === 'wa-attach-location') { waToast('位置发送待接入'); }
+      else if (a === 'wa-attach-image') { waPickFile('image', 'image/*'); }
+      else if (a === 'wa-attach-video') { waPickFile('video', 'video/*'); }
+      else if (a === 'wa-attach-camera') { waPickFile('image', 'image/*', 'environment'); }
+      else if (a === 'wa-attach-document') { waPickFile('document', '.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,application/pdf'); }
+      else if (a === 'wa-attach-location') { waSendLocation(); }
     }
   });
   // ===== 登录 =====
