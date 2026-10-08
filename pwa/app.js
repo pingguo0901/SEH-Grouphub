@@ -460,13 +460,13 @@ async function waLoadChat(msisdn) {
   var c = sehInit();
   if (!c) return;
   try {
-    var eRes = await c.from('whatsapp_events').select('message_id, to_msisdn, waba_phone_number_id, text_body, created_at').eq('from_msisdn', msisdn).order('created_at', { ascending: true });
+    var eRes = await c.from('whatsapp_events').select('message_id, to_msisdn, waba_phone_number_id, message_type, text_body, media_id, media_url, created_at').eq('from_msisdn', msisdn).order('created_at', { ascending: true });
     var rRes = await c.from('whatsapp_replies').select('message_id, from_waba_number, waba_phone_number_id, body_text, meta_status, created_at').eq('to_msisdn', msisdn).order('created_at', { ascending: true });
     var raw = [];
-    (eRes.data || []).forEach(function (e) { if (waWabaMatch(e.waba_phone_number_id || e.to_msisdn)) raw.push({ id: e.message_id, text: e.text_body, isSent: false, t: e.created_at }); });
+    (eRes.data || []).forEach(function (e) { if (waWabaMatch(e.waba_phone_number_id || e.to_msisdn)) raw.push({ id: e.message_id, text: e.text_body, type: e.message_type, mediaId: e.media_id, mediaUrl: e.media_url, isSent: false, t: e.created_at }); });
     (rRes.data || []).forEach(function (r) { if (waWabaMatch(r.waba_phone_number_id || r.from_waba_number)) raw.push({ id: r.message_id, text: r.body_text, isSent: true, t: r.created_at, status: r.meta_status }); });
     raw.sort(function (a, b) { return a.t < b.t ? -1 : 1; });
-    var newMsgs = raw.map(function (m) { return { id: m.id, text: m.text, isSent: m.isSent, time: waFmtTime(m.t), at: m.t, status: m.status }; });
+    var newMsgs = raw.map(function (m) { return { id: m.id, text: m.text, type: m.type, mediaId: m.mediaId, mediaUrl: m.mediaUrl, isSent: m.isSent, time: waFmtTime(m.t), at: m.t, status: m.status }; });
     var changed = JSON.stringify(newMsgs) !== JSON.stringify(waChatMsgs);
     waChatMsgs = newMsgs;
     waChatMsisdn = msisdn;
@@ -513,7 +513,7 @@ function waSubscribe() {
 function handleInboundEvent(row) {
   if (!row || !row.from_msisdn) return;
   if (!waWabaMatch(row.waba_phone_number_id || row.to_msisdn)) return; // 只处理当前子公司 WABA
-  appendMessage({ id: row.message_id, msisdn: row.from_msisdn, direction: 'in', type: row.message_type, text: row.text_body, at: row.created_at });
+  appendMessage({ id: row.message_id, msisdn: row.from_msisdn, direction: 'in', type: row.message_type, text: row.text_body, mediaId: row.media_id, mediaUrl: row.media_url, at: row.created_at });
 }
 
 function handleOutboundReply(row) {
@@ -711,7 +711,7 @@ function appendMessage(msg) {
     }
   }
   if (!dup && waChatContact === msg.msisdn) {
-    waChatMsgs.push({ id: msg.id, text: msg.text || '', isSent: msg.direction === 'out', time: waFmtTime(at), at: at });
+    waChatMsgs.push({ id: msg.id, text: msg.text || '', type: msg.type, mediaId: msg.mediaId, mediaUrl: msg.mediaUrl, isSent: msg.direction === 'out', time: waFmtTime(at), at: at });
     waChatMsgs.sort(function (a, b) { return (a.at || '') < (b.at || '') ? -1 : 1; });
     renderWa();
   } else if (waScreenOpen() && !waChatContact) {
@@ -1009,7 +1009,15 @@ function waChatHtml(msisdn) {
     msgs = waChatMsgs.map(function (m) {
       const cls = m.isSent ? ' sent' : ' recv';
       const tick = m.isSent ? icon('doneall', 'wa-tick') : '';
-      return '<div class="wa-msg' + cls + '"><div class="wa-bubble' + cls + '"><span class="wa-bubble-text">' + m.text + '</span><span class="wa-msg-time">' + m.time + tick + '</span></div></div>';
+      let content;
+      if (m.type === 'image') {
+        content = m.mediaUrl
+          ? '<img class="wa-bubble-img" src="' + m.mediaUrl + '" alt="图片" loading="lazy" />'
+          : '<span class="wa-bubble-text wa-media-pending">[图片加载中…]</span>';
+      } else {
+        content = '<span class="wa-bubble-text">' + (m.text || '') + '</span>';
+      }
+      return '<div class="wa-msg' + cls + '"><div class="wa-bubble' + cls + '">' + content + '<span class="wa-msg-time">' + m.time + tick + '</span></div></div>';
     }).join('');
   }
 

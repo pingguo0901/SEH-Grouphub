@@ -635,6 +635,11 @@ body {
   color: #F2F6FA; border-top-left-radius: 6px;
 }
 .wa-bubble-text { word-break: break-word; }
+.wa-bubble-img {
+  display: block; max-width: 220px; max-height: 260px;
+  border-radius: 10px; object-fit: cover;
+}
+.wa-media-pending { opacity: 0.6; }
 .wa-msg-time {
   float: right; margin-left: 8px; margin-top: 4px;
   display: inline-flex; align-items: center; gap: 2px;
