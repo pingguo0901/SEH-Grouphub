@@ -39,7 +39,8 @@ const ICONS = {
   emoji: 'M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z',
   photo: 'M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z',
   gif: 'M11.5 9H13v6h-1.5zM9 9H6c-.6 0-1 .5-1 1v4c0 .5.4 1 1 1h3c.6 0 1-.5 1-1v-1H8.5v.5h-2v-3h2V9zM14 9h3c.6 0 1 .5 1 1v4c0 .5-.4 1-1 1h-3c-.6 0-1-.5-1-1v-1h1.5v.5h2v-3h-2V9zM17.5 9H19v6h-1.5z',
-  link: 'M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'
+  link: 'M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z',
+  location: 'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'
 };
 
 function icon(name, cls) {
@@ -290,6 +291,8 @@ let sehClient = null;
 let waContacts = [];
 let waChatMsgs = [];
 let waChatMsisdn = null;
+let waAttachOpen = false;
+let waToastTimer = null;
 let waLoaded = false;
 let currentWaba = ['85251403695'];
 let currentWabaIds = ['1416630394859129'];
@@ -969,6 +972,24 @@ function waPlaceholderHtml() {
     '</div>';
 }
 
+function waAttachItem(iconName, label, action) {
+  return '<button class="wa-attach-item" data-wa-action="' + action + '">' + icon(iconName, 'wa-attach-icon') + '<span>' + label + '</span></button>';
+}
+
+function waToast(msg) {
+  var t = document.getElementById('wa-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'wa-toast';
+    t.className = 'wa-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(waToastTimer);
+  waToastTimer = setTimeout(function () { t.classList.remove('show'); }, 1800);
+}
+
 function waChatHtml(msisdn) {
   var contact = null;
   for (var i = 0; i < waContacts.length; i++) { if (waContacts[i].msisdn === msisdn) { contact = waContacts[i]; break; } }
@@ -993,7 +1014,7 @@ function waChatHtml(msisdn) {
   }
 
   const inputBar = '<div class="wa-input-bar">' +
-    '<button class="wa-plus-btn" data-wa-action="wa-plus">' + icon('add', 'wa-ico') + '</button>' +
+    '<button class="wa-plus-btn" data-wa-action="wa-plus">' + icon(waAttachOpen ? 'close' : 'add', 'wa-ico') + '</button>' +
     '<input id="wa-compose" class="wa-input wa-compose" type="text" placeholder="输入消息…" autocomplete="off" />' +
     '<div class="wa-record-bar" id="wa-record-bar" style="display:none">' +
       '<span class="wa-record-hint" id="wa-record-hint">松开发送 · 上滑取消</span>' +
@@ -1003,7 +1024,15 @@ function waChatHtml(msisdn) {
     '<button class="wa-voice-btn" id="wa-voice-btn" data-wa-action="wa-voice-start">' + icon('mic', 'wa-ico') + '</button>' +
     '</div>';
 
-  return '<div class="wa-wallpaper">' + header + '<div class="wa-chat-scroll">' + msgs + '</div>' + inputBar + '</div>';
+  const attachPanel = '<div class="wa-attach-panel' + (waAttachOpen ? ' open' : '') + '">' +
+    waAttachItem('photo', '图片', 'wa-attach-image') +
+    waAttachItem('videocam', '视频', 'wa-attach-video') +
+    waAttachItem('camera', '拍照', 'wa-attach-camera') +
+    waAttachItem('description', '文档', 'wa-attach-document') +
+    waAttachItem('location', '位置', 'wa-attach-location') +
+    '</div>';
+
+  return '<div class="wa-wallpaper">' + header + '<div class="wa-chat-scroll">' + msgs + '</div>' + inputBar + attachPanel + '</div>';
 }
 
 function renderPlaceholder(key) {
@@ -1194,6 +1223,7 @@ function init() {
     const contact = e.target.closest('[data-wa-contact]');
     if (contact) {
       const m = contact.getAttribute('data-wa-contact');
+      waAttachOpen = false;
       waChatContact = m;
       renderWa();
       waLoadChat(m).then(function () { if (waScreenOpen() && waChatContact === m) renderWa(); });
@@ -1205,14 +1235,19 @@ function init() {
     if (action) {
       const a = action.getAttribute('data-wa-action');
       if (a === 'back') closeWhatsApp();
-      else if (a === 'chat-back') { waChatContact = null; renderWa(); }
+      else if (a === 'chat-back') { waChatContact = null; waAttachOpen = false; renderWa(); }
       else if (a === 'open-search') { waSearchOpen = true; renderWa(); }
       else if (a === 'search-back') { waSearchOpen = false; renderWa(); }
       else if (a === 'clear-recent') { waRecents = []; renderWa(); }
       else if (a === 'send-msg') { waSendMessage(); }
       else if (a === 'wa-voice-start') { waStartRecording(); }
       else if (a === 'wa-voice-stop') { if (waVoiceSkipClick) { waVoiceSkipClick = false; } else { waStopRecording(true); } }
-      else if (a === 'wa-plus') { /* 待接入 */ }
+      else if (a === 'wa-plus') { waAttachOpen = !waAttachOpen; renderWa(); }
+      else if (a === 'wa-attach-image') { waToast('图片发送待接入'); }
+      else if (a === 'wa-attach-video') { waToast('视频发送待接入'); }
+      else if (a === 'wa-attach-camera') { waToast('拍照待接入'); }
+      else if (a === 'wa-attach-document') { waToast('文档发送待接入'); }
+      else if (a === 'wa-attach-location') { waToast('位置发送待接入'); }
     }
   });
   // ===== 登录 =====

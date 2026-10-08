@@ -785,3 +785,45 @@ body {
 }
 .profile-logout:active { opacity: 0.8; }
 
+/* ===== 聊天窗附件面板（+ 按钮弹出：图片/视频/拍照/文档/位置） ===== */
+.wa-attach-panel {
+  display: none;
+  flex-shrink: 0;
+  padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(22px) saturate(130%);
+  -webkit-backdrop-filter: blur(22px) saturate(130%);
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.wa-attach-panel.open {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  animation: wa-attach-in 0.18s ease;
+}
+@keyframes wa-attach-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.wa-attach-item {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 7px;
+  padding: 6px 0;
+  background: none; border: none; cursor: pointer;
+  border-radius: 12px;
+}
+.wa-attach-item:active { background: rgba(255,255,255,0.08); }
+.wa-attach-icon { width: 26px; height: 26px; color: #F2F6FA; }
+.wa-attach-item span { font-size: 12px; color: #F2F6FA; }
+
+/* 轻提示 toast */
+.wa-toast {
+  position: fixed; left: 50%; bottom: 150px;
+  transform: translateX(-50%) translateY(8px);
+  max-width: 72%; padding: 10px 16px; border-radius: 22px;
+  background: rgba(28,28,30,0.95); color: #F2F6FA; font-size: 13px;
+  opacity: 0; pointer-events: none; z-index: 2000;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.wa-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
